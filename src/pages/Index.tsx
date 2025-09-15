@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { useNavigate } from "@/lib/navigation";
+import { useNavigate } from "@/src/shared/lib/navigation";
 import {
   Search,
   Filter,
@@ -26,25 +26,25 @@ import {
   ChevronRight,
 } from "lucide-react";
 import useEmblaCarousel from "embla-carousel-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Button } from "@/src/shared/components/ui/button";
+import { Input } from "@/src/shared/components/ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Card, CardContent } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { useSecureProfessionals } from "@/hooks/useSecureProfessionals";
-import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/hooks/useAuth";
-import { useUserRedirect } from "@/hooks/useUserRedirect";
-import { SharedHeader } from "@/components/SharedHeader";
+} from "@/src/shared/components/ui/select";
+import { Card, CardContent } from "@/src/shared/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/src/shared/components/ui/avatar";
+import { Badge } from "@/src/shared/components/ui/badge";
+import { useSecureProfessionals } from "@/src/features/professionals";
+import { useToast } from "@/src/shared/hooks/use-toast";
+import { useAuthState } from '@/src/features/auth'
+import { useUserRedirect } from "@/src/features/onboarding";
+import { SharedHeader } from "@/src/shared/components/SharedHeader";
 
-import { ProfessionalCarousel } from "@/components/ProfessionalCarousel";
+import { ProfessionalCarousel } from "@/src/shared/components/ProfessionalCarousel";
 
 export default function Index() {
   const [professionals, setProfessionals] = useState<any[]>([]);
@@ -56,7 +56,7 @@ export default function Index() {
   const { loading, discoverProfessionals, browseProfessionals } =
     useSecureProfessionals();
   const { toast } = useToast();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuthState();
   const navigate = useNavigate();
 
   // Handle user redirection for first-time users

@@ -1,18 +1,18 @@
 "use client";
 
 import { useState } from "react";
-import { useNavigate } from "@/lib/navigation";
+import { useNavigate } from "@/src/shared/lib/navigation";
 import { Search, Star } from "lucide-react";
-import { LoadingButton } from "@/components/ui/loading-button";
-import { Card, CardContent } from "@/components/ui/card";
-import { useAuth } from "@/hooks/useAuth";
-import { supabase } from "@/integrations/supabase/client";
-import { useLoading } from "@/stores/useLoadingStore";
+import { LoadingButton } from "@/src/shared/components/ui/loading-button";
+import { Card, CardContent } from "@/src/shared/components/ui/card";
+import { useAuthState } from '@/src/features/auth'
+import { supabase } from "@/src/config/supabase";
+import { useLoading } from "@/src/shared/stores/useLoadingStore";
 
 export default function UserTypeSelection() {
   const [selectedType, setSelectedType] = useState<string | null>(null);
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, loading } = useAuthState();
   const { withLoading } = useLoading();
 
   const handleTypeSelection = async (userType: 'customer' | 'professional') => {

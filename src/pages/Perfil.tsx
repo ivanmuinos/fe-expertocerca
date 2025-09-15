@@ -1,24 +1,24 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { useNavigate } from '@/lib/navigation';
-import { useAuth } from '@/hooks/useAuth';
-import { useProfiles } from '@/hooks/useProfiles';
-import { supabase } from '@/integrations/supabase/client';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
+import { useNavigate } from '@/src/shared/lib/navigation';
+import { useAuthState } from '@/src/features/auth'
+import { useProfiles } from '@/src/features/user-profile';
+import { supabase } from '@/src/config/supabase';
+import { Button } from '@/src/shared/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/src/shared/components/ui/card';
+import { Input } from '@/src/shared/components/ui/input';
+import { Label } from '@/src/shared/components/ui/label';
+import { Textarea } from '@/src/shared/components/ui/textarea';
 import { Save, User, Phone } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-import { EditableAvatar } from '@/components/EditableAvatar';
-import { SharedHeader } from '@/components/SharedHeader';
+import { useToast } from '@/src/shared/hooks/use-toast';
+import { EditableAvatar } from '@/src/shared/components/EditableAvatar';
+import { SharedHeader } from '@/src/shared/components/SharedHeader';
 
 export default function Perfil() {
   const navigate = useNavigate();
-  const { user } = useAuth();
-  const { getProfile, getProfessionalProfile, loading } = useProfiles();
+  const { user, loading: authLoading } = useAuthState();
+  const { getProfile, getProfessionalProfile, loading: profilesLoading } = useProfiles();
   const { toast } = useToast();
   
   const [profileData, setProfileData] = useState<any>(null);

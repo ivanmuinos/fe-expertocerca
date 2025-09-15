@@ -1,18 +1,18 @@
 "use client";
 
-import { useNavigate } from '@/lib/navigation';
+import { useNavigate } from '@/src/shared/lib/navigation';
 import { useEffect, useState } from 'react';
-import { useAuth } from '@/hooks/useAuth';
-import { supabase } from '@/integrations/supabase/client';
-import { Button } from '@/components/ui/button';
+import { useAuthState } from '@/src/features/auth'
+import { supabase } from '@/src/config/supabase';
+import { Button } from '@/src/shared/components/ui/button';
 import { Star, CheckCircle, Home, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { useOnboardingProgress, OnboardingStep } from '@/stores/useOnboardingProgressStore';
-import { useOnboarding } from '@/stores/useOnboardingStore';
+import { useOnboardingProgress, OnboardingStep } from '@/src/shared/stores/useOnboardingProgressStore';
+import { useOnboarding } from '@/src/shared/stores/useOnboardingStore';
 
 export default function Completion() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, loading } = useAuthState();
   const { setCurrentStep } = useOnboardingProgress();
   const { uploadedPhotos, selectedSpecialty, resetOnboarding } = useOnboarding();
 

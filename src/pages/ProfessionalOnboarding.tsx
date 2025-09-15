@@ -1,14 +1,14 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { useNavigate } from '@/lib/navigation';
-import { useAuth } from '@/hooks/useAuth';
-import { useProfiles, type OnboardingData } from '@/hooks/useProfiles';
-import { useLoading } from '@/stores/useLoadingStore';
-import { OnboardingLayout, type OnboardingStep } from '@/components/onboarding/OnboardingLayout';
-import { PersonalInfoStep, type PersonalInfo } from '@/components/onboarding/PersonalInfoStep';
-import { ProfessionalInfoStep, type ProfessionalInfo } from '@/components/onboarding/ProfessionalInfoStep';
-import { CompletionStep } from '@/components/onboarding/CompletionStep';
+import { useNavigate } from '@/src/shared/lib/navigation';
+import { useAuthState } from '@/src/features/auth'
+import { useProfiles, type OnboardingData } from '@/src/features/user-profile';
+import { useLoading } from '@/src/shared/stores/useLoadingStore';
+import { OnboardingLayout, type OnboardingStep } from '@/src/shared/components/onboarding/OnboardingLayout';
+import { PersonalInfoStep, type PersonalInfo } from '@/src/shared/components/onboarding/PersonalInfoStep';
+import { ProfessionalInfoStep, type ProfessionalInfo } from '@/src/shared/components/onboarding/ProfessionalInfoStep';
+import { CompletionStep } from '@/src/shared/components/onboarding/CompletionStep';
 
 const steps: OnboardingStep[] = [
   { id: 1, title: 'Datos personales', description: 'Información básica de contacto' },
@@ -32,7 +32,7 @@ export default function ProfessionalOnboarding() {
     hourlyRate: 0
   });
 
-  const { user } = useAuth();
+  const { user, loading } = useAuthState();
   const navigate = useNavigate();
   const { saveOnboardingData } = useProfiles();
   const { withLoading } = useLoading();

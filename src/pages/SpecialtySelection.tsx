@@ -1,9 +1,9 @@
 "use client";
 
-import { useNavigate } from "@/lib/navigation";
+import { useNavigate } from "@/src/shared/lib/navigation";
 import { useRef, useEffect, useState } from "react";
-import { LoadingButton } from "@/components/ui/loading-button";
-import { Button } from "@/components/ui/button";
+import { LoadingButton } from "@/src/shared/components/ui/loading-button";
+import { Button } from "@/src/shared/components/ui/button";
 import {
   Star,
   Zap,
@@ -17,12 +17,12 @@ import {
   MapPin,
 } from "lucide-react";
 import { motion } from "framer-motion";
-import { useOnboarding } from "@/stores/useOnboardingStore";
-import { OnboardingProgressBar } from "@/components/OnboardingProgressBar";
+import { useOnboarding } from "@/src/shared/stores/useOnboardingStore";
+import { OnboardingProgressBar } from "@/src/shared/components/OnboardingProgressBar";
 import {
   useOnboardingProgress,
   OnboardingStep,
-} from "@/stores/useOnboardingProgressStore";
+} from "@/src/shared/stores/useOnboardingProgressStore";
 
 // Services data from existing app
 const popularServices = [

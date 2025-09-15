@@ -1,12 +1,12 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { useNavigate } from '@/lib/navigation';
-import { Button } from '@/components/ui/button';
-import { useAuth } from '@/hooks/useAuth';
-import { useToast } from '@/hooks/use-toast';
+import { useNavigate } from '@/src/shared/lib/navigation';
+import { Button } from '@/src/shared/components/ui/button';
+import { useAuth } from '@/src/features/auth';
+import { useToast } from '@/src/shared/hooks/use-toast';
 import { Loader2, Chrome } from 'lucide-react';
-import { useProfiles } from '@/hooks/useProfiles';
+import { useProfiles } from '@/src/features/user-profile';
 
 export default function Auth() {
   const [loading, setLoading] = useState(false);

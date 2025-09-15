@@ -1,19 +1,19 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useNavigate } from "@/lib/navigation";
+import { useNavigate } from "@/src/shared/lib/navigation";
 import { Search, Clock, MapPin, Phone, Wrench, Hammer, Paintbrush, Zap, Droplets, Scissors, Car, Home } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Card, CardContent } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { useSecureProfessionals } from "@/hooks/useSecureProfessionals";
-import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/hooks/useAuth";
-import { SharedHeader } from "@/components/SharedHeader";
-import ProfessionalMiniDetail from "@/components/ProfessionalMiniDetail";
+import { Button } from "@/src/shared/components/ui/button";
+import { Input } from "@/src/shared/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/src/shared/components/ui/select";
+import { Card, CardContent } from "@/src/shared/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/src/shared/components/ui/avatar";
+import { Badge } from "@/src/shared/components/ui/badge";
+import { useSecureProfessionals } from "@/src/features/professionals";
+import { useToast } from "@/src/shared/hooks/use-toast";
+import { useAuthState } from '@/src/features/auth'
+import { SharedHeader } from "@/src/shared/components/SharedHeader";
+import ProfessionalMiniDetail from "@/src/shared/components/ProfessionalMiniDetail";
 
 interface Professional {
   id: string;
@@ -38,9 +38,8 @@ export default function Buscar() {
   const [selectedZone, setSelectedZone] = useState("all");
   const [selectedProfessional, setSelectedProfessional] = useState<Professional | null>(null);
   const [searchParams, setSearchParams] = useState<URLSearchParams | null>(null);
-  const { loading, discoverProfessionals, browseProfessionals } = useSecureProfessionals();
-  const { toast } = useToast();
-  const { user } = useAuth();
+  const { loading: professionalsLoading, discoverProfessionals, browseProfessionals } = useSecureProfessionals();
+    const { user, loading: authLoading } = useAuthState();
   const navigate = useNavigate();
 
   // Popular services for autocomplete

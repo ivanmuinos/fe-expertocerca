@@ -1,18 +1,18 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "@/lib/navigation";
-import { LoadingButton } from "@/components/ui/loading-button";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
+import { useNavigate } from "@/src/shared/lib/navigation";
+import { LoadingButton } from "@/src/shared/components/ui/loading-button";
+import { Button } from "@/src/shared/components/ui/button";
+import { Textarea } from "@/src/shared/components/ui/textarea";
 import { Star, Plus, Trash2 } from "lucide-react";
 import { motion } from "framer-motion";
 import {
   useOnboarding,
   type OnboardingPhoto,
-} from "@/stores/useOnboardingStore";
-import { OnboardingProgressBar } from "@/components/OnboardingProgressBar";
-import { useOnboardingProgress, OnboardingStep } from "@/stores/useOnboardingProgressStore";
+} from "@/src/shared/stores/useOnboardingStore";
+import { OnboardingProgressBar } from "@/src/shared/components/OnboardingProgressBar";
+import { useOnboardingProgress, OnboardingStep } from "@/src/shared/stores/useOnboardingProgressStore";
 
 // Helper function to determine initial section from URL
 const getInitialSection = (location: Location, uploadedPhotos: any[]): 'photos' | 'description' => {

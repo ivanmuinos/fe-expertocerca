@@ -1,16 +1,16 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { useNavigate } from '@/lib/navigation';
-import { useAuth } from '@/hooks/useAuth';
-import { useProfiles, type OnboardingData } from '@/hooks/useProfiles';
-import { useLoading } from '@/stores/useLoadingStore';
-import { LoadingButton } from '@/components/ui/loading-button';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Badge } from '@/components/ui/badge';
+import { useNavigate } from '@/src/shared/lib/navigation';
+import { useAuthState } from '@/src/features/auth'
+import { useProfiles, type OnboardingData } from '@/src/features/user-profile';
+import { useLoading } from '@/src/shared/stores/useLoadingStore';
+import { LoadingButton } from '@/src/shared/components/ui/loading-button';
+import { Button } from '@/src/shared/components/ui/button';
+import { Input } from '@/src/shared/components/ui/input';
+import { Label } from '@/src/shared/components/ui/label';
+import { Textarea } from '@/src/shared/components/ui/textarea';
+import { Badge } from '@/src/shared/components/ui/badge';
 import { Star, X, Plus } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -24,7 +24,7 @@ export interface ProfessionalInfoForm {
 
 export default function ProfessionalInfo() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, loading } = useAuthState();
   const { saveOnboardingData } = useProfiles();
   const { withLoading } = useLoading();
   const [skillInput, setSkillInput] = useState('');

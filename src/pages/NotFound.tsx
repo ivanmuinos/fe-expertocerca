@@ -1,9 +1,9 @@
 "use client";
 
-import { useNavigate } from "@/lib/navigation";
+import { useNavigate } from "@/src/shared/lib/navigation";
 import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { SharedHeader } from "@/components/SharedHeader";
+import { Button } from "@/src/shared/components/ui/button";
+import { SharedHeader } from "@/src/shared/components/SharedHeader";
 import { Home, ArrowLeft } from "lucide-react";
 
 const NotFound = () => {

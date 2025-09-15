@@ -1,13 +1,13 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { useNavigate } from '@/lib/navigation';
-import { LoadingButton } from '@/components/ui/loading-button';
-import { Button } from '@/components/ui/button';
+import { useNavigate } from '@/src/shared/lib/navigation';
+import { LoadingButton } from '@/src/shared/components/ui/loading-button';
+import { Button } from '@/src/shared/components/ui/button';
 import { Star, Camera, CheckCircle, Wrench, Eye } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { OnboardingProgressBar } from '@/components/OnboardingProgressBar';
-import { useOnboardingProgress, OnboardingStep } from '@/stores/useOnboardingProgressStore';
+import { OnboardingProgressBar } from '@/src/shared/components/OnboardingProgressBar';
+import { useOnboardingProgress, OnboardingStep } from '@/src/shared/stores/useOnboardingProgressStore';
 
 export default function PhotoGuidelines() {
   const navigate = useNavigate();

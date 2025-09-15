@@ -1,26 +1,25 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { useNavigate } from '@/lib/navigation';
+import { useNavigate } from '@/src/shared/lib/navigation';
 import { MapPin, Clock, DollarSign, Phone, Star, Zap, Wrench, Hammer, Paintbrush, Home as HomeIcon, Scissors, Car, Snowflake, Flame, Key, Zap as ZapIcon, Triangle } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { useToast } from '@/hooks/use-toast';
-import { useSecureProfessionals } from '@/hooks/useSecureProfessionals';
-import { ReviewsSection } from '@/components/ReviewsSection';
-import { PortfolioSection } from '@/components/PortfolioSection';
-import { useAuth } from '@/hooks/useAuth';
-import { EditableAvatar } from '@/components/EditableAvatar';
-import { SharedHeader } from '@/components/SharedHeader';
+import { Button } from '@/src/shared/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/src/shared/components/ui/card';
+import { Badge } from '@/src/shared/components/ui/badge';
+import { useToast } from '@/src/shared/hooks/use-toast';
+import { useSecureProfessionals } from '@/src/features/professionals';
+import { ReviewsSection } from '@/src/shared/components/ReviewsSection';
+import { PortfolioSection } from '@/src/shared/components/PortfolioSection';
+import { useAuthState } from '@/src/features/auth'
+import { EditableAvatar } from '@/src/shared/components/EditableAvatar';
+import { SharedHeader } from '@/src/shared/components/SharedHeader';
 
 export default function DetalleProf() {
   const [id, setId] = useState<string>("");
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { user } = useAuth();
-  const [professional, setProfessional] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+  const { user, loading: authLoading } = useAuthState();
+    const [loading, setLoading] = useState(true);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const { browseProfessionals, discoverProfessionals } = useSecureProfessionals();
 

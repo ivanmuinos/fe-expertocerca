@@ -1,19 +1,19 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { useNavigate } from '@/lib/navigation';
-import { useAuth } from '@/hooks/useAuth';
-import { useProfiles } from '@/hooks/useProfiles';
-import { supabase } from '@/integrations/supabase/client';
-import { ProfessionalServiceForm, ProfessionalServiceData } from '@/components/ProfessionalServiceForm';
-import { SharedHeader } from '@/components/SharedHeader';
+import { useNavigate } from '@/src/shared/lib/navigation';
+import { useAuthState } from '@/src/features/auth'
+import { useProfiles } from '@/src/features/user-profile';
+import { supabase } from '@/src/config/supabase';
+import { ProfessionalServiceForm, ProfessionalServiceData } from '@/src/shared/components/ProfessionalServiceForm';
+import { SharedHeader } from '@/src/shared/components/SharedHeader';
 
 export default function Publicar() {
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [userProfile, setUserProfile] = useState<any>(null);
 
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuthState();
   const navigate = useNavigate();
   const { getProfile } = useProfiles();
 

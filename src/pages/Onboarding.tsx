@@ -1,19 +1,19 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { useNavigate } from '@/lib/navigation';
-import { useAuth } from '@/hooks/useAuth';
-import { useProfiles, type OnboardingData } from '@/hooks/useProfiles';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Progress } from '@/components/ui/progress';
-import { useToast } from '@/hooks/use-toast';
+import { useNavigate } from '@/src/shared/lib/navigation';
+import { useAuthState } from '@/src/features/auth'
+import { useProfiles, type OnboardingData } from '@/src/features/user-profile';
+import { Button } from '@/src/shared/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/src/shared/components/ui/card';
+import { Input } from '@/src/shared/components/ui/input';
+import { Label } from '@/src/shared/components/ui/label';
+import { Textarea } from '@/src/shared/components/ui/textarea';
+import { Checkbox } from '@/src/shared/components/ui/checkbox';
+import { Progress } from '@/src/shared/components/ui/progress';
+import { useToast } from '@/src/shared/hooks/use-toast';
 import { ArrowRight, Check, ArrowLeft } from 'lucide-react';
-import { SharedHeader } from '@/components/SharedHeader';
+import { SharedHeader } from '@/src/shared/components/SharedHeader';
 
 const steps = [
   { id: 1, title: 'Datos personales', description: 'Información básica de contacto' },
@@ -36,10 +36,10 @@ export default function Onboarding() {
     hourlyRate: 0
   });
 
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuthState();
   const { toast } = useToast();
   const navigate = useNavigate();
-  const { loading, saveOnboardingData } = useProfiles();
+  const { loading: profilesLoading, saveOnboardingData } = useProfiles();
 
   // Redirect if not authenticated
   useEffect(() => {

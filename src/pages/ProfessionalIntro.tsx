@@ -1,13 +1,13 @@
 "use client";
 
-import { useNavigate } from '@/lib/navigation';
+import { useNavigate } from '@/src/shared/lib/navigation';
 import { useEffect } from 'react';
-import { LoadingButton } from '@/components/ui/loading-button';
-import { Button } from '@/components/ui/button';
+import { LoadingButton } from '@/src/shared/components/ui/loading-button';
+import { Button } from '@/src/shared/components/ui/button';
 import { User, Star, Camera, Settings } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { OnboardingProgressBar } from '@/components/OnboardingProgressBar';
-import { useOnboardingProgress, OnboardingStep } from '@/stores/useOnboardingProgressStore';
+import { OnboardingProgressBar } from '@/src/shared/components/OnboardingProgressBar';
+import { useOnboardingProgress, OnboardingStep } from '@/src/shared/stores/useOnboardingProgressStore';
 
 export default function ProfessionalIntro() {
   const navigate = useNavigate();

@@ -1,22 +1,22 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { useNavigate } from '@/lib/navigation';
+import { useNavigate } from '@/src/shared/lib/navigation';
 import { Plus, Edit, Trash2, Eye } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { useToast } from '@/hooks/use-toast';
-import { useAuth } from '@/hooks/useAuth';
-import { EditableAvatar } from '@/components/EditableAvatar';
-import { useMyProfessionalProfiles } from '@/hooks/useMyProfessionalProfiles';
-import { SharedHeader } from '@/components/SharedHeader';
+import { Button } from '@/src/shared/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/src/shared/components/ui/card';
+import { Badge } from '@/src/shared/components/ui/badge';
+import { useToast } from '@/src/shared/hooks/use-toast';
+import { useAuthState } from '@/src/features/auth'
+import { EditableAvatar } from '@/src/shared/components/EditableAvatar';
+import { useMyProfessionalProfiles } from '@/src/features/professionals';
+import { SharedHeader } from '@/src/shared/components/SharedHeader';
 
 export default function MisPublicaciones() {
-  const { user } = useAuth();
+  const { user, loading } = useAuthState();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { loading, myProfiles, loadMyProfiles, deleteProfessionalProfile } = useMyProfessionalProfiles();
+  const { loading: profilesLoading, myProfiles, loadMyProfiles, deleteProfessionalProfile } = useMyProfessionalProfiles();
 
   useEffect(() => {
     if (!user) {

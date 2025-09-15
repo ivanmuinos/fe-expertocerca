@@ -1,20 +1,20 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useNavigate } from "@/lib/navigation";
-import { useAuth } from "@/hooks/useAuth";
-import { useProfiles, type OnboardingData } from "@/hooks/useProfiles";
-import { useLoading } from "@/stores/useLoadingStore";
-import { useOnboarding } from "@/stores/useOnboardingStore";
-import { LoadingButton } from "@/components/ui/loading-button";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { useNavigate } from "@/src/shared/lib/navigation";
+import { useAuthState } from '@/src/features/auth'
+import { useProfiles, type OnboardingData } from "@/src/features/user-profile";
+import { useLoading } from "@/src/shared/stores/useLoadingStore";
+import { useOnboarding } from "@/src/shared/stores/useOnboardingStore";
+import { LoadingButton } from "@/src/shared/components/ui/loading-button";
+import { Button } from "@/src/shared/components/ui/button";
+import { Input } from "@/src/shared/components/ui/input";
+import { Label } from "@/src/shared/components/ui/label";
 import { Star, MessageCircle } from "lucide-react";
 import { motion } from "framer-motion";
-import { OnboardingProgressBar } from "@/components/OnboardingProgressBar";
-import { useOnboardingProgress, OnboardingStep } from "@/stores/useOnboardingProgressStore";
-import { supabase } from "@/integrations/supabase/client";
+import { OnboardingProgressBar } from "@/src/shared/components/OnboardingProgressBar";
+import { useOnboardingProgress, OnboardingStep } from "@/src/shared/stores/useOnboardingProgressStore";
+import { supabase } from "@/src/config/supabase";
 
 export interface PersonalDataForm {
   fullName: string;
@@ -26,7 +26,7 @@ export interface PersonalDataForm {
 
 export default function PersonalData() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, loading } = useAuthState();
   const { saveOnboardingData } = useProfiles();
   const { withLoading } = useLoading();
   const { setCurrentStep } = useOnboardingProgress();

@@ -1,5 +1,7 @@
+"use client";
+
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/navigation';
 import { MapPin, Clock, DollarSign, Phone, Star, Zap, Wrench, Hammer, Paintbrush, Home as HomeIcon, Scissors, Car, Snowflake, Flame, Key, Zap as ZapIcon, Triangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -13,7 +15,7 @@ import { EditableAvatar } from '@/components/EditableAvatar';
 import { SharedHeader } from '@/components/SharedHeader';
 
 export default function DetalleProf() {
-  const { id } = useParams();
+  const [id, setId] = useState<string>("");
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user } = useAuth();
@@ -25,6 +27,25 @@ export default function DetalleProf() {
   // Search props for header
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedZone, setSelectedZone] = useState("all");
+
+  // Get id from URL params or query string
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      // First try route params (for /profesional/[id] routes)
+      const pathParts = window.location.pathname.split('/');
+      const routeId = pathParts[pathParts.length - 1];
+
+      // Then try query params (for /profesional?id=xxx routes)
+      const urlParams = new URLSearchParams(window.location.search);
+      const queryId = urlParams.get('id');
+
+      const professionalId = routeId && routeId !== 'profesional' ? routeId : queryId;
+
+      if (professionalId) {
+        setId(professionalId);
+      }
+    }
+  }, []);
 
   const popularServices = [
     { name: "Electricista", icon: Zap },
@@ -192,7 +213,7 @@ export default function DetalleProf() {
   }
 
   // Check if current user is the owner of this professional profile
-  const isOwner = user && professional && professional.user_id === user.id;
+  const isOwner = user && professional && professional.user_id === user?.id;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/30">
@@ -244,8 +265,8 @@ export default function DetalleProf() {
         </div>
 
         {/* Portfolio Photos - Airbnb style grid */}
-        <PortfolioSection 
-          professionalProfileId={professional.id} 
+        <PortfolioSection
+          professionalProfileId={professional?.id}
           isOwner={isOwner || false}
         />
       </div>
@@ -293,7 +314,7 @@ export default function DetalleProf() {
             {/* Reviews Section */}
             <div>
               <h2 className="text-2xl font-bold text-foreground mb-6">Reseñas de clientes</h2>
-              <ReviewsSection professionalProfileId={professional.id} />
+              <ReviewsSection professionalProfileId={professional?.id} />
             </div>
 
           </div>

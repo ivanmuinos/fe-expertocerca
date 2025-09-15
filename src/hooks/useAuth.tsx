@@ -18,6 +18,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Skip auth setup during SSR
+    if (typeof window === 'undefined') {
+      setLoading(false);
+      return;
+    }
+
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
@@ -38,6 +44,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const signInWithGoogle = async () => {
+    if (typeof window === 'undefined') {
+      return { error: new Error('Cannot sign in during SSR') };
+    }
     const redirectUrl = `${window.location.origin}/`;
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
@@ -67,6 +76,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
+    // Return default values during SSR
+    if (typeof window === 'undefined') {
+      return {
+        user: null,
+        session: null,
+        loading: true,
+        signInWithGoogle: async () => ({ error: null }),
+        signOut: async () => ({ error: null }),
+      };
+    }
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;

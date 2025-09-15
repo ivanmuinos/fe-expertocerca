@@ -1,7 +1,7 @@
 {
   "appId": "com.expertocerca.app",
   "appName": "ExpertoCerca",
-  "webDir": "dist",
+  "webDir": "out",
   "plugins": {
     "SplashScreen": {
       "launchShowDuration": 0

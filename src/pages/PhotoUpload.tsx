@@ -1,5 +1,7 @@
+"use client";
+
 import { useEffect, useRef, useState } from "react";
-import { useNavigate, useLocation, Location } from "react-router-dom";
+import { useNavigate } from "@/lib/navigation";
 import { LoadingButton } from "@/components/ui/loading-button";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -25,7 +27,7 @@ const getInitialSection = (location: Location, uploadedPhotos: any[]): 'photos' 
 
 export default function PhotoUpload() {
   const navigate = useNavigate();
-  const location = useLocation();
+  const [location, setLocation] = useState<{ search: string } | null>(null);
   const descriptionRef = useRef<HTMLDivElement>(null);
   const photosRef = useRef<HTMLDivElement>(null);
 
@@ -42,12 +44,19 @@ export default function PhotoUpload() {
 
   const { setCurrentStep, setPhotoSection } = useOnboardingProgress();
 
-  const [currentSection, setCurrentSection] = useState<'photos' | 'description'>(() =>
-    getInitialSection(location, uploadedPhotos)
-  );
+  const [currentSection, setCurrentSection] = useState<'photos' | 'description'>('photos');
+
+  // Initialize location client-side
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setLocation({ search: window.location.search });
+    }
+  }, []);
 
   // Handle navigation to specific section based on URL params
   useEffect(() => {
+    if (!location) return;
+
     const targetSection = getInitialSection(location, uploadedPhotos);
 
     // Update section and progress
@@ -65,7 +74,7 @@ export default function PhotoUpload() {
         });
       });
     }
-  }, [setCurrentStep, setPhotoSection, location.search, uploadedPhotos.length]);
+  }, [setCurrentStep, setPhotoSection, location, uploadedPhotos.length]);
   
   // No auto-scroll based on photos - only manual scroll via Continue button
 

@@ -1,4 +1,6 @@
-import { useNavigate } from 'react-router-dom';
+"use client";
+
+import { useNavigate } from '@/lib/navigation';
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';

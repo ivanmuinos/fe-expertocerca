@@ -89,7 +89,7 @@ const initialProfessionalInfo: OnboardingProfessionalInfo = {
 };
 
 export const useOnboardingStore = create<OnboardingState>()(
-  persist(
+  typeof window !== 'undefined' ? persist(
     (set) => ({
       // Initial state
       selectedSpecialty: null,
@@ -212,7 +212,108 @@ export const useOnboardingStore = create<OnboardingState>()(
         completedSteps: new Set(persistedState?.completedSteps || []),
       }),
     }
-  )
+  ) : (set) => ({
+      // Initial state for SSR
+      selectedSpecialty: null,
+      selectedWorkZone: null,
+      uploadedPhotos: [],
+      uploadingPhotos: new Set<string>(),
+      deletingPhotos: new Set<string>(),
+      workDescription: "",
+      personalInfo: initialPersonalInfo,
+      professionalInfo: initialProfessionalInfo,
+      currentStep: 1,
+      completedSteps: new Set<number>(),
+
+      // Actions (same as above)
+      setSpecialty: (specialty: string) =>
+        set({ selectedSpecialty: specialty }),
+
+      setWorkZone: (zone: string) => set({ selectedWorkZone: zone }),
+
+      setPhotos: (photos: OnboardingPhoto[]) => set({ uploadedPhotos: photos }),
+
+      addPhoto: (photo: OnboardingPhoto) =>
+        set((state) => ({
+          uploadedPhotos: [...state.uploadedPhotos, photo],
+        })),
+
+      removePhoto: (photoId: string) =>
+        set((state) => ({
+          uploadedPhotos: state.uploadedPhotos.filter(
+            (photo) => photo.id !== photoId
+          ),
+          uploadingPhotos: new Set(
+            [...state.uploadingPhotos].filter((id) => id !== photoId)
+          ),
+          deletingPhotos: new Set(
+            [...state.deletingPhotos].filter((id) => id !== photoId)
+          ),
+        })),
+
+      updatePhotoStatus: (photoId: string, updates: Partial<OnboardingPhoto>) =>
+        set((state) => ({
+          uploadedPhotos: state.uploadedPhotos.map((photo) =>
+            photo.id === photoId ? { ...photo, ...updates } : photo
+          ),
+        })),
+
+      setPhotoUploading: (photoId: string, uploading: boolean) =>
+        set((state) => {
+          const newUploadingPhotos = new Set(state.uploadingPhotos);
+          if (uploading) {
+            newUploadingPhotos.add(photoId);
+          } else {
+            newUploadingPhotos.delete(photoId);
+          }
+          return { uploadingPhotos: newUploadingPhotos };
+        }),
+
+      setPhotoDeleting: (photoId: string, deleting: boolean) =>
+        set((state) => {
+          const newDeletingPhotos = new Set(state.deletingPhotos);
+          if (deleting) {
+            newDeletingPhotos.add(photoId);
+          } else {
+            newDeletingPhotos.delete(photoId);
+          }
+          return { deletingPhotos: newDeletingPhotos };
+        }),
+
+      setWorkDescription: (description: string) =>
+        set({ workDescription: description }),
+
+      setPersonalInfo: (info: Partial<OnboardingPersonalInfo>) =>
+        set((state) => ({
+          personalInfo: { ...state.personalInfo, ...info },
+        })),
+
+      setProfessionalInfo: (info: Partial<OnboardingProfessionalInfo>) =>
+        set((state) => ({
+          professionalInfo: { ...state.professionalInfo, ...info },
+        })),
+
+      setCurrentStep: (step: number) => set({ currentStep: step }),
+
+      markStepCompleted: (step: number) =>
+        set((state) => ({
+          completedSteps: new Set([...state.completedSteps, step]),
+        })),
+
+      resetOnboarding: () =>
+        set({
+          selectedSpecialty: null,
+          selectedWorkZone: null,
+          uploadedPhotos: [],
+          uploadingPhotos: new Set<string>(),
+          deletingPhotos: new Set<string>(),
+          workDescription: "",
+          personalInfo: initialPersonalInfo,
+          professionalInfo: initialProfessionalInfo,
+          currentStep: 1,
+          completedSteps: new Set<number>(),
+        }),
+    })
 );
 
 // Hook personalizado para usar el onboarding store

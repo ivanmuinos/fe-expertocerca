@@ -1,7 +1,9 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, MapPin, Wrench, Users, Star, TrendingUp } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "@/lib/navigation";
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import heroImage from "@/assets/hero-trades.jpg";

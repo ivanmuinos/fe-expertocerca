@@ -1,5 +1,7 @@
+"use client";
+
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "@/lib/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfiles, type OnboardingData } from "@/hooks/useProfiles";
 import { useLoading } from "@/stores/useLoadingStore";

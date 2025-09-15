@@ -1,3 +1,5 @@
+"use client";
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,7 +20,8 @@ import {
   X,
   AlertCircle
 } from "lucide-react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "@/lib/navigation";
+import { usePathname } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { useOnboardingStatus } from "@/hooks/useOnboardingStatus";
 import { useEffect, useState } from "react";
@@ -64,7 +67,7 @@ export function SharedHeader({
   searchProps
 }: SharedHeaderProps) {
   const navigate = useNavigate();
-  const location = useLocation();
+  const pathname = usePathname();
   const { user, signOut } = useAuth();
   const onboardingStatus = useOnboardingStatus();
   const [profile, setProfile] = useState<any>(null);
@@ -111,7 +114,7 @@ export function SharedHeader({
   const getPageTitle = () => {
     if (title) return title;
     
-    switch (location.pathname) {
+    switch (pathname) {
       case '/':
         return 'Experto Cerca';
       case '/buscar':

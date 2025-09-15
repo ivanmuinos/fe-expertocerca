@@ -1,5 +1,7 @@
+"use client";
+
 import { useState, useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate } from "@/lib/navigation";
 import { Search, Clock, MapPin, Phone, Wrench, Hammer, Paintbrush, Zap, Droplets, Scissors, Car, Home } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -35,7 +37,7 @@ export default function Buscar() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedZone, setSelectedZone] = useState("all");
   const [selectedProfessional, setSelectedProfessional] = useState<Professional | null>(null);
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useState<URLSearchParams | null>(null);
   const { loading, discoverProfessionals, browseProfessionals } = useSecureProfessionals();
   const { toast } = useToast();
   const { user } = useAuth();
@@ -58,8 +60,17 @@ export default function Buscar() {
     setSelectedZone('all');
   };
 
+  // Initialize search params client-side
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      setSearchParams(params);
+    }
+  }, []);
+
   // Obtener parámetros de la URL
   useEffect(() => {
+    if (!searchParams) return;
     const servicio = searchParams.get('servicio') || '';
     const zona = searchParams.get('zona') || '';
     setSearchTerm(servicio);

@@ -1,5 +1,7 @@
+"use client";
+
 import { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate } from '@/lib/navigation';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
@@ -8,16 +10,25 @@ import { useProfiles } from '@/hooks/useProfiles';
 
 export default function Auth() {
   const [loading, setLoading] = useState(false);
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useState<URLSearchParams | null>(null);
   
   const { signInWithGoogle, user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   const { getProfile } = useProfiles();
+
+  // Initialize search params client-side
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      setSearchParams(params);
+    }
+  }, []);
+
   // Redirect after auth: go to onboarding if not completed
   useEffect(() => {
     const run = async () => {
-      if (!user) return;
+      if (!user || !searchParams) return;
       const { data } = await getProfile(user.id);
       const nextUrl = searchParams.get('next');
       if (!data || data.onboarding_completed !== true) {

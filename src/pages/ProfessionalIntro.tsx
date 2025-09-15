@@ -1,4 +1,6 @@
-import { useNavigate } from 'react-router-dom';
+"use client";
+
+import { useNavigate } from '@/lib/navigation';
 import { useEffect } from 'react';
 import { LoadingButton } from '@/components/ui/loading-button';
 import { Button } from '@/components/ui/button';

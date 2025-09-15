@@ -1,19 +1,29 @@
-import { useLocation, useNavigate } from "react-router-dom";
-import { useEffect } from "react";
+"use client";
+
+import { useNavigate } from "@/lib/navigation";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { SharedHeader } from "@/components/SharedHeader";
 import { Home, ArrowLeft } from "lucide-react";
 
 const NotFound = () => {
-  const location = useLocation();
+  const [pathname, setPathname] = useState<string>("");
   const navigate = useNavigate();
 
   useEffect(() => {
-    console.error(
-      "404 Error: User attempted to access non-existent route:",
-      location.pathname
-    );
-  }, [location.pathname]);
+    if (typeof window !== 'undefined') {
+      setPathname(window.location.pathname);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (pathname) {
+      console.error(
+        "404 Error: User attempted to access non-existent route:",
+        pathname
+      );
+    }
+  }, [pathname]);
 
   return (
     <div className="min-h-screen bg-background">

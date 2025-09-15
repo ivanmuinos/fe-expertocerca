@@ -1,7 +1,9 @@
+"use client";
+
 import { CheckCircle, Home, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { OnboardingStep } from './OnboardingStep';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/navigation';
 
 export interface CompletionStepProps {
   userType: 'customer' | 'professional';

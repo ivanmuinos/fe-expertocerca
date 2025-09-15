@@ -1,5 +1,7 @@
+"use client";
+
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/navigation';
 import { LoadingButton } from '@/components/ui/loading-button';
 import { Button } from '@/components/ui/button';
 import { Star, Camera, CheckCircle, Wrench, Eye } from 'lucide-react';

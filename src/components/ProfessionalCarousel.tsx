@@ -1,3 +1,5 @@
+"use client";
+
 import { useCallback } from "react";
 import useEmblaCarousel from 'embla-carousel-react';
 import { Card, CardContent } from "@/components/ui/card";
@@ -5,7 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MapPin, Clock, Phone, ChevronLeft, ChevronRight } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "@/lib/navigation";
 
 interface Professional {
   id: string;
@@ -85,7 +87,7 @@ export function ProfessionalCarousel({ categoryName, professionals }: Profession
             >
               <Card 
                 className="hover:shadow-elevated transition-all duration-200 cursor-pointer group border shadow-sm h-full"
-                onClick={() => navigate(`/profesional/${professional.id}`)}
+                onClick={() => navigate(`/profesional?id=${professional.id}`)}
               >
                 <CardContent className="p-3 sm:p-4">
                   <div className="space-y-3">

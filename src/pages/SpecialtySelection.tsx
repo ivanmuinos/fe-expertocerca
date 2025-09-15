@@ -1,4 +1,6 @@
-import { useNavigate, useLocation, Location } from "react-router-dom";
+"use client";
+
+import { useNavigate } from "@/lib/navigation";
 import { useRef, useEffect, useState } from "react";
 import { LoadingButton } from "@/components/ui/loading-button";
 import { Button } from "@/components/ui/button";
@@ -103,7 +105,7 @@ const getInitialSpecialtySection = (location: Location, selectedSpecialty: any):
 
 export default function SpecialtySelection() {
   const navigate = useNavigate();
-  const location = useLocation();
+  const [location, setLocation] = useState<{ search: string } | null>(null);
   const zoneRef = useRef<HTMLDivElement>(null);
   const specialtyRef = useRef<HTMLDivElement>(null);
 
@@ -115,14 +117,21 @@ export default function SpecialtySelection() {
     markStepCompleted,
   } = useOnboarding();
 
-  const [currentSection, setCurrentSection] = useState<"specialty" | "zone">(() =>
-    getInitialSpecialtySection(location, selectedSpecialty)
-  );
+  const [currentSection, setCurrentSection] = useState<"specialty" | "zone">("specialty");
 
   const { setCurrentStep, setSpecialtySection } = useOnboardingProgress();
 
+  // Initialize location client-side
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setLocation({ search: window.location.search });
+    }
+  }, []);
+
   // Handle navigation to specific section based on URL params
   useEffect(() => {
+    if (!location) return;
+
     const targetSection = getInitialSpecialtySection(location, selectedSpecialty);
 
     // Update section and progress
@@ -140,7 +149,7 @@ export default function SpecialtySelection() {
         });
       });
     }
-  }, [setCurrentStep, setSpecialtySection, location.search, selectedSpecialty]);
+  }, [setCurrentStep, setSpecialtySection, location, selectedSpecialty]);
 
   // No auto-scroll based on specialty selection - only manual scroll via Continue button
 

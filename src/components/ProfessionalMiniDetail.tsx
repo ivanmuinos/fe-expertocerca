@@ -1,5 +1,7 @@
+"use client";
+
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "@/lib/navigation";
 import { 
   Clock, 
   MapPin, 
@@ -61,7 +63,7 @@ export default function ProfessionalMiniDetail({ professional }: ProfessionalMin
   }
 
   const handleViewFullProfile = () => {
-    navigate(`/profesional/${professional.id}`);
+    navigate(`/profesional?id=${professional.id}`);
   };
 
   const handleContactWhatsApp = () => {

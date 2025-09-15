@@ -1,3 +1,4 @@
+import React from 'react';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
@@ -31,25 +32,25 @@ interface OnboardingProgressState {
   resetProgress: () => void;
 }
 
-// Progress mapping with sub-steps
+// Progress mapping with sub-steps - More balanced distribution
 const BASE_STEP_PROGRESS: Record<OnboardingStep, number> = {
-  [OnboardingStep.PROFESSIONAL_INTRO]: 10,
-  [OnboardingStep.SPECIALTY_SELECTION]: 20, // Base, will be modified by sub-sections
-  [OnboardingStep.PHOTO_GUIDELINES]: 40,
-  [OnboardingStep.PHOTO_UPLOAD]: 50, // Base, will be modified by sub-sections
-  [OnboardingStep.PERSONAL_DATA]: 80,
-  [OnboardingStep.COMPLETION]: 100
+  [OnboardingStep.PROFESSIONAL_INTRO]: 10,        // 10% (step 1/6)
+  [OnboardingStep.SPECIALTY_SELECTION]: 25,       // 25% base (step 2/6)
+  [OnboardingStep.PHOTO_GUIDELINES]: 40,          // 40% (step 3/6)
+  [OnboardingStep.PHOTO_UPLOAD]: 55,              // 55% base (step 4/6)
+  [OnboardingStep.PERSONAL_DATA]: 90,             // 90% (step 5/6) - Almost complete
+  [OnboardingStep.COMPLETION]: 100                // 100% (step 6/6)
 };
 
-// Sub-section progress increments
+// Sub-section progress increments - Smaller, more proportional
 const SPECIALTY_SUB_PROGRESS: Record<SpecialtySectionType, number> = {
-  'specialty': 0,  // Base section (20%)
-  'zone': 10       // +10% when in zone section (30%)
+  'specialty': 0,  // Base section (25%)
+  'zone': 7        // +7% when in zone section (32%)
 };
 
 const PHOTO_SUB_PROGRESS: Record<PhotoSectionType, number> = {
-  'photos': 0,        // Base section (50%)
-  'description': 10   // +10% when in description section (60%)
+  'photos': 0,        // Base section (55%)
+  'description': 8    // +8% when in description section (63%)
 };
 
 export const useOnboardingProgressStore = create<OnboardingProgressState>()(
@@ -69,7 +70,8 @@ export const useOnboardingProgressStore = create<OnboardingProgressState>()(
       },
 
       setSpecialtySection: (section: SpecialtySectionType) => {
-        const currentProgress = get().getProgressPercentage();
+        const state = get();
+        const currentProgress = state.getProgressPercentage();
         set({
           previousProgress: currentProgress,
           specialtySection: section
@@ -77,7 +79,8 @@ export const useOnboardingProgressStore = create<OnboardingProgressState>()(
       },
 
       setPhotoSection: (section: PhotoSectionType) => {
-        const currentProgress = get().getProgressPercentage();
+        const state = get();
+        const currentProgress = state.getProgressPercentage();
         set({
           previousProgress: currentProgress,
           photoSection: section
@@ -121,16 +124,26 @@ export const useOnboardingProgressStore = create<OnboardingProgressState>()(
         previousProgress: state.previousProgress,
         specialtySection: state.specialtySection,
         photoSection: state.photoSection
-      })
+      }),
+      // Skip hydration to prevent SSR mismatches
+      skipHydration: true,
     }
   )
 );
 
-// Custom hook for easier usage
+// Custom hook for easier usage with hydration handling
 export const useOnboardingProgress = () => {
   const store = useOnboardingProgressStore();
-  
+  const [isHydrated, setIsHydrated] = React.useState(false);
+
+  // Manually rehydrate on client side to prevent SSR mismatches
+  React.useEffect(() => {
+    useOnboardingProgressStore.persist.rehydrate();
+    setIsHydrated(true);
+  }, []);
+
   return {
-    ...store
+    ...store,
+    isHydrated
   };
 };

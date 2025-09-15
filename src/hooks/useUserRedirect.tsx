@@ -1,12 +1,15 @@
+'use client';
+
 import { useEffect, useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from '@/lib/navigation';
+import { usePathname } from 'next/navigation';
 import { useAuth } from './useAuth';
 import { useOnboardingStatus } from './useOnboardingStatus';
 
 export function useUserRedirect() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
+  const pathname = usePathname();
   const onboardingStatus = useOnboardingStatus();
   const [isCheckingRedirect, setIsCheckingRedirect] = useState(true);
 
@@ -29,15 +32,15 @@ export function useUserRedirect() {
         hasProfile: onboardingStatus.hasProfile,
         isCompleted: onboardingStatus.isCompleted,
         userType: onboardingStatus.userType,
-        currentPath: location.pathname
+        currentPath: pathname
       });
       
-      const isOnUserTypeSelection = location.pathname === '/user-type-selection';
-      const isOnOnboardingPage = location.pathname.includes('/professional-') || 
-                                location.pathname.includes('/specialty-') ||
-                                location.pathname.includes('/photo-') ||
-                                location.pathname.includes('/personal-data') ||
-                                location.pathname === '/completion';
+      const isOnUserTypeSelection = pathname === '/user-type-selection';
+      const isOnOnboardingPage = pathname.includes('/professional-') ||
+                                pathname.includes('/specialty-') ||
+                                pathname.includes('/photo-') ||
+                                pathname.includes('/personal-data') ||
+                                pathname === '/completion';
 
       // If user has no profile, redirect to user type selection
       if (!onboardingStatus.hasProfile) {
@@ -78,7 +81,7 @@ export function useUserRedirect() {
     };
 
     checkUserSetup();
-  }, [user, onboardingStatus, navigate, location.pathname]);
+  }, [user, onboardingStatus, navigate, pathname]);
 
   return { isCheckingRedirect };
 }

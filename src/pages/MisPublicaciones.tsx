@@ -1,5 +1,7 @@
+"use client";
+
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/navigation';
 import { Plus, Edit, Trash2, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -42,11 +44,11 @@ export default function MisPublicaciones() {
   };
 
   const handleEditProfile = (profileId: string) => {
-    navigate(`/profesional/${profileId}`);
+    navigate(`/profesional?id=${profileId}`);
   };
 
   const handleViewProfile = (profileId: string) => {
-    navigate(`/profesional/${profileId}`);
+    navigate(`/profesional?id=${profileId}`);
   };
 
   if (!user) {

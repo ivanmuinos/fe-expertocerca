@@ -3,8 +3,9 @@ import { createSupabaseServerClient } from '@/src/config/supabase-server'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   try {
     const supabase = await createSupabaseServerClient()
 
@@ -15,7 +16,7 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const profileId = params.id
+    const profileId = id
 
     // Get the specific professional profile
     const { data: profile, error: profileError } = await supabase

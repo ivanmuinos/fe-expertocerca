@@ -81,27 +81,27 @@ class ApiClient {
     return this.request('/my-profiles')
   }
 
-  async createProfile(profileData: any) {
+  async createProfessionalProfile(profileData: any) {
     return this.request('/professionals', {
       method: 'POST',
       body: JSON.stringify(profileData),
     })
   }
 
-  async updateProfile(id: string, profileData: any) {
+  async updateProfessionalProfile(id: string, profileData: any) {
     return this.request(`/professionals/${id}`, {
       method: 'PUT',
       body: JSON.stringify(profileData),
     })
   }
 
-  async deleteProfile(id: string) {
+  async deleteProfessionalProfile(id: string) {
     return this.request(`/professionals/${id}`, {
       method: 'DELETE',
     })
   }
 
-  async getProfile(id: string) {
+  async getProfessionalProfile(id: string) {
     return this.request(`/professionals/${id}`)
   }
 
@@ -154,20 +154,20 @@ class ApiClient {
     })
   }
 
-  // Profiles methods
-  async getProfile(userId?: string) {
+  // User profiles methods
+  async getUserProfile(userId?: string) {
     const params = userId ? `?userId=${userId}` : ''
     return this.request(`/profiles${params}`)
   }
 
-  async createProfile(profileData: any) {
+  async createUserProfile(profileData: any) {
     return this.request('/profiles', {
       method: 'POST',
       body: JSON.stringify(profileData),
     })
   }
 
-  async updateProfile(profileData: any) {
+  async updateUserProfile(profileData: any) {
     return this.request('/profiles', {
       method: 'PUT',
       body: JSON.stringify(profileData),

@@ -40,7 +40,7 @@ export function SimpleHero() {
         {/* Background Image */}
         <div className="absolute inset-0 z-0">
           <img 
-            src={heroImage} 
+            src={heroImage.src} 
             alt="Profesionales trabajando" 
             className="w-full h-full object-cover opacity-20"
           />

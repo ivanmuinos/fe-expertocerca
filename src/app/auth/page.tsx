@@ -8,10 +8,10 @@ import { useToast } from '@/src/shared/hooks/use-toast';
 import { Loader2, Chrome } from 'lucide-react';
 import { useProfiles } from '@/src/features/user-profile';
 
-export default function Auth() {
+export default function AuthPage() {
   const [loading, setLoading] = useState(false);
   const [searchParams, setSearchParams] = useState<URLSearchParams | null>(null);
-  
+
   const { user } = useAuthState();
   const { signInWithGoogle } = useAuthActions();
   const { toast } = useToast();
@@ -44,7 +44,7 @@ export default function Auth() {
   const handleGoogleSignIn = async () => {
     setLoading(true);
     const { error } = await signInWithGoogle();
-    
+
     if (error) {
       toast({
         title: "Error al iniciar sesión",
@@ -54,11 +54,6 @@ export default function Auth() {
       setLoading(false);
     }
   };
-
-
-
-
-
 
   return (
     <div className="min-h-screen relative overflow-hidden">
@@ -89,7 +84,7 @@ export default function Auth() {
 
               {/* Auth button */}
               <div className="space-y-4">
-                <Button 
+                <Button
                   onClick={handleGoogleSignIn}
                   disabled={loading}
                   size="lg"

@@ -42,7 +42,7 @@ export const useProfiles = () => {
 
   const getProfile = async (userId: string) => {
     try {
-      const data = await apiClient.getProfile(userId);
+      const data = await apiClient.getUserProfile(userId);
       return { data, error: null };
     } catch (error: any) {
       console.error('Error fetching profile:', error);

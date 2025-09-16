@@ -2,19 +2,20 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createSupabaseServerClient } from '@/src/config/supabase-server'
 
 interface Context {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
 export async function GET(request: NextRequest, { params }: Context) {
+  const { id } = await params;
   try {
     const supabase = await createSupabaseServerClient()
 
     const { data, error } = await supabase
       .from('professional_profiles')
       .select('*')
-      .eq('id', params.id)
+      .eq('id', id)
       .single()
 
     if (error) {
@@ -31,6 +32,7 @@ export async function GET(request: NextRequest, { params }: Context) {
 }
 
 export async function PUT(request: NextRequest, { params }: Context) {
+  const { id } = await params;
   try {
     const supabase = await createSupabaseServerClient()
 
@@ -46,7 +48,7 @@ export async function PUT(request: NextRequest, { params }: Context) {
     const { data: profile } = await supabase
       .from('professional_profiles')
       .select('user_id')
-      .eq('id', params.id)
+      .eq('id', id)
       .single()
 
     if (!profile || profile.user_id !== session.user.id) {
@@ -56,7 +58,7 @@ export async function PUT(request: NextRequest, { params }: Context) {
     const { data, error } = await supabase
       .from('professional_profiles')
       .update(body)
-      .eq('id', params.id)
+      .eq('id', id)
       .select()
 
     if (error) {
@@ -73,6 +75,7 @@ export async function PUT(request: NextRequest, { params }: Context) {
 }
 
 export async function DELETE(request: NextRequest, { params }: Context) {
+  const { id } = await params;
   try {
     const supabase = await createSupabaseServerClient()
 
@@ -86,7 +89,7 @@ export async function DELETE(request: NextRequest, { params }: Context) {
     const { data: profile } = await supabase
       .from('professional_profiles')
       .select('user_id')
-      .eq('id', params.id)
+      .eq('id', id)
       .single()
 
     if (!profile || profile.user_id !== session.user.id) {
@@ -96,7 +99,7 @@ export async function DELETE(request: NextRequest, { params }: Context) {
     const { error } = await supabase
       .from('professional_profiles')
       .delete()
-      .eq('id', params.id)
+      .eq('id', id)
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 400 })

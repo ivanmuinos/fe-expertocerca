@@ -45,7 +45,7 @@ export default function Publicar() {
       console.error('Error loading profile:', error);
       console.error('Error loading profile:', error);
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
@@ -83,7 +83,7 @@ export default function Publicar() {
     navigate('/mis-publicaciones');
   };
 
-  if (loading) {
+  if (isLoading || authLoading) {
     return (
       <div className="min-h-screen bg-background">
         <SharedHeader showBackButton={true} title="Nueva publicación" />

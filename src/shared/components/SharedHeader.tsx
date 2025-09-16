@@ -22,10 +22,10 @@ import {
 } from "lucide-react";
 import { useNavigate } from "@/src/shared/lib/navigation";
 import { usePathname } from "next/navigation";
-import { useAuth } from "@/src/features/auth";
+import { useAuthState, useAuthActions } from "@/src/features/auth";
 import { useOnboardingStatus } from "@/src/features/onboarding";
 import { useEffect, useState } from "react";
-import { supabase } from "@/src/config/supabase";
+import { apiClient } from "@/src/shared/lib/api-client";
 import { motion, AnimatePresence } from "framer-motion";
 import { ServiceSelector } from "@/src/shared/components/ServiceSelector";
 import { ZoneSelector } from "@/src/shared/components/ZoneSelector";
@@ -68,9 +68,12 @@ export function SharedHeader({
 }: SharedHeaderProps) {
   const navigate = useNavigate();
   const pathname = usePathname();
-  const { user, signOut } = useAuth();
+  const { user } = useAuthState();
+  const { signOut } = useAuthActions();
   const onboardingStatus = useOnboardingStatus();
   const [profile, setProfile] = useState<any>(null);
+
+  console.log('SharedHeader render - user:', user);
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   const [isServiceSelectorOpen, setIsServiceSelectorOpen] = useState(false);
   const [isZoneSelectorOpen, setIsZoneSelectorOpen] = useState(false);
@@ -84,14 +87,9 @@ export function SharedHeader({
         setProfile(null);
         return;
       }
-      
+
       try {
-        const { data } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('user_id', user.id)
-          .single();
-        
+        const data = await apiClient.get('/profiles/current');
         setProfile(data);
       } catch (error) {
         console.error('Error loading profile:', error);
@@ -297,7 +295,10 @@ export function SharedHeader({
                 </DropdownMenu>
               ) : (
                 <Button
-                  onClick={() => setIsLoginModalOpen(true)}
+                  onClick={() => {
+                    console.log('Opening login modal, current state:', isLoginModalOpen);
+                    setIsLoginModalOpen(true);
+                  }}
                   variant="ghost"
                   size="sm"
                   className="h-8 w-8 rounded-full p-0 hover:bg-muted/50"

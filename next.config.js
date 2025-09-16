@@ -15,8 +15,8 @@ const nextConfig = {
       },
     ],
   },
-  // Support for Capacitor
-  output: 'export',
+  // Dynamic server-side features enabled
+  // output: 'export', // Commented out to enable API routes
   trailingSlash: true,
   distDir: '.next',
 }

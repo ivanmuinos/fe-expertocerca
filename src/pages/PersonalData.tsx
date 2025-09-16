@@ -14,7 +14,7 @@ import { Star, MessageCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import { OnboardingProgressBar } from "@/src/shared/components/OnboardingProgressBar";
 import { useOnboardingProgress, OnboardingStep } from "@/src/shared/stores/useOnboardingProgressStore";
-import { supabase } from "@/src/config/supabase";
+import { apiClient } from "@/src/shared/lib/api-client";
 
 export interface PersonalDataForm {
   fullName: string;
@@ -90,13 +90,9 @@ export default function PersonalData() {
 
     try {
       // Get the professional profile that was just created
-      const { data: profile, error: profileError } = await supabase
-        .from('professional_profiles')
-        .select('id')
-        .eq('user_id', user.id)
-        .single();
+      const profile = await apiClient.get('/profiles/professional');
 
-      if (profileError || !profile) {
+      if (!profile) {
         console.error('Professional profile not found for photo upload');
         resetOnboarding();
         return;

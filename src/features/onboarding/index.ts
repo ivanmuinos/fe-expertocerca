@@ -7,5 +7,5 @@ export { CompletionStep } from './components/CompletionStep'
 export { OnboardingProgressBar } from './components/OnboardingProgressBar'
 
 // Hooks
-export { useOnboardingStatus } from './hooks/useOnboardingStatus'
-export { useUserRedirect } from './hooks/useUserRedirect'
+export { useOnboardingStatus } from '@/src/shared/hooks/useOnboardingStatus'
+export { useUserRedirect } from '@/src/shared/hooks/useUserRedirect'

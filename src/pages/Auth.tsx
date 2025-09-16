@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from '@/src/shared/lib/navigation';
 import { Button } from '@/src/shared/components/ui/button';
-import { useAuth } from '@/src/features/auth';
+import { useAuthState, useAuthActions } from '@/src/features/auth';
 import { useToast } from '@/src/shared/hooks/use-toast';
 import { Loader2, Chrome } from 'lucide-react';
 import { useProfiles } from '@/src/features/user-profile';
@@ -12,7 +12,8 @@ export default function Auth() {
   const [loading, setLoading] = useState(false);
   const [searchParams, setSearchParams] = useState<URLSearchParams | null>(null);
   
-  const { signInWithGoogle, user } = useAuth();
+  const { user } = useAuthState();
+  const { signInWithGoogle } = useAuthActions();
   const { toast } = useToast();
   const navigate = useNavigate();
   const { getProfile } = useProfiles();

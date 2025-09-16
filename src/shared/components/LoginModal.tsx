@@ -3,7 +3,7 @@ import { X } from "lucide-react";
 import { Button } from "@/src/shared/components/ui/button";
 import { LoadingButton } from "@/src/shared/components/ui/loading-button";
 import { motion, AnimatePresence } from "framer-motion";
-import { useAuth } from "@/src/features/auth";
+import { useAuthState, useAuthActions } from "@/src/features/auth";
 import { useLoading } from "@/src/shared/stores/useLoadingStore";
 
 interface LoginModalProps {
@@ -12,8 +12,8 @@ interface LoginModalProps {
 }
 
 export function LoginModal({ isOpen, onClose }: LoginModalProps) {
-  const { user, loading: authLoading } = useAuth();
-  const { signInWithGoogle } = useAuth();
+  const { user, loading: authLoading } = useAuthState();
+  const { signInWithGoogle } = useAuthActions();
   const { setLoading, clearLoading } = useLoading();
   const [hasInitiatedLogin, setHasInitiatedLogin] = useState(false);
 
@@ -31,6 +31,8 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
       return () => clearTimeout(timeout);
     }
   }, [user, hasInitiatedLogin, authLoading, clearLoading, onClose]);
+
+  if (!isOpen) return null;
 
   const handleGoogleLogin = async () => {
     setHasInitiatedLogin(true);

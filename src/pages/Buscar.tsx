@@ -162,7 +162,7 @@ export default function Buscar() {
               )}
             </div>
 
-            {loading ? (
+            {professionalsLoading ? (
               <div className="space-y-4">
                 {[...Array(5)].map((_, i) => (
                   <Card key={i} className="animate-pulse">

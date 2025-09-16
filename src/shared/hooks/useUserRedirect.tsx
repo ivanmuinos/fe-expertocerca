@@ -3,11 +3,11 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from '@/src/shared/lib/navigation';
 import { usePathname } from 'next/navigation';
-import { useAuth } from './useAuth';
+import { useAuthState } from '@/src/features/auth';
 import { useOnboardingStatus } from './useOnboardingStatus';
 
 export function useUserRedirect() {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuthState();
   const navigate = useNavigate();
   const pathname = usePathname();
   const onboardingStatus = useOnboardingStatus();
@@ -15,8 +15,8 @@ export function useUserRedirect() {
 
   useEffect(() => {
     const checkUserSetup = async () => {
-      // If still loading, keep checking state as true
-      if (onboardingStatus.isLoading) {
+      // If still loading auth or onboarding status, keep checking state as true
+      if (authLoading || onboardingStatus.isLoading) {
         setIsCheckingRedirect(true);
         return;
       }
@@ -81,7 +81,7 @@ export function useUserRedirect() {
     };
 
     checkUserSetup();
-  }, [user, onboardingStatus, navigate, pathname]);
+  }, [user, authLoading, onboardingStatus, navigate, pathname]);
 
   return { isCheckingRedirect };
 }

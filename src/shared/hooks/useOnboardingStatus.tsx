@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { useAuth } from './useAuth';
-import { supabase } from '@/src/integrations/supabase/client';
+import { useAuthState } from '@/src/features/auth';
+import { apiClient } from '@/src/shared/lib/api-client';
 
 export interface OnboardingStatus {
   isLoading: boolean;
@@ -11,7 +11,7 @@ export interface OnboardingStatus {
 }
 
 export function useOnboardingStatus(): OnboardingStatus {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading } = useAuthState();
   const [status, setStatus] = useState<OnboardingStatus>({
     isLoading: true,
     hasProfile: false,
@@ -19,6 +19,7 @@ export function useOnboardingStatus(): OnboardingStatus {
     userType: null,
     needsOnboarding: false,
   });
+  const [hasChecked, setHasChecked] = useState(false);
 
   useEffect(() => {
     const checkOnboardingStatus = async () => {
@@ -35,50 +36,42 @@ export function useOnboardingStatus(): OnboardingStatus {
           userType: null,
           needsOnboarding: false,
         });
+        setHasChecked(true);
+        return;
+      }
+
+      // Prevent multiple calls for the same user
+      if (hasChecked) {
         return;
       }
 
       try {
-        const { data: profile, error } = await supabase
-          .from('profiles')
-          .select('onboarding_completed, user_type')
-          .eq('user_id', user.id)
-          .maybeSingle();
+        const statusData = await apiClient.getOnboardingStatus();
 
-        if (error && error.code !== 'PGRST116') {
-          console.error('Error checking onboarding status:', error);
-          setStatus(prev => ({ ...prev, isLoading: false }));
-          return;
-        }
-
-        const hasProfile = !!profile;
-        const isCompleted = profile?.onboarding_completed || false;
-        const userType = profile?.user_type || null;
-        const needsOnboarding = hasProfile && !isCompleted && userType === 'professional';
-
-        console.log('Onboarding Status Check:', {
-          hasProfile,
-          isCompleted,
-          userType,
-          needsOnboarding,
-          profileData: profile
-        });
+        console.log('Onboarding Status Check:', statusData);
 
         setStatus({
           isLoading: false,
-          hasProfile,
-          isCompleted,
-          userType,
-          needsOnboarding,
+          hasProfile: statusData.hasProfile,
+          isCompleted: statusData.isCompleted,
+          userType: statusData.userType,
+          needsOnboarding: statusData.needsOnboarding,
         });
+        setHasChecked(true);
       } catch (error) {
         console.error('Error in onboarding status check:', error);
         setStatus(prev => ({ ...prev, isLoading: false }));
+        setHasChecked(true);
       }
     };
 
     checkOnboardingStatus();
   }, [user, authLoading]);
+
+  // Reset hasChecked when user changes
+  useEffect(() => {
+    setHasChecked(false);
+  }, [user?.id]);
 
   return status;
 }

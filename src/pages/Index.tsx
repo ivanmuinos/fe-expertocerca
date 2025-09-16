@@ -59,8 +59,9 @@ export default function Index() {
   const { user, loading: authLoading } = useAuthState();
   const navigate = useNavigate();
 
-  // Handle user redirection for first-time users
-  const { isCheckingRedirect } = useUserRedirect();
+  // Handle user redirection for first-time users - DISABLED: callback handles this now
+  // const { isCheckingRedirect } = useUserRedirect();
+  const isCheckingRedirect = false;
 
   const popularServices = [
     { name: "Electricista", icon: Zap },

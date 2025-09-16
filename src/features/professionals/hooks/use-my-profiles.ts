@@ -20,13 +20,13 @@ export function useMyProfiles() {
     error,
   } = useQuery({
     queryKey: QUERY_KEYS.myProfiles(user?.id || ''),
-    queryFn: () => ProfessionalsService.getMyProfiles(user!.id),
+    queryFn: () => ProfessionalsService.getMyProfiles(),
     enabled: !!user?.id,
   })
 
   const createProfileMutation = useMutation({
     mutationFn: (data: ProfessionalFormData) =>
-      ProfessionalsService.createProfile(user!.id, data),
+      ProfessionalsService.createProfile(data),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: QUERY_KEYS.myProfiles(user!.id)
@@ -47,7 +47,7 @@ export function useMyProfiles() {
 
   const updateProfileMutation = useMutation({
     mutationFn: ({ profileId, data }: { profileId: string; data: Partial<ProfessionalFormData> }) =>
-      ProfessionalsService.updateProfile(user!.id, profileId, data),
+      ProfessionalsService.updateProfile(profileId, data),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: QUERY_KEYS.myProfiles(user!.id)
@@ -68,7 +68,7 @@ export function useMyProfiles() {
 
   const deleteProfileMutation = useMutation({
     mutationFn: (profileId: string) =>
-      ProfessionalsService.deleteProfile(user!.id, profileId),
+      ProfessionalsService.deleteProfile(profileId),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: QUERY_KEYS.myProfiles(user!.id)
@@ -105,7 +105,7 @@ export function useMyProfile(profileId: string) {
 
   return useQuery({
     queryKey: QUERY_KEYS.myProfile(user?.id || '', profileId),
-    queryFn: () => ProfessionalsService.getMyProfile(user!.id, profileId),
+    queryFn: () => ProfessionalsService.getMyProfile(profileId),
     enabled: !!user?.id && !!profileId,
   })
 }

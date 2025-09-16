@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { supabase } from '@/src/integrations/supabase/client';
+import { ProfessionalsService } from '@/src/features/professionals/services/professionals-service';
 
 interface SecureProfessional {
   id: string;
@@ -28,14 +28,8 @@ export function useSecureProfessionals() {
   const discoverProfessionals = async (): Promise<{ data: SecureProfessional[] | null; error: any | null }> => {
     setLoading(true);
     try {
-      const { data, error } = await supabase.rpc('discover_professionals');
-      
-      if (error) {
-        console.error('Error discovering professionals:', error);
-        return { data: null, error };
-      }
-
-      return { data: data || [], error: null };
+      const data = await ProfessionalsService.discoverProfessionals();
+      return { data, error: null };
     } catch (error) {
       console.error('Error in discoverProfessionals:', error);
       return { data: null, error };
@@ -50,14 +44,8 @@ export function useSecureProfessionals() {
   const browseProfessionals = async (): Promise<{ data: AuthenticatedProfessional[] | null; error: any | null }> => {
     setLoading(true);
     try {
-      const { data, error } = await supabase.rpc('browse_professionals');
-      
-      if (error) {
-        console.error('Error browsing professionals:', error);
-        return { data: null, error };
-      }
-
-      return { data: data || [], error: null };
+      const data = await ProfessionalsService.browseProfessionals();
+      return { data, error: null };
     } catch (error) {
       console.error('Error in browseProfessionals:', error);
       return { data: null, error };

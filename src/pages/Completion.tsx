@@ -3,7 +3,7 @@
 import { useNavigate } from '@/src/shared/lib/navigation';
 import { useEffect, useState } from 'react';
 import { useAuthState } from '@/src/features/auth'
-import { supabase } from '@/src/config/supabase';
+import { apiClient } from '@/src/shared/lib/api-client';
 import { Button } from '@/src/shared/components/ui/button';
 import { Star, CheckCircle, Home, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -33,13 +33,9 @@ export default function Completion() {
 
       try {
         // Get the professional profile that was created in PersonalData step
-        const { data: profile, error: profileError } = await supabase
-          .from('professional_profiles')
-          .select('id')
-          .eq('user_id', user.id)
-          .single();
+        const profile = await apiClient.get('/profiles/professional');
 
-        if (profileError || !profile) {
+        if (!profile) {
           throw new Error('Perfil profesional no encontrado');
         }
 

@@ -16,10 +16,11 @@ import { SharedHeader } from '@/src/shared/components/SharedHeader';
 
 export default function DetalleProf() {
   const [id, setId] = useState<string>("");
+  const [professional, setProfessional] = useState<any>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user, loading: authLoading } = useAuthState();
-    const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const { browseProfessionals, discoverProfessionals } = useSecureProfessionals();
 

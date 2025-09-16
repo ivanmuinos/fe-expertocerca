@@ -1,0 +1,32 @@
+import { NextResponse } from 'next/server'
+import { createSupabaseServerClient } from '@/src/config/supabase-server'
+
+export async function GET() {
+  try {
+    const supabase = await createSupabaseServerClient()
+
+    // Get current session
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+
+    if (sessionError || !session) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Get user profile
+    const { data: profile, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('user_id', session.user.id)
+      .single()
+
+    if (error && error.code !== 'PGRST116') {
+      console.error('Error fetching profile:', error)
+      return NextResponse.json({ error: 'Failed to fetch profile' }, { status: 500 })
+    }
+
+    return NextResponse.json({ data: profile })
+  } catch (error) {
+    console.error('Error in current profile API:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  }
+}

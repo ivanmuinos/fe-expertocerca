@@ -44,3 +44,12 @@ export function useAuthState() {
 
   return { user, session, loading }
 }
+
+// Hook for auth actions (no state)
+export function useAuthActions() {
+  const signInWithGoogle = useAuthStore((state) => state.signInWithGoogle)
+  const signOut = useAuthStore((state) => state.signOut)
+  const clearAuth = useAuthStore((state) => state.clearAuth)
+
+  return { signInWithGoogle, signOut, clearAuth }
+}

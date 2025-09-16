@@ -1,5 +1,5 @@
 // Hooks
-export { useAuth, useAuthState } from './hooks/use-auth'
+export { useAuth, useAuthState, useAuthActions } from './hooks/use-auth'
 
 // Components
 export { AuthProvider } from './components/auth-provider'

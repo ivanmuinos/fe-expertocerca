@@ -6,7 +6,7 @@ import { Search, Star } from "lucide-react";
 import { LoadingButton } from "@/src/shared/components/ui/loading-button";
 import { Card, CardContent } from "@/src/shared/components/ui/card";
 import { useAuthState } from '@/src/features/auth'
-import { supabase } from "@/src/config/supabase";
+import { apiClient } from "@/src/shared/lib/api-client";
 import { useLoading } from "@/src/shared/stores/useLoadingStore";
 
 export default function UserTypeSelection() {
@@ -20,41 +20,7 @@ export default function UserTypeSelection() {
     
     try {
       await withLoading(async () => {
-        // Verificar si ya existe un perfil para evitar errores de duplicado
-        const { data: existingProfile } = await supabase
-          .from('profiles')
-          .select('user_id, user_type, onboarding_completed')
-          .eq('user_id', user.id)
-          .maybeSingle();
-
-        let error = null;
-
-        if (existingProfile) {
-          // Si ya existe, hacer un update
-          const { error: updateError } = await supabase
-            .from('profiles')
-            .update({ 
-              user_type: userType,
-              onboarding_completed: userType === 'customer' // Solo customers completan aquí
-            })
-            .eq('user_id', user.id);
-          error = updateError;
-        } else {
-          // Si no existe, crear nuevo
-          const { error: insertError } = await supabase
-            .from('profiles')
-            .insert({ 
-              user_id: user.id,
-              user_type: userType,
-              onboarding_completed: userType === 'customer',
-              full_name: user.user_metadata?.full_name || null,
-              avatar_url: user.user_metadata?.avatar_url || null
-            });
-          error = insertError;
-        }
-
-        if (error) throw error;
-
+        await apiClient.setUserType(userType);
 
         // Redirigir según el tipo de usuario
         if (userType === 'professional') {

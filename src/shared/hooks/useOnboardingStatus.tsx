@@ -66,7 +66,7 @@ export function useOnboardingStatus(): OnboardingStatus {
     };
 
     checkOnboardingStatus();
-  }, [user, authLoading]);
+  }, [user, authLoading, hasChecked]);
 
   // Reset hasChecked when user changes
   useEffect(() => {

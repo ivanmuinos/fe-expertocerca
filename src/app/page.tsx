@@ -59,9 +59,8 @@ export default function HomePage() {
   const { user, loading: authLoading } = useAuthState();
   const navigate = useNavigate();
 
-  // Handle user redirection for first-time users - DISABLED: callback handles this now
-  // const { isCheckingRedirect } = useUserRedirect();
-  const isCheckingRedirect = false;
+  // Handle user redirection for first-time users - runs in background
+  const { isCheckingRedirect } = useUserRedirect();
 
   const popularServices = [
     { name: "Electricista", icon: Zap },
@@ -78,20 +77,7 @@ export default function HomePage() {
     { name: "Techista", icon: Triangle },
   ];
 
-  useEffect(() => {
-    loadProfessionals();
-  }, [user]);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsHeaderCollapsed(window.scrollY > 100);
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  const loadProfessionals = async () => {
+  const loadProfessionals = useCallback(async () => {
     const { data, error } = user
       ? await browseProfessionals()
       : await discoverProfessionals();
@@ -106,7 +92,20 @@ export default function HomePage() {
     }
 
     setProfessionals(data || []);
-  };
+  }, [user, browseProfessionals, discoverProfessionals, toast]);
+
+  useEffect(() => {
+    loadProfessionals();
+  }, [loadProfessionals]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsHeaderCollapsed(window.scrollY > 100);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   // For now, don't filter - just show all professionals
   const displayedProfessionals = professionals;
@@ -149,6 +148,7 @@ export default function HomePage() {
       <div className='min-h-screen bg-background flex items-center justify-center'>
         <div className='text-center space-y-4'>
           <div className='w-8 h-8 border-4 border-primary/20 border-t-primary rounded-full animate-spin mx-auto' />
+          <p className="text-muted-foreground">Cargando...</p>
         </div>
       </div>
     );

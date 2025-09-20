@@ -15,7 +15,6 @@ import { motion } from "framer-motion";
 import { OnboardingProgressBar } from "@/src/shared/components/OnboardingProgressBar";
 import { useOnboardingProgress, OnboardingStep } from "@/src/shared/stores/useOnboardingProgressStore";
 import { apiClient } from "@/src/shared/lib/api-client";
-import { supabase } from "@/src/config/supabase";
 
 export interface PersonalDataForm {
   fullName: string;
@@ -82,76 +81,9 @@ export default function PersonalDataPage() {
     navigate("/");
   };
 
-  // Upload photos in background without blocking the user
-  const uploadPhotosInBackground = async () => {
-    if (!user || uploadedPhotos.length === 0) {
-      resetOnboarding();
-      return;
-    }
-
-    try {
-      // Get the professional profile that was just created
-      const profile = await apiClient.get('/profiles/professional') as { id: string };
-
-      if (!profile) {
-        console.error('Professional profile not found for photo upload');
-        resetOnboarding();
-        return;
-      }
-
-      // Upload all photos in parallel
-      const uploadPromises = uploadedPhotos.map(async (photo, index) => {
-        try {
-          // Upload image to storage
-          const fileExt = photo.file.name.split('.').pop();
-          const fileName = `${user.id}/${Date.now()}-${photo.id}.${fileExt}`;
-
-          const { error: uploadError } = await supabase.storage
-            .from('portfolio')
-            .upload(fileName, photo.file);
-
-          if (uploadError) throw uploadError;
-
-          // Get public URL
-          const { data: { publicUrl } } = supabase.storage
-            .from('portfolio')
-            .getPublicUrl(fileName);
-
-          // Save photo data to database
-          const { error: dbError } = await supabase
-            .from('portfolio_photos')
-            .insert({
-              professional_profile_id: profile.id,
-              title: `Foto de trabajo ${index + 1}`,
-              description: 'Foto subida durante el onboarding',
-              image_url: publicUrl,
-            });
-
-          if (dbError) throw dbError;
-
-          return { success: true, photoId: photo.id };
-        } catch (error) {
-          console.error(`Error uploading photo ${photo.id}:`, error);
-          return { success: false, photoId: photo.id, error };
-        }
-      });
-
-      const results = await Promise.all(uploadPromises);
-      const failedUploads = results.filter(r => !r.success);
-
-      if (failedUploads.length > 0) {
-        console.warn(`${failedUploads.length} photos failed to upload in background`);
-      } else {
-        console.log('All photos uploaded successfully in background');
-      }
-
-      // Clear onboarding data after upload attempt
-      resetOnboarding();
-
-    } catch (error) {
-      console.error('Error during background photo upload:', error);
-      resetOnboarding();
-    }
+  // Clear onboarding data after successful registration
+  const clearOnboardingData = () => {
+    resetOnboarding();
   };
 
   const handleContinue = async () => {
@@ -186,9 +118,8 @@ export default function PersonalDataPage() {
         console.log("Save result:", result);
 
         if (result.success) {
-          // Upload photos in background and go directly to home
-          uploadPhotosInBackground();
-          navigate("/");
+          // Go to completion page (don't clear onboarding data yet - completion will handle photos)
+          navigate("/completion");
         } else {
           console.error("Save failed with error:", result.error);
           throw new Error(`Failed to save personal data: ${result.error?.message || 'Unknown error'}`);

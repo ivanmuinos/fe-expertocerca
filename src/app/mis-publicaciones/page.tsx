@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from '@/src/shared/lib/navigation';
 import { Plus, Edit, Trash2, Eye } from 'lucide-react';
 import { Button } from '@/src/shared/components/ui/button';
@@ -24,7 +24,7 @@ export default function MisPublicacionesPage() {
       return;
     }
     loadMyProfiles();
-  }, [user]);
+  }, [user, navigate, loadMyProfiles]);
 
   const handleDeleteProfile = async (profileId: string) => {
     if (window.confirm('¿Estás seguro de que quieres eliminar esta publicación? Esta acción no se puede deshacer.')) {

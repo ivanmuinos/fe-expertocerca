@@ -73,7 +73,6 @@ export function SharedHeader({
   const onboardingStatus = useOnboardingStatus();
   const [profile, setProfile] = useState<any>(null);
 
-  console.log('SharedHeader render - user:', user);
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   const [isServiceSelectorOpen, setIsServiceSelectorOpen] = useState(false);
   const [isZoneSelectorOpen, setIsZoneSelectorOpen] = useState(false);
@@ -92,7 +91,7 @@ export function SharedHeader({
         const data = await apiClient.get('/profiles/current');
         setProfile(data);
       } catch (error) {
-        console.error('Error loading profile:', error);
+        // Error loading profile
       }
     };
 
@@ -295,10 +294,7 @@ export function SharedHeader({
                 </DropdownMenu>
               ) : (
                 <Button
-                  onClick={() => {
-                    console.log('Opening login modal, current state:', isLoginModalOpen);
-                    setIsLoginModalOpen(true);
-                  }}
+                  onClick={() => setIsLoginModalOpen(true)}
                   variant="ghost"
                   size="sm"
                   className="h-8 w-8 rounded-full p-0 hover:bg-muted/50"

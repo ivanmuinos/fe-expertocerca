@@ -90,7 +90,7 @@ export function SharedHeader({
         const data = await apiClient.get('/profiles/current');
         setProfile(data);
       } catch (error) {
-        console.error('Error loading profile:', error);
+        // Error loading profile
       }
     };
 

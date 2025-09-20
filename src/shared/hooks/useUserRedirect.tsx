@@ -27,13 +27,6 @@ export function useUserRedirect() {
         return;
       }
 
-      console.log('User redirect check:', {
-        user: !!user,
-        hasProfile: onboardingStatus.hasProfile,
-        isCompleted: onboardingStatus.isCompleted,
-        userType: onboardingStatus.userType,
-        currentPath: pathname
-      });
       
       const isOnUserTypeSelection = pathname === '/user-type-selection';
       const isOnOnboardingPage = pathname.includes('/professional-') ||
@@ -45,7 +38,6 @@ export function useUserRedirect() {
       // If user has no profile, allow them to navigate freely
       // Only suggest onboarding, don't force it
       if (!onboardingStatus.hasProfile) {
-        console.log('User has no profile, allowing free navigation');
         // Don't auto-redirect - let the user decide when to complete onboarding
         // The UI can show prompts/banners to encourage completion
         setIsCheckingRedirect(false);

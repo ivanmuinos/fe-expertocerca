@@ -51,25 +51,16 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 })
     }
 
-    console.log('File details:', {
-      name: file.name,
-      size: file.size,
-      type: file.type,
-      userId: session.user.id
-    })
 
     // Upload file to Supabase Storage
     const fileExt = file.name.split('.').pop()
     const fileName = `${session.user.id}/${Date.now()}.${fileExt}`
-
-    console.log('Uploading to path:', fileName)
 
     const { error: uploadError } = await supabase.storage
       .from('portfolio')
       .upload(fileName, file)
 
     if (uploadError) {
-      console.error('File upload error:', uploadError)
       return NextResponse.json({
         error: 'Error uploading file',
         details: uploadError.message
@@ -93,13 +84,11 @@ export async function POST(request: NextRequest) {
       .select()
 
     if (error) {
-      console.error('Database insert error:', error)
       return NextResponse.json({ error: error.message }, { status: 400 })
     }
 
     return NextResponse.json({ data: data[0] })
   } catch (error) {
-    console.error('Portfolio upload error:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

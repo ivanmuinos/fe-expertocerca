@@ -113,20 +113,17 @@ export default function PersonalDataPage() {
                       : undefined,
         };
 
-        console.log("Sending onboarding data:", onboardingData);
         const result = await saveOnboardingData(onboardingData, user.id);
-        console.log("Save result:", result);
 
         if (result.success) {
           // Go to completion page (don't clear onboarding data yet - completion will handle photos)
           navigate("/completion");
         } else {
-          console.error("Save failed with error:", result.error);
           throw new Error(`Failed to save personal data: ${result.error?.message || 'Unknown error'}`);
         }
       }, "Guardando tus datos...");
     } catch (error) {
-      console.error("Error saving personal data:", error);
+      // Error will be handled by the loading component
     }
   };
 

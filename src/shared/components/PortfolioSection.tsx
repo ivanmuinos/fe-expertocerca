@@ -263,6 +263,7 @@ export function PortfolioSection({ professionalProfileId, isOwner }: PortfolioSe
                   src={photo.image_url}
                   alt={photo.title}
                   fill
+                  sizes={isMainPhoto ? "(max-width: 768px) 100vw, 50vw" : "(max-width: 768px) 50vw, 25vw"}
                   className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                   priority={index === 0}
                 />

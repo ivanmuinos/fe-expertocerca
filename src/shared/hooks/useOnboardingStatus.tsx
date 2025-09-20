@@ -48,7 +48,6 @@ export function useOnboardingStatus(): OnboardingStatus {
       try {
         const statusData = await apiClient.getOnboardingStatus();
 
-        console.log('Onboarding Status Check:', statusData);
 
         setStatus({
           isLoading: false,
@@ -59,7 +58,6 @@ export function useOnboardingStatus(): OnboardingStatus {
         });
         setHasChecked(true);
       } catch (error) {
-        console.error('Error in onboarding status check:', error);
         setStatus(prev => ({ ...prev, isLoading: false }));
         setHasChecked(true);
       }

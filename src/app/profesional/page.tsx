@@ -68,14 +68,12 @@ export default function ProfesionalPage() {
   };
 
   useEffect(() => {
-    console.log('ProfesionalPage useEffect triggered with id:', id);
     if (id) {
       loadProfessional();
     }
   }, [id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const loadProfessional = async () => {
-    console.log('loadProfessional called with id:', id);
     if (!id) return;
 
     try {
@@ -106,7 +104,6 @@ export default function ProfesionalPage() {
         navigate('/buscar');
       }
     } catch (error) {
-      console.error('Error loading professional:', error);
       toast({
         title: "Error",
         description: "Error al cargar el profesional",
@@ -142,7 +139,6 @@ export default function ProfesionalPage() {
           description: "Abriendo conversación...",
         });
       } catch (error) {
-        console.error('Error opening WhatsApp:', error);
         // Fallback: copiar el número al portapapeles
         navigator.clipboard.writeText(cleanPhone).then(() => {
           toast({

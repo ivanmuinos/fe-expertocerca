@@ -10,6 +10,7 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NODE_ENV === 'production' ? 'https://expertocerca.com' : 'http://localhost:3000'),
   title: 'ExpertoCerca - Conecta con Profesionales de Oficios',
   description: 'Encuentra electricistas, plomeros, carpinteros y más profesionales calificados cerca de ti. Conecta con expertos verificados para tus proyectos del hogar.',
   authors: [{ name: 'ExpertoCerca' }],

@@ -38,7 +38,6 @@ export function useMyProfessionalProfiles() {
       const data = await apiClient.get('/my-profiles');
       setMyProfiles(data || []);
     } catch (error) {
-      console.error('Error in loadMyProfiles:', error);
       toast({
         title: "Error",
         description: "No se pudieron cargar tus publicaciones",
@@ -59,7 +58,6 @@ export function useMyProfessionalProfiles() {
       await apiClient.delete(`/my-profiles?id=${profileId}`);
       return true;
     } catch (error) {
-      console.error('Error in deleteProfessionalProfile:', error);
       toast({
         title: "Error",
         description: "No se pudo eliminar la publicación",
@@ -79,7 +77,6 @@ export function useMyProfessionalProfiles() {
       const data = await apiClient.get(`/my-profiles/${profileId}`);
       return data;
     } catch (error) {
-      console.error('Error in getMyProfile:', error);
       return null;
     }
   };

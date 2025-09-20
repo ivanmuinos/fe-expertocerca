@@ -110,7 +110,6 @@ export function EditableAvatar({
       });
 
     } catch (error: any) {
-      console.error('Error uploading avatar:', error);
       toast({
         title: "Error",
         description: error.message || "Hubo un problema al subir la imagen",
@@ -145,7 +144,6 @@ export function EditableAvatar({
       });
 
     } catch (error: any) {
-      console.error('Error updating avatar:', error);
       toast({
         title: "Error",
         description: error.message || "Hubo un problema al actualizar el avatar",
@@ -180,7 +178,6 @@ export function EditableAvatar({
       });
 
     } catch (error: any) {
-      console.error('Error removing avatar:', error);
       toast({
         title: "Error",
         description: error.message || "Hubo un problema al remover el avatar",

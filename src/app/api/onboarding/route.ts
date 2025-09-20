@@ -81,13 +81,12 @@ export async function POST(request: NextRequest) {
           return NextResponse.json({ error: workZoneError.message }, { status: 400 })
         }
       } else if (data.workZone) {
-        console.log('Skipping work zone save - zone name provided instead of UUID:', data.workZone);
+        // Skipping work zone save - zone name provided instead of UUID
       }
     }
 
     return NextResponse.json({ data: { success: true } })
   } catch (error) {
-    console.error('Error saving onboarding data:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

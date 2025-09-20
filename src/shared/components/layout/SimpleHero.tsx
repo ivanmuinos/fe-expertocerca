@@ -44,6 +44,7 @@ export function SimpleHero() {
             src={heroImage.src}
             alt="Profesionales trabajando"
             fill
+            sizes="100vw"
             className="w-full h-full object-cover opacity-20"
             priority={true}
           />

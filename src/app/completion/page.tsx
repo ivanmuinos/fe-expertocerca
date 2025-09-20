@@ -33,11 +33,8 @@ export default function CompletionPage() {
       }
 
       try {
-        console.log("Getting professional profile for user:", user.id);
 
         const profile = await apiClient.get("/profiles/professional");
-
-        console.log("Profile API result:", profile);
 
         if (!profile || !(profile as any).id) {
           throw new Error("Perfil profesional no encontrado");
@@ -45,7 +42,6 @@ export default function CompletionPage() {
 
         const uploadPromises = uploadedPhotos.map(async (photo, index) => {
           try {
-            console.log(`Uploading photo ${index + 1} via API...`);
 
             const formData = new FormData();
             formData.append("file", photo.file);
@@ -60,19 +56,13 @@ export default function CompletionPage() {
 
             if (!response.ok) {
               const errorText = await response.text();
-              console.error(
-                `API upload failed for photo ${index + 1}:`,
-                errorText
-              );
               throw new Error(`Upload failed: ${response.status} ${errorText}`);
             }
 
             const result = await response.json();
-            console.log(`Photo ${index + 1} uploaded successfully:`, result);
 
             return { success: true, photoId: photo.id };
           } catch (error) {
-            console.error(`Error uploading photo ${photo.id}:`, error);
             return { success: false, photoId: photo.id, error };
           }
         });
@@ -81,12 +71,10 @@ export default function CompletionPage() {
         const failedUploads = results.filter((r) => !r.success);
 
         if (failedUploads.length > 0) {
-          console.warn(`${failedUploads.length} photos failed to upload`);
         }
 
         resetOnboarding();
       } catch (error) {
-        console.error("Error during photo upload:", error);
         setUploadError(
           "Error al subir las fotos. Podés intentarlo más tarde desde tu perfil."
         );

@@ -20,13 +20,11 @@ export async function GET(request: NextRequest) {
       .single()
 
     if (error && error.code !== 'PGRST116') {
-      console.error('Error fetching professional profile:', error)
       return NextResponse.json({ error: 'Failed to fetch professional profile' }, { status: 500 })
     }
 
     return NextResponse.json({ data: profile })
   } catch (error) {
-    console.error('Error in professional profile API:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

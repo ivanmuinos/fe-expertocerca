@@ -42,7 +42,6 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
       const { error } = await signInWithGoogle();
       
       if (error) {
-        console.error('Error signing in:', error);
         setHasInitiatedLogin(false);
         clearLoading();
       }
@@ -50,7 +49,6 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
       // Don't close modal here - let the effect handle it when auth completes
       // Keep loading state active until useEffect clears it
     } catch (error) {
-      console.error('Login error:', error);
       setHasInitiatedLogin(false);
       clearLoading();
     }

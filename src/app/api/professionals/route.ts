@@ -26,7 +26,6 @@ export async function GET(request: NextRequest) {
     // Check auth for browse mode
     if (mode === 'browse') {
       const { data: { session }, error: sessionError } = await supabase.auth.getSession()
-      console.log('Session check:', { session: !!session, user: session?.user?.id, error: sessionError })
 
       if (!session) {
         return NextResponse.json({

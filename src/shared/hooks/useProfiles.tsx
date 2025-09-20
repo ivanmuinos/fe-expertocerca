@@ -33,7 +33,6 @@ export const useProfiles = () => {
       await apiClient.saveOnboardingData(data);
       return { success: true };
     } catch (error: any) {
-      console.error('Error saving onboarding data:', error);
       return { success: false, error };
     } finally {
       setLoading(false);
@@ -45,7 +44,6 @@ export const useProfiles = () => {
       const data = await apiClient.getUserProfile(userId);
       return { data, error: null };
     } catch (error: any) {
-      console.error('Error fetching profile:', error);
       return { data: null, error };
     }
   };
@@ -56,7 +54,6 @@ export const useProfiles = () => {
       // Return the first profile for this user (API already filters by user)
       return { data: data[0] || null, error: null };
     } catch (error: any) {
-      console.error('Error fetching professional profile:', error);
       return { data: null, error };
     }
   };

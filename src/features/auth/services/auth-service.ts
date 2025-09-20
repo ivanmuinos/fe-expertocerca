@@ -8,7 +8,6 @@ export async function signInWithGoogle() {
 
   try {
     const response = await apiClient.signInWithGoogle()
-    console.log('Google auth response:', response)
 
     const { url } = response
     if (url) {
@@ -16,7 +15,6 @@ export async function signInWithGoogle() {
     }
     return { error: null }
   } catch (error: any) {
-    console.error('Google auth error:', error)
     return { error }
   }
 }

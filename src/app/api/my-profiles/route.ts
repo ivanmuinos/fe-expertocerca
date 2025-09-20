@@ -31,7 +31,6 @@ export async function GET() {
       .order('created_at', { ascending: false });
 
     if (profilesError) {
-      console.error('Error loading profiles:', profilesError);
       return NextResponse.json({ error: 'Failed to load profiles' }, { status: 500 })
     }
 
@@ -43,7 +42,6 @@ export async function GET() {
       .single();
 
     if (profileError || !profileData) {
-      console.error('Error loading profile data:', profileError);
       return NextResponse.json({ error: 'Failed to load profile data' }, { status: 500 })
     }
 
@@ -68,7 +66,6 @@ export async function GET() {
 
     return NextResponse.json({ data: mappedProfiles })
   } catch (error) {
-    console.error('Error in my profiles API:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
@@ -98,13 +95,11 @@ export async function DELETE(request: NextRequest) {
       .eq('user_id', session.user.id); // Ensure user can only delete their own profiles
 
     if (error) {
-      console.error('Error deleting profile:', error);
       return NextResponse.json({ error: 'Failed to delete profile' }, { status: 500 })
     }
 
     return NextResponse.json({ data: { success: true } })
   } catch (error) {
-    console.error('Error in delete profile API:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

@@ -35,7 +35,6 @@ export const usePortfolio = () => {
       if (error) throw error;
       return { data: data || [], error: null };
     } catch (error: any) {
-      console.error('Error fetching portfolio photos:', error);
       return { data: null, error };
     } finally {
       setLoading(false);
@@ -80,7 +79,6 @@ export const usePortfolio = () => {
 
       return { success: true };
     } catch (error: any) {
-      console.error('Error uploading portfolio photo:', error);
       toast({
         title: "Error",
         description: error.message || "Hubo un problema al subir la foto",
@@ -113,7 +111,6 @@ export const usePortfolio = () => {
 
       return { success: true };
     } catch (error: any) {
-      console.error('Error updating portfolio photo:', error);
       toast({
         title: "Error",
         description: error.message || "Hubo un problema al actualizar la foto",
@@ -154,7 +151,6 @@ export const usePortfolio = () => {
 
       return { success: true };
     } catch (error: any) {
-      console.error('Error deleting portfolio photo:', error);
       toast({
         title: "Error",
         description: error.message || "Hubo un problema al eliminar la foto",

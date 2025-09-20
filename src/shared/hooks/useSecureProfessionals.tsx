@@ -31,7 +31,6 @@ export function useSecureProfessionals() {
       const data = await ProfessionalsService.discoverProfessionals();
       return { data, error: null };
     } catch (error) {
-      console.error('Error in discoverProfessionals:', error);
       return { data: null, error };
     } finally {
       setLoading(false);
@@ -47,7 +46,6 @@ export function useSecureProfessionals() {
       const data = await ProfessionalsService.browseProfessionals();
       return { data, error: null };
     } catch (error) {
-      console.error('Error in browseProfessionals:', error);
       return { data: null, error };
     } finally {
       setLoading(false);

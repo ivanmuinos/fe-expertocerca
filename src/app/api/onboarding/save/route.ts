@@ -42,7 +42,6 @@ export async function POST(request: NextRequest) {
       );
 
     if (profileError) {
-      console.error('Profile save error:', profileError)
       return NextResponse.json({ error: 'Failed to save profile' }, { status: 500 })
     }
 
@@ -68,7 +67,6 @@ export async function POST(request: NextRequest) {
         .single();
 
       if (professionalError) {
-        console.error('Professional profile save error:', professionalError)
         return NextResponse.json({ error: 'Failed to save professional profile' }, { status: 500 })
       }
 
@@ -82,7 +80,6 @@ export async function POST(request: NextRequest) {
           });
 
         if (workZoneError) {
-          console.error('Work zone save error:', workZoneError)
           // Don't fail the whole request for work zone errors
         }
       }
@@ -90,7 +87,6 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ data: { success: true } })
   } catch (error) {
-    console.error('Error in onboarding save API:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

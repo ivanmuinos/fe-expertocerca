@@ -35,7 +35,6 @@ export const usePortfolio = () => {
       if (error) throw error;
       return { data: data || [], error: null };
     } catch (error: any) {
-      console.error('Error fetching portfolio photos:', error);
       return { data: null, error };
     } finally {
       setLoading(false);
@@ -47,7 +46,6 @@ export const usePortfolio = () => {
     try {
       // Check current user session
       const { data: { user }, error: userError } = await supabase.auth.getUser();
-      console.log('Current Supabase user session:', { user: user?.id, email: user?.email, userError });
 
       if (!user) {
         throw new Error('Usuario no autenticado en Supabase');
@@ -57,7 +55,6 @@ export const usePortfolio = () => {
       const fileExt = photoData.file.name.split('.').pop();
       const fileName = `${userId}/${Date.now()}.${fileExt}`;
 
-      console.log('Uploading to storage:', { fileName, bucket: 'portfolio' });
 
       // Upload image to storage
       const { data: uploadData, error: uploadError } = await supabase.storage
@@ -65,18 +62,15 @@ export const usePortfolio = () => {
         .upload(fileName, photoData.file);
 
       if (uploadError) {
-        console.error('Storage upload error:', uploadError);
         throw uploadError;
       }
 
-      console.log('Storage upload successful:', uploadData);
 
       // Get public URL
       const { data: { publicUrl } } = supabase.storage
         .from('portfolio')
         .getPublicUrl(fileName);
 
-      console.log('Generated public URL:', publicUrl);
 
       // Save photo data to database
       const insertData = {
@@ -86,18 +80,15 @@ export const usePortfolio = () => {
         image_url: publicUrl
       };
 
-      console.log('Inserting to portfolio_photos:', insertData);
 
       const { error: dbError } = await supabase
         .from('portfolio_photos')
         .insert(insertData);
 
       if (dbError) {
-        console.error('Database insert error:', dbError);
         throw dbError;
       }
 
-      console.log('Database insert successful');
 
       toast({
         title: "¡Foto subida!",
@@ -106,7 +97,6 @@ export const usePortfolio = () => {
 
       return { success: true };
     } catch (error: any) {
-      console.error('Error uploading portfolio photo:', error);
       toast({
         title: "Error",
         description: error.message || "Hubo un problema al subir la foto",
@@ -139,7 +129,6 @@ export const usePortfolio = () => {
 
       return { success: true };
     } catch (error: any) {
-      console.error('Error updating portfolio photo:', error);
       toast({
         title: "Error",
         description: error.message || "Hubo un problema al actualizar la foto",
@@ -180,7 +169,6 @@ export const usePortfolio = () => {
 
       return { success: true };
     } catch (error: any) {
-      console.error('Error deleting portfolio photo:', error);
       toast({
         title: "Error",
         description: error.message || "Hubo un problema al eliminar la foto",

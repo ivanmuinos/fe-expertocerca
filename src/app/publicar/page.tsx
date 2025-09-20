@@ -26,14 +26,12 @@ export default function PublicarPage() {
 
       // Check if onboarding is completed
       if (!profileResult.data?.onboarding_completed) {
-        console.log('Profile onboarding not completed, redirecting...');
         navigate('/onboarding');
         return;
       }
 
     } catch (error) {
-      console.error('Error loading profile:', error);
-      console.error('Error loading profile:', error);
+      // Error loading profile
     } finally {
       setIsLoading(false);
     }
@@ -69,12 +67,10 @@ export default function PublicarPage() {
 
       if (error) throw error;
 
-      console.log('Publication created successfully');
 
       navigate('/mis-publicaciones');
     } catch (error: any) {
-      console.error('Error creating publication:', error);
-      console.error('Error creating publication:', error);
+      // Error creating publication
     } finally {
       setSaving(false);
     }

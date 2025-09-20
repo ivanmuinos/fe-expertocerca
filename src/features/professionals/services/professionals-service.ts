@@ -15,7 +15,6 @@ export class ProfessionalsService {
     try {
       return await apiClient.getMyProfiles()
     } catch (error) {
-      console.error('Error getting my profiles:', error)
       return []
     }
   }
@@ -27,7 +26,6 @@ export class ProfessionalsService {
     try {
       return await apiClient.getProfessionalProfile(profileId)
     } catch (error) {
-      console.error('Error getting profile:', error)
       return null
     }
   }
@@ -39,7 +37,6 @@ export class ProfessionalsService {
     try {
       return await apiClient.createProfessionalProfile(data)
     } catch (error) {
-      console.error('Error creating profile:', error)
       throw error
     }
   }
@@ -51,7 +48,6 @@ export class ProfessionalsService {
     try {
       return await apiClient.updateProfessionalProfile(profileId, data)
     } catch (error) {
-      console.error('Error updating profile:', error)
       throw error
     }
   }
@@ -63,7 +59,6 @@ export class ProfessionalsService {
     try {
       return await apiClient.deleteProfessionalProfile(profileId)
     } catch (error) {
-      console.error('Error deleting profile:', error)
       throw error
     }
   }
@@ -75,7 +70,6 @@ export class ProfessionalsService {
     try {
       return await apiClient.discoverProfessionals()
     } catch (error) {
-      console.error('Error discovering professionals:', error)
       return []
     }
   }
@@ -87,7 +81,6 @@ export class ProfessionalsService {
     try {
       return await apiClient.browseProfessionals()
     } catch (error) {
-      console.error('Error browsing professionals:', error)
       return []
     }
   }

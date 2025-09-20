@@ -30,8 +30,7 @@ export default function UserTypeSelectionPage() {
         }
       });
     } catch (error) {
-      console.error('Error updating user type:', error);
-      console.error('Error updating user type:', error);
+      // Error updating user type
     }
   };
 

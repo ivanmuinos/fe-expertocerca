@@ -105,7 +105,6 @@ export default function PerfilPage() {
 
       navigate('/');
     } catch (error: any) {
-      console.error('Error updating profile:', error);
       toast({
         title: "Error",
         description: error.message || "Hubo un problema al actualizar tu perfil",

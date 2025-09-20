@@ -38,7 +38,6 @@ export async function GET(
       .single();
 
     if (profileError) {
-      console.error('Error getting profile:', profileError);
       return NextResponse.json({ error: 'Profile not found' }, { status: 404 })
     }
 
@@ -50,7 +49,6 @@ export async function GET(
       .single();
 
     if (profileDataError || !profileData) {
-      console.error('Error loading profile data:', profileDataError);
       return NextResponse.json({ error: 'Failed to load profile data' }, { status: 500 })
     }
 
@@ -75,7 +73,6 @@ export async function GET(
 
     return NextResponse.json({ data: mappedProfile })
   } catch (error) {
-    console.error('Error in get profile API:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

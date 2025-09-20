@@ -33,7 +33,6 @@ export const useReviews = () => {
 
       return { data: reviews || [], error: null };
     } catch (error: any) {
-      console.error('Error fetching reviews:', error);
       return { data: null, error };
     } finally {
       setLoading(false);
@@ -59,7 +58,6 @@ export const useReviews = () => {
 
       return { success: true };
     } catch (error: any) {
-      console.error('Error creating review:', error);
       
       // Handle unique constraint violation (user already reviewed)
       if (error.code === '23505') {
@@ -99,7 +97,6 @@ export const useReviews = () => {
 
       return { success: true };
     } catch (error: any) {
-      console.error('Error updating review:', error);
       toast({
         title: "Error",
         description: error.message || "Hubo un problema al actualizar tu reseña",
@@ -128,7 +125,6 @@ export const useReviews = () => {
 
       return { success: true };
     } catch (error: any) {
-      console.error('Error deleting review:', error);
       toast({
         title: "Error",
         description: error.message || "Hubo un problema al eliminar tu reseña",
@@ -158,7 +154,6 @@ export const useReviews = () => {
 
       return { average: Math.round(average * 10) / 10, count: data.length };
     } catch (error: any) {
-      console.error('Error calculating average rating:', error);
       return { average: 0, count: 0 };
     }
   };

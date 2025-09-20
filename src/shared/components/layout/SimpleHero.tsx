@@ -7,6 +7,7 @@ import { useNavigate } from "@/src/shared/lib/navigation";
 import { useState } from "react";
 import { Card, CardContent } from "@/src/shared/components/ui/card";
 import heroImage from "@/assets/hero-trades.jpg";
+import Image from 'next/image';
 
 export function SimpleHero() {
   const navigate = useNavigate();
@@ -39,10 +40,12 @@ export function SimpleHero() {
       <section className="relative flex-1 flex items-center justify-center bg-gradient-hero text-white overflow-hidden">
         {/* Background Image */}
         <div className="absolute inset-0 z-0">
-          <img 
-            src={heroImage.src} 
-            alt="Profesionales trabajando" 
+          <Image
+            src={heroImage.src}
+            alt="Profesionales trabajando"
+            fill
             className="w-full h-full object-cover opacity-20"
+            priority={true}
           />
           <div className="absolute inset-0 bg-gradient-to-br from-primary/80 to-primary-dark/90" />
         </div>

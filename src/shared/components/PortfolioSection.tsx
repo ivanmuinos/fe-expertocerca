@@ -1,5 +1,6 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Plus, Edit2, Trash2, Upload, X } from 'lucide-react';
+import Image from 'next/image';
 import { Button } from '@/src/shared/components/ui/button';
 import { Card, CardContent } from '@/src/shared/components/ui/card';
 import { Input } from '@/src/shared/components/ui/input';
@@ -27,16 +28,16 @@ export function PortfolioSection({ professionalProfileId, isOwner }: PortfolioSe
   });
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    loadPhotos();
-  }, [professionalProfileId]);
-
-  const loadPhotos = async () => {
+  const loadPhotos = useCallback(async () => {
     const { data } = await getPortfolioPhotos(professionalProfileId);
     if (data) {
       setPhotos(data);
     }
-  };
+  }, [getPortfolioPhotos, professionalProfileId]);
+
+  useEffect(() => {
+    loadPhotos();
+  }, [professionalProfileId]);
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -148,9 +149,11 @@ export function PortfolioSection({ professionalProfileId, isOwner }: PortfolioSe
                     />
                     {selectedFile ? (
                       <div className="space-y-2">
-                        <img 
-                          src={URL.createObjectURL(selectedFile)} 
-                          alt="Preview" 
+                        <Image
+                          src={URL.createObjectURL(selectedFile)}
+                          alt="Preview"
+                          width={400}
+                          height={128}
                           className="w-full h-32 object-cover rounded-lg"
                         />
                         <p className="text-sm text-muted-foreground">{selectedFile.name}</p>
@@ -256,10 +259,12 @@ export function PortfolioSection({ professionalProfileId, isOwner }: PortfolioSe
             
             return (
               <div key={photo.id} className={`relative overflow-hidden group cursor-pointer ${gridClass}`}>
-                <img 
-                  src={photo.image_url} 
+                <Image
+                  src={photo.image_url}
                   alt={photo.title}
+                  fill
                   className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                  priority={index === 0}
                 />
                 {index === 4 && photos.length > 5 && (
                   <div className="absolute inset-0 bg-black/50 flex items-center justify-center">

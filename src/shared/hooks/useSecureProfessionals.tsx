@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { ProfessionalsService } from '@/src/features/professionals/services/professionals-service';
 
 interface SecureProfessional {
@@ -25,7 +25,7 @@ export function useSecureProfessionals() {
   /**
    * Discover professionals - Safe for public access (no phone numbers exposed)
    */
-  const discoverProfessionals = async (): Promise<{ data: SecureProfessional[] | null; error: any | null }> => {
+  const discoverProfessionals = useCallback(async (): Promise<{ data: SecureProfessional[] | null; error: any | null }> => {
     setLoading(true);
     try {
       const data = await ProfessionalsService.discoverProfessionals();
@@ -36,12 +36,12 @@ export function useSecureProfessionals() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   /**
    * Browse professionals - For authenticated users (includes contact info)
    */
-  const browseProfessionals = async (): Promise<{ data: AuthenticatedProfessional[] | null; error: any | null }> => {
+  const browseProfessionals = useCallback(async (): Promise<{ data: AuthenticatedProfessional[] | null; error: any | null }> => {
     setLoading(true);
     try {
       const data = await ProfessionalsService.browseProfessionals();
@@ -52,7 +52,7 @@ export function useSecureProfessionals() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   return {
     loading,

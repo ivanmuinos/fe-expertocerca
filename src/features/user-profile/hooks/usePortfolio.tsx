@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { supabase } from '@/src/config/supabase';
+import { supabase } from '@/src/integrations/supabase/client';
 import { useToast } from '@/src/shared/hooks/use-toast';
 
 export interface PortfolioPhoto {
@@ -45,33 +45,59 @@ export const usePortfolio = () => {
   const uploadPortfolioPhoto = async (photoData: CreatePortfolioPhotoData, userId: string) => {
     setLoading(true);
     try {
+      // Check current user session
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      console.log('Current Supabase user session:', { user: user?.id, email: user?.email, userError });
+
+      if (!user) {
+        throw new Error('Usuario no autenticado en Supabase');
+      }
+
       // Generate unique filename
       const fileExt = photoData.file.name.split('.').pop();
       const fileName = `${userId}/${Date.now()}.${fileExt}`;
+
+      console.log('Uploading to storage:', { fileName, bucket: 'portfolio' });
 
       // Upload image to storage
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('portfolio')
         .upload(fileName, photoData.file);
 
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        console.error('Storage upload error:', uploadError);
+        throw uploadError;
+      }
+
+      console.log('Storage upload successful:', uploadData);
 
       // Get public URL
       const { data: { publicUrl } } = supabase.storage
         .from('portfolio')
         .getPublicUrl(fileName);
 
+      console.log('Generated public URL:', publicUrl);
+
       // Save photo data to database
+      const insertData = {
+        professional_profile_id: photoData.professional_profile_id,
+        title: photoData.title,
+        description: photoData.description,
+        image_url: publicUrl
+      };
+
+      console.log('Inserting to portfolio_photos:', insertData);
+
       const { error: dbError } = await supabase
         .from('portfolio_photos')
-        .insert({
-          professional_profile_id: photoData.professional_profile_id,
-          title: photoData.title,
-          description: photoData.description,
-          image_url: publicUrl
-        });
+        .insert(insertData);
 
-      if (dbError) throw dbError;
+      if (dbError) {
+        console.error('Database insert error:', dbError);
+        throw dbError;
+      }
+
+      console.log('Database insert successful');
 
       toast({
         title: "¡Foto subida!",

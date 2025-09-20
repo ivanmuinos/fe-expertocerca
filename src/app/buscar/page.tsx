@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "@/src/shared/lib/navigation";
 import { Search, Clock, MapPin, Phone, Wrench, Hammer, Paintbrush, Zap, Droplets, Scissors, Car, Home } from "lucide-react";
 import { Button } from "@/src/shared/components/ui/button";
@@ -79,13 +79,13 @@ export default function BuscarPage() {
 
   useEffect(() => {
     loadProfessionals();
-  }, [user]);
+  }, [user, loadProfessionals]);
 
   useEffect(() => {
     applyFilters();
-  }, [professionals, searchTerm, selectedZone]);
+  }, [professionals, searchTerm, selectedZone, applyFilters]);
 
-  const loadProfessionals = async () => {
+  const loadProfessionals = useCallback(async () => {
     const { data, error } = user ? await browseProfessionals() : await discoverProfessionals();
 
     if (error) {
@@ -98,9 +98,9 @@ export default function BuscarPage() {
     }
 
     setProfessionals((data || []) as Professional[]);
-  };
+  }, [user, browseProfessionals, discoverProfessionals, toast]);
 
-  const applyFilters = () => {
+  const applyFilters = useCallback(() => {
     let filtered = professionals;
 
     // Filtro por término de búsqueda (servicio)
@@ -121,7 +121,7 @@ export default function BuscarPage() {
     }
 
     setFilteredProfessionals(filtered);
-  };
+  }, [professionals, searchTerm, selectedZone]);
 
   const handleProfessionalClick = (professional: Professional) => {
     setSelectedProfessional(professional);

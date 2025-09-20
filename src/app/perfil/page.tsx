@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from '@/src/shared/lib/navigation';
 import { useAuthState } from '@/src/features/auth'
 import { useProfiles } from '@/src/features/user-profile';
@@ -34,13 +34,7 @@ export default function PerfilPage() {
   });
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => {
-    if (user) {
-      loadUserData();
-    }
-  }, [user]);
-
-  const loadUserData = async () => {
+  const loadUserData = useCallback(async () => {
     if (!user) return;
 
     const [profileResult, professionalResult] = await Promise.all([
@@ -64,7 +58,13 @@ export default function PerfilPage() {
     if (professionalResult.data) {
       setProfessionalData(professionalResult.data);
     }
-  };
+  }, [user, getProfile, getProfessionalProfile]);
+
+  useEffect(() => {
+    if (user) {
+      loadUserData();
+    }
+  }, [user, loadUserData]);
 
   const handleSave = async () => {
     if (!user) return;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from '@/src/shared/lib/navigation';
 import { useAuthState } from '@/src/features/auth'
 import { useProfiles } from '@/src/features/user-profile';
@@ -17,17 +17,7 @@ export default function PublicarPage() {
   const navigate = useNavigate();
   const { getProfile } = useProfiles();
 
-  // Redirect if not authenticated
-  useEffect(() => {
-    if (!user) {
-      navigate('/auth?next=/publicar');
-      return;
-    }
-
-    loadProfile();
-  }, [user, navigate]);
-
-  const loadProfile = async () => {
+  const loadProfile = useCallback(async () => {
     if (!user) return;
 
     try {
@@ -47,7 +37,17 @@ export default function PublicarPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [user, getProfile, navigate]);
+
+  // Redirect if not authenticated
+  useEffect(() => {
+    if (!user) {
+      navigate('/auth?next=/publicar');
+      return;
+    }
+
+    loadProfile();
+  }, [user, navigate, loadProfile]);
 
   const handleSave = async (data: ProfessionalServiceData) => {
     if (!user) return;

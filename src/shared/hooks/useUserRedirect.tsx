@@ -42,12 +42,12 @@ export function useUserRedirect() {
                                 pathname.includes('/personal-data') ||
                                 pathname === '/completion';
 
-      // If user has no profile, redirect to user type selection
+      // If user has no profile, allow them to navigate freely
+      // Only suggest onboarding, don't force it
       if (!onboardingStatus.hasProfile) {
-        console.log('User has no profile, redirecting to user-type-selection');
-        if (!isOnUserTypeSelection) {
-          navigate('/user-type-selection');
-        }
+        console.log('User has no profile, allowing free navigation');
+        // Don't auto-redirect - let the user decide when to complete onboarding
+        // The UI can show prompts/banners to encourage completion
         setIsCheckingRedirect(false);
         return;
       }

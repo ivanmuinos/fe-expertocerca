@@ -18,8 +18,6 @@ const nextConfig = {
   // Dynamic server-side features enabled
   // output: 'export', // Commented out to enable API routes
   trailingSlash: true,
-  distDir: '.next',
-  outputFileTracingRoot: '/Users/ivan/Desktop/workspace/oficios-app/fe-expertocerca',
 }
 
 export default nextConfig

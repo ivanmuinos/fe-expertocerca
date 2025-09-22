@@ -1,3 +1,5 @@
+"use client";
+
 import { useOnboardingProgress } from '@/src/shared/stores/useOnboardingProgressStore';
 import { motion, useAnimation } from 'framer-motion';
 import { useEffect, useState } from 'react';

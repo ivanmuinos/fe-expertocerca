@@ -36,19 +36,24 @@ import {
   SelectValue,
 } from "@/src/shared/components/ui/select";
 import { Card, CardContent } from "@/src/shared/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/src/shared/components/ui/avatar";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/src/shared/components/ui/avatar";
 import { Badge } from "@/src/shared/components/ui/badge";
 import { useSecureProfessionals } from "@/src/features/professionals";
 import { useToast } from "@/src/shared/hooks/use-toast";
-import { useAuthState } from '@/src/features/auth'
+import { useAuthState } from "@/src/features/auth";
 import { useUserRedirect } from "@/src/features/onboarding";
 import { SharedHeader } from "@/src/shared/components/SharedHeader";
 
 import { ProfessionalCarousel } from "@/src/shared/components/ProfessionalCarousel";
+import { Footer } from "@/src/shared/components";
 
 export default function HomePage() {
   const [professionals, setProfessionals] = useState<any[]>([]);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState("Todos");
   const [selectedService, setSelectedService] = useState("");
   const [selectedZone, setSelectedZone] = useState("all");
   const [showFilters, setShowFilters] = useState(false);
@@ -62,7 +67,13 @@ export default function HomePage() {
   // Handle user redirection for first-time users - runs in background
   const { isCheckingRedirect } = useUserRedirect();
 
+  const clearFilters = () => {
+    setSearchTerm("Todos");
+    setSelectedZone("all");
+  };
+
   const popularServices = [
+    { name: "Todos", icon: Search },
     { name: "Electricista", icon: Zap },
     { name: "Plomero", icon: Wrench },
     { name: "Carpintero", icon: Hammer },
@@ -110,11 +121,6 @@ export default function HomePage() {
   // For now, don't filter - just show all professionals
   const displayedProfessionals = professionals;
 
-  const clearFilters = () => {
-    setSearchTerm("");
-    setSelectedZone("all");
-  };
-
   const handleServiceClick = (serviceName: string) => {
     setSelectedService(serviceName === selectedService ? "" : serviceName);
   };
@@ -148,7 +154,6 @@ export default function HomePage() {
       <div className='min-h-screen bg-background flex items-center justify-center'>
         <div className='text-center space-y-4'>
           <div className='w-8 h-8 border-4 border-primary/20 border-t-primary rounded-full animate-spin mx-auto' />
-          <p className="text-muted-foreground">Cargando...</p>
         </div>
       </div>
     );
@@ -159,6 +164,7 @@ export default function HomePage() {
       <SharedHeader
         variant='transparent'
         showSearch={true}
+        searchCollapsed={true}
         searchProps={{
           searchTerm,
           setSearchTerm,
@@ -233,6 +239,11 @@ export default function HomePage() {
           )}
         </div>
       </section>
+
+      {/* Spacer to push footer below the fold - full viewport height */}
+      <div className='h-screen'></div>
+
+      <Footer />
     </div>
   );
 }

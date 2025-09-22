@@ -1,3 +1,5 @@
+"use client";
+
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/src/shared/components/ui/select";
 import { Search } from "lucide-react";
 import { useState } from "react";

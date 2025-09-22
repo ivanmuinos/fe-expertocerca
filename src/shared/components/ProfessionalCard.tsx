@@ -10,7 +10,7 @@ import {
   Droplets,
   Scissors,
   Car,
-  Home
+  Home,
 } from "lucide-react";
 import { Badge } from "@/src/shared/components/ui/badge";
 
@@ -29,6 +29,7 @@ interface Professional {
   has_contact_info?: boolean;
   whatsapp_phone?: string;
   hourly_rate?: number;
+  main_portfolio_image?: string;
 }
 
 interface ProfessionalCardProps {
@@ -42,14 +43,14 @@ interface ProfessionalCardProps {
 // Función para mapear especialidades a iconos
 const getSpecialtyIcon = (specialty: string) => {
   const specialtyMap: { [key: string]: any } = {
-    'Electricista': Zap,
-    'Plomero': Droplets,
-    'Pintor': Paintbrush,
-    'Carpintero': Hammer,
-    'Técnico en aires': Wrench,
-    'Peluquero': Scissors,
-    'Mecánico': Car,
-    'Limpieza': Home,
+    Electricista: Zap,
+    Plomero: Droplets,
+    Pintor: Paintbrush,
+    Carpintero: Hammer,
+    "Técnico en aires": Wrench,
+    Peluquero: Scissors,
+    Mecánico: Car,
+    Limpieza: Home,
   };
 
   return specialtyMap[specialty] || null;
@@ -60,7 +61,7 @@ export function ProfessionalCard({
   isSelected = false,
   onClick,
   showAllSkills = false,
-  className = ""
+  className = "",
 }: ProfessionalCardProps) {
   const handleClick = () => {
     if (onClick) {
@@ -75,56 +76,80 @@ export function ProfessionalCard({
   return (
     <div
       className={`group cursor-pointer transition-all duration-200 ${
-        isSelected ? 'ring-2 ring-gray-200' : ''
+        isSelected ? "ring-2 ring-gray-200" : ""
       } ${className}`}
       onClick={handleClick}
       style={{
-        outline: 'none !important',
-        WebkitTapHighlightColor: 'transparent'
+        outline: "none !important",
+        WebkitTapHighlightColor: "transparent",
       }}
       onFocus={(e) => e.preventDefault()}
       onMouseDown={(e) => e.preventDefault()}
     >
       {/* Card container with Airbnb-style shadow */}
-      <div className="bg-white rounded-xl hover:shadow-md transition-shadow duration-300 overflow-hidden" style={{ outline: 'none' }}>
+      <div
+        className='bg-white rounded-xl hover:shadow-md transition-shadow duration-300 overflow-hidden'
+        style={{ outline: "none" }}
+      >
         {/* Avatar section - cuadrado como Airbnb */}
-        <div className="aspect-square relative bg-gray-100 overflow-hidden">
-          {professional.profile_avatar_url ? (
-            <img
-              src={professional.profile_avatar_url.replace('=s96-c', '=s400-c')}
-              alt={professional.profile_full_name || "Professional"}
-              className="w-full h-full object-cover"
-              loading="lazy"
-              onError={(e) => {
-                console.log('Error loading image:', professional.profile_avatar_url);
-                // Fallback to original URL if modified doesn't work
-                if (e.currentTarget.src.includes('=s400-c')) {
-                  e.currentTarget.src = professional.profile_avatar_url;
-                } else {
-                  e.currentTarget.style.display = 'none';
-                }
-              }}
-            />
-          ) : (
-            <div className="w-full h-full bg-primary text-primary-foreground text-4xl font-bold flex items-center justify-center">
+        <div className='aspect-square relative bg-gray-100 overflow-hidden'>
+          {(() => {
+            // Priority: portfolio image > avatar > fallback
+            const portfolioUrl = professional.main_portfolio_image;
+            const avatarUrl =
+              professional.profile_avatar_url ||
+              (professional as any).avatar_url;
+
+            const imageUrl = portfolioUrl || avatarUrl;
+            if (!imageUrl) return null;
+
+            // Only apply Google Photos resize to avatar URLs
+            const src =
+              avatarUrl && imageUrl === avatarUrl && imageUrl.includes("=s96-c")
+                ? imageUrl.replace("=s96-c", "=s400-c")
+                : imageUrl;
+
+            return (
+              <img
+                src={src}
+                alt={professional.profile_full_name || "Professional"}
+                className='w-full h-full object-cover'
+                loading='lazy'
+                onError={(e) => {
+                  console.log("Error loading image:", imageUrl);
+                  // Fallback to original URL if modified doesn't work
+                  if (e.currentTarget.src.includes("=s400-c") && avatarUrl) {
+                    e.currentTarget.src = avatarUrl;
+                  } else {
+                    e.currentTarget.style.display = "none";
+                  }
+                }}
+              />
+            );
+          })() || (
+            <div className='w-full h-full bg-primary text-primary-foreground text-4xl font-bold flex items-center justify-center'>
               {professional.profile_full_name?.charAt(0) || "U"}
             </div>
           )}
         </div>
 
         {/* Content section */}
-        <div className="p-3">
-          <div className="space-y-2">
+        <div className='p-3'>
+          <div className='space-y-2'>
             {/* Title and specialty */}
             <div>
-              <h3 className="font-semibold text-foreground line-clamp-1 text-base">
+              <h3 className='font-semibold text-foreground line-clamp-1 text-base'>
                 {professional.trade_name}
               </h3>
               {professional.specialty && (
-                <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                <div className='flex items-center gap-1.5 text-sm text-muted-foreground'>
                   {(() => {
-                    const SpecialtyIcon = getSpecialtyIcon(professional.specialty);
-                    return SpecialtyIcon ? <SpecialtyIcon className="h-4 w-4" /> : null;
+                    const SpecialtyIcon = getSpecialtyIcon(
+                      professional.specialty
+                    );
+                    return SpecialtyIcon ? (
+                      <SpecialtyIcon className='h-4 w-4' />
+                    ) : null;
                   })()}
                   <span>{professional.specialty}</span>
                 </div>
@@ -132,24 +157,24 @@ export function ProfessionalCard({
             </div>
 
             {/* Location */}
-            <div className="flex items-center gap-1 text-sm text-muted-foreground">
-              <MapPin className="h-4 w-4 flex-shrink-0" />
-              <span className="line-clamp-1">
-                {professional.profile_location_city && professional.profile_location_province
-                  ? `${professional.profile_location_city}, ${professional.profile_location_province}`
-                  : "Ubicación no especificada"
-                }
+            <div className='flex items-center gap-1 text-[13px] text-muted-foreground font-normal'>
+              <MapPin className='h-4 w-4 flex-shrink-0' />
+              <span className='line-clamp-1'>
+                {professional.profile_location_city &&
+                professional.profile_location_province
+                  ? `en ${professional.profile_location_city}, ${professional.profile_location_province}`
+                  : "Ubicación no especificada"}
               </span>
             </div>
 
             {/* Skills */}
             {skillsToShow.length > 0 && (
-              <div className="flex flex-wrap gap-1 pt-1">
+              <div className='flex flex-wrap gap-1 pt-1'>
                 {skillsToShow.map((skill, index) => (
                   <Badge
                     key={index}
-                    variant="secondary"
-                    className="text-xs px-2 py-0.5"
+                    variant='secondary'
+                    className='text-xs px-2 py-0.5'
                   >
                     {skill}
                   </Badge>
@@ -159,8 +184,8 @@ export function ProfessionalCard({
 
             {/* Price */}
             {professional.hourly_rate && (
-              <div className="pt-1">
-                <p className="font-semibold text-foreground">
+              <div className='pt-1'>
+                <p className='font-semibold text-foreground'>
                   ${professional.hourly_rate.toLocaleString()}/hora
                 </p>
               </div>

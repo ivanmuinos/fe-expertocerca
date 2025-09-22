@@ -14,6 +14,7 @@ import { Save, User, Phone } from 'lucide-react';
 import { useToast } from '@/src/shared/hooks/use-toast';
 import { EditableAvatar } from '@/src/shared/components/EditableAvatar';
 import { SharedHeader } from '@/src/shared/components/SharedHeader';
+import { Footer } from '@/src/shared/components/Footer';
 
 export default function PerfilPage() {
   const navigate = useNavigate();
@@ -115,131 +116,368 @@ export default function PerfilPage() {
     }
   };
 
-  if (!user) {
+  if (authLoading || !user) {
     return (
-      <div className="min-h-screen bg-background px-4 py-8">
-        <div className="container mx-auto max-w-2xl text-center">
-          <h1 className="text-2xl font-bold text-foreground mb-4">Acceso denegado</h1>
-          <p className="text-muted-foreground mb-6">Necesitas iniciar sesión para ver tu perfil</p>
-          <Button onClick={() => navigate('/auth')}>
-            Iniciar sesión
-          </Button>
+      <div className="min-h-screen bg-white">
+        <SharedHeader showBackButton={true} title="Mi Perfil" variant="transparent" />
+
+        {/* Skeleton Loading - Airbnb Style Layout */}
+        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-10 py-8">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 min-h-[calc(100vh-120px)]">
+
+            {/* Left Sidebar Skeleton */}
+            <div className="lg:col-span-1">
+              <div className="sticky top-32">
+                <div className="h-9 bg-gray-200 rounded-lg mb-8 w-20 animate-pulse"></div>
+                <div className="space-y-1">
+                  <div className="h-12 bg-gray-200 rounded-lg animate-pulse"></div>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Content Skeleton */}
+            <div className="lg:col-span-3 space-y-8">
+
+              {/* Header Skeleton */}
+              <div>
+                <div className="flex items-center justify-between mb-6">
+                  <div className="h-8 bg-gray-200 rounded-lg w-32 animate-pulse"></div>
+                  <div className="h-10 bg-gray-200 rounded-lg w-20 animate-pulse"></div>
+                </div>
+
+                {/* Profile Card Skeleton */}
+                <div className="p-8 border border-gray-200 rounded-2xl shadow-sm">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+                    {/* Left: Avatar and Basic Info Skeleton */}
+                    <div className="text-center md:text-left">
+                      <div className="flex flex-col items-center md:items-start space-y-4">
+                        <div className="w-24 h-24 bg-gray-200 rounded-full animate-pulse"></div>
+                        <div className="space-y-2">
+                          <div className="h-7 bg-gray-200 rounded-lg w-40 animate-pulse"></div>
+                          <div className="h-5 bg-gray-200 rounded-lg w-32 animate-pulse"></div>
+                        </div>
+                      </div>
+
+                      {/* Verified Badge Skeleton */}
+                      <div className="mt-6 flex items-center justify-center md:justify-start">
+                        <div className="h-5 bg-gray-200 rounded-lg w-36 animate-pulse"></div>
+                      </div>
+                    </div>
+
+                    {/* Right: Stats Skeleton */}
+                    <div className="grid grid-cols-3 gap-4 h-fit">
+                      {[1, 2, 3].map((i) => (
+                        <div key={i} className="text-center">
+                          <div className="h-8 bg-gray-200 rounded-lg mb-1 animate-pulse"></div>
+                          <div className="h-4 bg-gray-200 rounded-lg animate-pulse"></div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Contact Info Skeleton */}
+              <div className="p-6 border border-gray-200 rounded-2xl shadow-sm">
+                <div className="h-6 bg-gray-200 rounded-lg w-48 mb-4 animate-pulse"></div>
+                <div className="space-y-4">
+                  {[1, 2].map((i) => (
+                    <div key={i} className="flex items-center space-x-3">
+                      <div className="w-5 h-5 bg-gray-200 rounded animate-pulse"></div>
+                      <div className="h-5 bg-gray-200 rounded-lg w-40 animate-pulse"></div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Reviews Section Skeleton */}
+              <div>
+                <div className="h-8 bg-gray-200 rounded-lg w-48 mb-6 animate-pulse"></div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {[1, 2, 3].map((review) => (
+                    <div key={review} className="p-6 border border-gray-200 rounded-2xl shadow-sm">
+                      <div className="flex items-start space-x-3">
+                        <div className="w-10 h-10 bg-gray-200 rounded-full flex-shrink-0 animate-pulse"></div>
+                        <div className="flex-1 min-w-0 space-y-2">
+                          <div className="flex items-center justify-between">
+                            <div className="h-4 bg-gray-200 rounded w-20 animate-pulse"></div>
+                            <div className="h-4 bg-gray-200 rounded w-16 animate-pulse"></div>
+                          </div>
+                          <div className="h-3 bg-gray-200 rounded w-24 animate-pulse"></div>
+                          <div className="space-y-1">
+                            <div className="h-3 bg-gray-200 rounded animate-pulse"></div>
+                            <div className="h-3 bg-gray-200 rounded w-3/4 animate-pulse"></div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Footer Skeleton */}
+        <div className="bg-gray-100 mt-16">
+          <div className="max-w-7xl mx-auto px-6 py-12">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="space-y-3">
+                  <div className="h-5 bg-gray-200 rounded w-24 animate-pulse"></div>
+                  <div className="space-y-2">
+                    {[1, 2, 3].map((j) => (
+                      <div key={j} className="h-4 bg-gray-200 rounded w-20 animate-pulse"></div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <SharedHeader showBackButton={true} title="Mi Perfil" />
+    <div className="min-h-screen bg-white">
+      <SharedHeader showBackButton={true} title="Mi Perfil" variant="transparent" />
 
-      {/* Content */}
-      <div className="px-4 py-8 sm:py-12">
-        <div className="container mx-auto max-w-2xl">
-          <Card className="shadow-xl">
-            <CardHeader className="p-6 sm:p-8">
-              <div className="flex items-center gap-3">
-                <User className="w-8 h-8 text-primary" />
-                <CardTitle className="text-2xl sm:text-3xl">Configuración del Perfil</CardTitle>
-              </div>
-              <p className="text-muted-foreground">
-                Actualiza tu información personal y de contacto
-              </p>
-            </CardHeader>
+      {/* Main Content - Airbnb Style Layout */}
+      <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-10 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 min-h-[calc(100vh-120px)]">
 
-            <CardContent className="p-6 sm:p-8 space-y-6">
-              {/* Avatar Section */}
-              <div className="text-center">
-                <EditableAvatar
-                  avatarUrl={formData.avatar_url}
-                  userFullName={formData.full_name}
-                  size="lg"
-                  onAvatarChange={(newUrl) => setFormData({ ...formData, avatar_url: newUrl || '' })}
-                />
-              </div>
+          {/* Left Sidebar - Navigation */}
+          <div className="lg:col-span-1">
+            <div className="sticky top-32">
+              <h1 className="text-3xl font-semibold text-gray-900 mb-8">Perfil</h1>
 
-              <div className="space-y-2">
-                <Label htmlFor="full_name">Nombre completo</Label>
-                <Input
-                  id="full_name"
-                  value={formData.full_name}
-                  onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
-                  placeholder="Tu nombre completo"
-                />
-              </div>
+              <nav className="space-y-1">
+                <button className="w-full text-left px-4 py-3 rounded-lg bg-gray-100 text-gray-900 font-medium">
+                  Sobre mi
+                </button>
+                {/* Preparado para más opciones */}
+              </nav>
+            </div>
+          </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="phone">Teléfono</Label>
-                <Input
-                  id="phone"
-                  value={formData.phone}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  placeholder="Tu número de teléfono"
-                />
-              </div>
+          {/* Right Content - Main Section */}
+          <div className="lg:col-span-3 space-y-8">
 
-              <div className="space-y-2">
-                <Label htmlFor="whatsapp_phone" className="flex items-center gap-2">
-                  <Phone className="w-4 h-4" />
-                  WhatsApp
-                </Label>
-                <Input
-                  id="whatsapp_phone"
-                  value={formData.whatsapp_phone}
-                  onChange={(e) => setFormData({ ...formData, whatsapp_phone: e.target.value })}
-                  placeholder="Ej: +54 9 11 1234-5678"
-                  className="font-mono"
-                />
-                <p className="text-sm text-muted-foreground">
-                  Incluye código de país. Este número se usará para contactarte por WhatsApp.
-                </p>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="location_city">Ciudad</Label>
-                <Input
-                  id="location_city"
-                  value={formData.location_city}
-                  onChange={(e) => setFormData({ ...formData, location_city: e.target.value })}
-                  placeholder="Tu ciudad"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="location_province">Provincia</Label>
-                <Input
-                  id="location_province"
-                  value={formData.location_province}
-                  onChange={(e) => setFormData({ ...formData, location_province: e.target.value })}
-                  placeholder="Tu provincia"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="bio">Biografía</Label>
-                <Textarea
-                  id="bio"
-                  value={formData.bio}
-                  onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
-                  placeholder="Cuéntanos sobre ti..."
-                  rows={4}
-                />
-              </div>
-
-              <div className="flex gap-4 pt-6">
-                <Button
-                  onClick={handleSave}
-                  disabled={saving || profilesLoading}
-                  className="flex-1"
-                >
-                  <Save className="w-4 h-4 mr-2" />
-                  {saving ? 'Guardando...' : 'Guardar cambios'}
+            {/* About Me Section */}
+            <div>
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-semibold text-gray-900">Sobre mi</h2>
+                <Button variant="outline" className="rounded-lg">
+                  Editar
                 </Button>
               </div>
-            </CardContent>
-          </Card>
+
+              {/* Profile Card */}
+              <Card className="p-8 border border-gray-200 rounded-2xl shadow-sm">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+                  {/* Left: Avatar and Basic Info */}
+                  <div className="text-center md:text-left">
+                    <div className="flex flex-col items-center md:items-start space-y-4">
+                      <EditableAvatar
+                        avatarUrl={formData.avatar_url}
+                        userFullName={formData.full_name}
+                        size="xl"
+                        onAvatarChange={(newUrl) => setFormData({ ...formData, avatar_url: newUrl || '' })}
+                      />
+                      <div>
+                        <h3 className="text-2xl font-semibold text-gray-900">
+                          {formData.full_name || 'Tu nombre'}
+                        </h3>
+                        <p className="text-gray-600">
+                          {formData.location_city && formData.location_province
+                            ? `${formData.location_city}, ${formData.location_province}`
+                            : 'Ubicación no especificada'
+                          }
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Verified Badge */}
+                    <div className="mt-6 flex items-center justify-center md:justify-start">
+                      <div className="flex items-center space-x-2 text-gray-600">
+                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                        </svg>
+                        <span className="text-sm">Identidad verificada</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Right: Stats */}
+                  <div className="grid grid-cols-3 gap-4 h-fit">
+                    <div className="text-center">
+                      <div className="text-2xl font-semibold text-gray-900">5</div>
+                      <div className="text-sm text-gray-600">Trabajos</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-2xl font-semibold text-gray-900">4.8</div>
+                      <div className="text-sm text-gray-600">Evaluaciones</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-2xl font-semibold text-gray-900">2</div>
+                      <div className="text-sm text-gray-600">Años en Experto Cerca</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Bio Section */}
+                {formData.bio && (
+                  <div className="mt-8 pt-6 border-t border-gray-100">
+                    <p className="text-gray-700 leading-relaxed">{formData.bio}</p>
+                  </div>
+                )}
+              </Card>
+            </div>
+
+            {/* Contact Info Section */}
+            <Card className="p-6 border border-gray-200 rounded-2xl shadow-sm">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Información de contacto</h3>
+              <div className="space-y-4">
+                <div className="flex items-center space-x-3">
+                  <Phone className="w-5 h-5 text-gray-400" />
+                  <span className="text-gray-700">
+                    {formData.whatsapp_phone || 'WhatsApp no configurado'}
+                  </span>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <User className="w-5 h-5 text-gray-400" />
+                  <span className="text-gray-700">
+                    {formData.phone || 'Teléfono no configurado'}
+                  </span>
+                </div>
+              </div>
+            </Card>
+
+            {/* Reviews Section */}
+            <div>
+              <h2 className="text-2xl font-semibold text-gray-900 mb-6">Mis evaluaciones</h2>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {/* Mock reviews - reemplazar con datos reales */}
+                {[1, 2, 3].map((review) => (
+                  <Card key={review} className="p-6 border border-gray-200 rounded-2xl shadow-sm">
+                    <div className="flex items-start space-x-3">
+                      <div className="w-10 h-10 bg-gray-300 rounded-full flex-shrink-0"></div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between mb-2">
+                          <h4 className="text-sm font-semibold text-gray-900">Cliente {review}</h4>
+                          <div className="flex text-yellow-400">
+                            {[...Array(5)].map((_, i) => (
+                              <svg key={i} className="w-4 h-4 fill-current" viewBox="0 0 20 20">
+                                <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/>
+                              </svg>
+                            ))}
+                          </div>
+                        </div>
+                        <p className="text-sm text-gray-600 mb-2">febrero de 2025</p>
+                        <p className="text-sm text-gray-700">
+                          Excelente trabajo, muy profesional y puntual. Lo recomiendo completamente.
+                        </p>
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            </div>
+
+            {/* Edit Modal/Form (Hidden by default) */}
+            <div className="hidden">
+              <Card className="p-8 border border-gray-200 rounded-2xl shadow-sm">
+                <h3 className="text-xl font-semibold text-gray-900 mb-6">Editar perfil</h3>
+
+                <div className="space-y-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="full_name">Nombre completo</Label>
+                    <Input
+                      id="full_name"
+                      value={formData.full_name}
+                      onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
+                      placeholder="Tu nombre completo"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="phone">Teléfono</Label>
+                    <Input
+                      id="phone"
+                      value={formData.phone}
+                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                      placeholder="Tu número de teléfono"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="whatsapp_phone" className="flex items-center gap-2">
+                      <Phone className="w-4 h-4" />
+                      WhatsApp
+                    </Label>
+                    <Input
+                      id="whatsapp_phone"
+                      value={formData.whatsapp_phone}
+                      onChange={(e) => setFormData({ ...formData, whatsapp_phone: e.target.value })}
+                      placeholder="Ej: +54 9 11 1234-5678"
+                      className="font-mono"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="location_city">Ciudad</Label>
+                    <Input
+                      id="location_city"
+                      value={formData.location_city}
+                      onChange={(e) => setFormData({ ...formData, location_city: e.target.value })}
+                      placeholder="Tu ciudad"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="location_province">Provincia</Label>
+                    <Input
+                      id="location_province"
+                      value={formData.location_province}
+                      onChange={(e) => setFormData({ ...formData, location_province: e.target.value })}
+                      placeholder="Tu provincia"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="bio">Biografía</Label>
+                    <Textarea
+                      id="bio"
+                      value={formData.bio}
+                      onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
+                      placeholder="Cuéntanos sobre ti..."
+                      rows={4}
+                    />
+                  </div>
+
+                  <div className="flex gap-4 pt-6">
+                    <Button
+                      onClick={handleSave}
+                      disabled={saving || profilesLoading}
+                      className="flex-1"
+                    >
+                      <Save className="w-4 h-4 mr-2" />
+                      {saving ? 'Guardando...' : 'Guardar cambios'}
+                    </Button>
+                  </div>
+                </div>
+              </Card>
+            </div>
+          </div>
         </div>
       </div>
+
+      {/* Footer */}
+      <Footer />
     </div>
   );
 }

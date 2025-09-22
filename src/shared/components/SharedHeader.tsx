@@ -119,7 +119,7 @@ export function SharedHeader({
 
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   const [isDesktopSearchExpanded, setIsDesktopSearchExpanded] = useState(
-    !searchCollapsed || pathname === "/"
+    (!searchCollapsed || pathname === "/") && !pathname.startsWith("/profesional")
   );
   const [isServiceSelectorOpen, setIsServiceSelectorOpen] = useState(false);
   const [isZoneSelectorOpen, setIsZoneSelectorOpen] = useState(false);
@@ -162,8 +162,8 @@ export function SharedHeader({
           const currentScrollY = window.scrollY;
           setIsScrolled(currentScrollY > 20);
 
-          // Only apply scroll behavior on home page and when search is collapsible
-          if (pathname === "/" && searchCollapsed && showSearch) {
+          // Only apply scroll behavior on home page and when search is collapsible, but not on profesional page
+          if (pathname === "/" && searchCollapsed && showSearch && !pathname.startsWith("/profesional")) {
             // If we're at the very top (within 20px), expand search (with cooldown)
             if (currentScrollY <= 20) {
               const nowTop = performance.now();
@@ -345,7 +345,7 @@ export function SharedHeader({
         className={`sticky top-0 z-40 transition-all duration-300 ease-out ${
           variant === "transparent"
             ? `${
-                pathname === "/" ? "bg-gray-50/95" : "bg-background/95"
+                pathname === "/" ? "bg-gray-50/95" : pathname.startsWith("/profesional") || pathname === "/perfil" ? "bg-white/95" : "bg-background/95"
               } backdrop-blur-sm ${isScrolled ? "shadow-sm" : ""}`
             : `${baseHeaderClasses} ${isScrolled ? "shadow-md" : "shadow-sm"}`
         }`}
@@ -428,96 +428,86 @@ export function SharedHeader({
             {/* Right section - Airbnb style */}
             <div className='flex items-center gap-2 flex-shrink-0'>
               {user ? (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant='ghost'
-                      className='relative h-10 w-10 rounded-full p-0 hover:bg-gray-100'
-                    >
-                      <Avatar className='h-10 w-10'>
-                        <AvatarImage src={profile?.avatar_url || undefined} />
-                        <AvatarFallback className='bg-primary text-primary-foreground text-sm'>
-                          {profile?.full_name?.charAt(0) ||
-                            user.email?.charAt(0) ||
-                            "U"}
-                        </AvatarFallback>
-                      </Avatar>
-                      {onboardingStatus.needsOnboarding && (
-                        <div className='absolute -top-1 -right-1 h-3 w-3 bg-orange-500 border-2 border-white rounded-full flex items-center justify-center'>
-                          <div className='h-1.5 w-1.5 bg-white rounded-full animate-pulse' />
-                        </div>
-                      )}
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent
-                    className='w-48 bg-background border z-50'
-                    align='end'
-                    forceMount
+                <>
+                  {/* Avatar que va directo a perfil */}
+                  <Button
+                    variant='ghost'
+                    onClick={() => navigate("/perfil")}
+                    className='relative h-10 w-10 rounded-full p-0 hover:bg-gray-100'
                   >
-                    <div className='flex items-center justify-start gap-2 p-2'>
-                      <div className='flex flex-col space-y-1 leading-none'>
-                        <p className='text-sm font-medium'>
-                          {profile?.full_name || "Usuario"}
-                        </p>
-                        <p className='text-xs text-muted-foreground truncate'>
-                          {user.email}
-                        </p>
-                      </div>
-                    </div>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem
-                      onClick={() => navigate("/")}
-                      className='text-sm'
-                    >
-                      <Home className='mr-2 h-4 w-4' />
-                      Inicio
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() => navigate("/buscar")}
-                      className='text-sm'
-                    >
-                      <Search className='mr-2 h-4 w-4' />
-                      Buscar
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() => navigate("/perfil")}
-                      className='text-sm'
-                    >
-                      <User className='mr-2 h-4 w-4' />
-                      Perfil
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() => navigate("/mis-publicaciones")}
-                      className='text-sm'
-                    >
-                      <FileText className='mr-2 h-4 w-4' />
-                      Mis Publicaciones
-                    </DropdownMenuItem>
+                    <Avatar className='h-10 w-10'>
+                      <AvatarImage src={profile?.avatar_url || undefined} />
+                      <AvatarFallback className='bg-primary text-primary-foreground text-sm'>
+                        {profile?.full_name?.charAt(0) ||
+                          user.email?.charAt(0) ||
+                          "U"}
+                      </AvatarFallback>
+                    </Avatar>
                     {onboardingStatus.needsOnboarding && (
-                      <>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem
-                          onClick={() => navigate("/user-type-selection")}
-                          className='text-sm bg-orange-50 hover:bg-orange-100 text-orange-700'
-                        >
-                          <AlertCircle className='mr-2 h-4 w-4' />
-                          Completar registro
-                        </DropdownMenuItem>
-                      </>
+                      <div className='absolute -top-1 -right-1 h-3 w-3 bg-orange-500 border-2 border-white rounded-full flex items-center justify-center'>
+                        <div className='h-1.5 w-1.5 bg-white rounded-full animate-pulse' />
+                      </div>
                     )}
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem
-                      onClick={async () => {
-                        await signOut();
-                        navigate("/");
-                      }}
-                      className='text-sm'
+                  </Button>
+
+                  {/* Menú hamburguesa */}
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant='ghost'
+                        className='h-10 w-10 rounded-full p-0 hover:bg-gray-100 hover:shadow-sm border border-gray-300 transition-all duration-200 focus:ring-0 focus:outline-none focus:border-gray-300 focus-visible:ring-0 focus-visible:outline-none focus-visible:border-gray-300 active:border-gray-300 data-[state=open]:border-gray-300'
+                      >
+                        <Menu className='h-4 w-4 text-foreground' />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent
+                      className='w-48 bg-white border-0 shadow-xl rounded-2xl p-2 z-50'
+                      align='end'
                     >
-                      <LogOut className='mr-2 h-4 w-4' />
-                      Cerrar sesión
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                      <div className='flex items-center justify-start gap-2 p-2 mb-2'>
+                        <div className='flex flex-col space-y-1 leading-none'>
+                          <p className='text-sm font-medium'>
+                            {profile?.full_name || "Usuario"}
+                          </p>
+                          <p className='text-xs text-muted-foreground truncate'>
+                            {user.email}
+                          </p>
+                        </div>
+                      </div>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        onClick={() => navigate("/mis-publicaciones")}
+                        className='text-sm rounded-xl px-4 py-3 hover:bg-gray-50 transition-colors'
+                      >
+                        <FileText className='mr-3 h-4 w-4' />
+                        Mis Publicaciones
+                      </DropdownMenuItem>
+                      {onboardingStatus.needsOnboarding && (
+                        <>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem
+                            onClick={() => navigate("/user-type-selection")}
+                            className='text-sm rounded-xl px-4 py-3 bg-orange-50 hover:bg-orange-100 text-orange-700'
+                          >
+                            <AlertCircle className='mr-3 h-4 w-4' />
+                            Completar registro
+                          </DropdownMenuItem>
+                        </>
+                      )}
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        onClick={async () => {
+                          await signOut();
+                          navigate("/");
+                        }}
+                        className='text-sm rounded-xl px-4 py-3 hover:bg-gray-50 transition-colors'
+                      >
+                        <LogOut className='mr-3 h-4 w-4' />
+                        Cerrar sesión
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </>
               ) : (
                 <>
                   {/* Botón "Convertite en experto" */}

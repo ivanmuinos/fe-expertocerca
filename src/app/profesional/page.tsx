@@ -248,6 +248,8 @@ export default function ProfesionalPage() {
       <SharedHeader
         showBackButton={true}
         showSearch={true}
+        searchCollapsed={true}
+        variant="transparent"
         searchProps={{
           searchTerm,
           setSearchTerm,

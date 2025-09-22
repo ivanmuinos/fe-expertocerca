@@ -1,24 +1,21 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { useNavigate } from "@/src/shared/lib/navigation";
-import { Search, Clock, MapPin, Phone, Wrench, Hammer, Paintbrush, Zap, Droplets, Scissors, Car, Home } from "lucide-react";
+import { Search, Wrench, Hammer, Paintbrush, Zap, Droplets, Scissors, Car, Home } from "lucide-react";
 import { Button } from "@/src/shared/components/ui/button";
-import { Input } from "@/src/shared/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/src/shared/components/ui/select";
-import { Card, CardContent } from "@/src/shared/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/src/shared/components/ui/avatar";
 import { Badge } from "@/src/shared/components/ui/badge";
 import { useSecureProfessionals } from "@/src/features/professionals";
 import { useToast } from "@/src/shared/hooks/use-toast";
 import { useAuthState } from '@/src/features/auth'
 import { SharedHeader } from "@/src/shared/components/SharedHeader";
 import ProfessionalMiniDetail from "@/src/shared/components/ProfessionalMiniDetail";
+import ProfessionalCard from "@/src/shared/components/ProfessionalCard";
 
 interface Professional {
   id: string;
   trade_name: string;
   description?: string;
+  specialty?: string;
   years_experience?: number;
   user_id: string;
   profile_full_name: string;
@@ -31,6 +28,7 @@ interface Professional {
   hourly_rate?: number;
 }
 
+
 export default function BuscarPage() {
   const [professionals, setProfessionals] = useState<Professional[]>([]);
   const [filteredProfessionals, setFilteredProfessionals] = useState<Professional[]>([]);
@@ -39,8 +37,7 @@ export default function BuscarPage() {
   const [selectedProfessional, setSelectedProfessional] = useState<Professional | null>(null);
   const [searchParams, setSearchParams] = useState<URLSearchParams | null>(null);
   const { loading: professionalsLoading, discoverProfessionals, browseProfessionals } = useSecureProfessionals();
-    const { user, loading: authLoading } = useAuthState();
-  const navigate = useNavigate();
+  const { user } = useAuthState();
   const { toast } = useToast();
 
   // Popular services for autocomplete
@@ -76,14 +73,6 @@ export default function BuscarPage() {
     setSearchTerm(servicio);
     setSelectedZone(zona);
   }, [searchParams]);
-
-  useEffect(() => {
-    loadProfessionals();
-  }, [user, loadProfessionals]);
-
-  useEffect(() => {
-    applyFilters();
-  }, [professionals, searchTerm, selectedZone, applyFilters]);
 
   const loadProfessionals = useCallback(async () => {
     const { data, error } = user ? await browseProfessionals() : await discoverProfessionals();
@@ -123,20 +112,24 @@ export default function BuscarPage() {
     setFilteredProfessionals(filtered);
   }, [professionals, searchTerm, selectedZone]);
 
-  const handleProfessionalClick = (professional: Professional) => {
-    setSelectedProfessional(professional);
-  };
+  useEffect(() => {
+    loadProfessionals();
+  }, [user, loadProfessionals]);
 
-  // Handle professional selection
-  const handleProfessionalSelect = (professional: Professional) => {
+  useEffect(() => {
+    applyFilters();
+  }, [professionals, searchTerm, selectedZone, applyFilters]);
+
+  const handleProfessionalClick = (professional: Professional) => {
     setSelectedProfessional(professional);
   };
 
   return (
     <div className="h-screen bg-background flex flex-col overflow-hidden">
       <SharedHeader
-        showBackButton={true}
+        variant="transparent"
         showSearch={true}
+        searchCollapsed={true}
         searchProps={{
           searchTerm,
           setSearchTerm,
@@ -147,13 +140,13 @@ export default function BuscarPage() {
         }}
       />
 
-      {/* Layout móvil primero */}
+      {/* Layout tipo Airbnb */}
       <div className="flex flex-col lg:flex-row flex-1 min-h-0">
-        {/* Lista de profesionales - Full width en mobile */}
-        <div className="flex-1 lg:w-3/5 overflow-y-auto scrollbar-hide bg-background">
-          <div className="p-3 lg:p-4">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold">
+        {/* Grid de profesionales - 70% width on desktop */}
+        <div className="flex-1 lg:w-[70%] overflow-y-auto scrollbar-hide bg-background">
+          <div className="p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-semibold">
                 {filteredProfessionals.length} profesionales
               </h2>
               {searchTerm && (
@@ -164,105 +157,27 @@ export default function BuscarPage() {
             </div>
 
             {professionalsLoading ? (
-              <div className="space-y-4">
-                {[...Array(5)].map((_, i) => (
-                  <Card key={i} className="animate-pulse">
-                    <CardContent className="p-4">
-                      <div className="flex space-x-4">
-                        <div className="w-16 h-16 bg-muted rounded-lg" />
-                        <div className="flex-1 space-y-2">
-                          <div className="h-4 bg-muted rounded w-3/4" />
-                          <div className="h-3 bg-muted rounded w-1/2" />
-                          <div className="h-3 bg-muted rounded w-full" />
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
+              <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-4 gap-4">
+                {[...Array(8)].map((_, i) => (
+                  <div key={i} className="animate-pulse">
+                    <div className="aspect-square bg-muted rounded-xl mb-3" />
+                    <div className="space-y-2 p-3">
+                      <div className="h-4 bg-muted rounded w-3/4" />
+                      <div className="h-3 bg-muted rounded w-1/2" />
+                      <div className="h-3 bg-muted rounded w-full" />
+                    </div>
+                  </div>
                 ))}
               </div>
             ) : filteredProfessionals.length > 0 ? (
-              <div className="space-y-2 lg:space-y-3">
+              <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-4 gap-4">
                 {filteredProfessionals.map((professional) => (
-                  <Card
+                  <ProfessionalCard
                     key={professional.id}
-                    id={`professional-${professional.id}`}
-                    className={`cursor-pointer transition-all duration-200 hover:shadow-md ${
-                      selectedProfessional?.id === professional.id
-                        ? 'ring-2 ring-primary shadow-md'
-                        : ''
-                    }`}
-                    onClick={() => handleProfessionalClick(professional)}
-                  >
-                  <CardContent className="p-3 lg:p-4">
-                      <div className="flex space-x-4">
-                        <Avatar className="w-16 h-16 border-2 border-primary/10">
-                          <AvatarImage src={professional.profile_avatar_url} />
-                          <AvatarFallback className="bg-primary text-primary-foreground font-semibold">
-                            {professional.profile_full_name?.charAt(0) || "U"}
-                          </AvatarFallback>
-                        </Avatar>
-
-                        <div className="flex-1 min-w-0 space-y-2">
-                          <div>
-                            <h3 className="font-semibold text-foreground line-clamp-1">
-                              {professional.profile_full_name}
-                            </h3>
-                            <p className="text-sm text-primary font-medium">
-                              {professional.trade_name}
-                            </p>
-                          </div>
-
-                          <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                            <Clock className="h-4 w-4" />
-                            <span>{professional.years_experience || 0} años de experiencia</span>
-                          </div>
-
-                          <p className="text-sm text-muted-foreground line-clamp-2">
-                            {professional.description}
-                          </p>
-
-                          <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                            <MapPin className="h-4 w-4" />
-                            <span className="line-clamp-1">
-                              {professional.profile_location_city && professional.profile_location_province
-                                ? `${professional.profile_location_city}, ${professional.profile_location_province}`
-                                : "Ubicación no especificada"
-                              }
-                            </span>
-                          </div>
-
-                          <div className="flex items-center justify-between">
-                            {professional.hourly_rate && (
-                              <p className="font-semibold text-primary">
-                                ${professional.hourly_rate.toLocaleString()}/hora
-                              </p>
-                            )}
-
-                            {professional.has_contact_info && (
-                              <Badge variant="outline" className="text-xs">
-                                <Phone className="h-3 w-3 mr-1" />
-                                Contacto
-                              </Badge>
-                            )}
-                          </div>
-
-                          {professional.profile_skills && professional.profile_skills.length > 0 && (
-                            <div className="flex flex-wrap gap-1">
-                              {professional.profile_skills.slice(0, 3).map((skill, index) => (
-                                <Badge
-                                  key={index}
-                                  variant="secondary"
-                                  className="text-xs px-2 py-0.5"
-                                >
-                                  {skill}
-                                </Badge>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
+                    professional={professional}
+                    isSelected={selectedProfessional?.id === professional.id}
+                    onClick={handleProfessionalClick}
+                  />
                 ))}
               </div>
             ) : (
@@ -290,9 +205,11 @@ export default function BuscarPage() {
           </div>
         </div>
 
-        {/* Panel de detalle - Hidden en mobile, visible en desktop */}
-        <div className="hidden lg:block lg:w-2/5 relative bg-muted/30 border-l">
-          <ProfessionalMiniDetail professional={selectedProfessional} />
+        {/* Panel de detalle - Hidden en mobile, visible en desktop, fixed width 30% */}
+        <div className="hidden lg:block lg:w-[30%] bg-white border-l border-gray-200">
+          <div className="h-full w-full overflow-y-auto scrollbar-hide">
+            <ProfessionalMiniDetail professional={selectedProfessional} />
+          </div>
         </div>
 
         {/* Modal de detalle para mobile */}

@@ -1,19 +1,16 @@
 "use client";
 
-import { useState } from "react";
 import { useNavigate } from "@/src/shared/lib/navigation";
-import { 
-  Clock, 
-  MapPin, 
-  Phone, 
-  Star, 
-  Calendar, 
-  DollarSign,
+import {
+  Clock,
+  MapPin,
+  Phone,
+  Star,
   ExternalLink,
   MessageCircle
 } from "lucide-react";
 import { Button } from "@/src/shared/components/ui/button";
-import { Card, CardContent } from "@/src/shared/components/ui/card";
+import { Card } from "@/src/shared/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/src/shared/components/ui/avatar";
 import { Badge } from "@/src/shared/components/ui/badge";
 import { Separator } from "@/src/shared/components/ui/separator";
@@ -22,6 +19,7 @@ interface Professional {
   id: string;
   trade_name: string;
   description?: string;
+  specialty?: string;
   years_experience?: number;
   user_id: string;
   profile_full_name: string;
@@ -40,7 +38,6 @@ interface ProfessionalMiniDetailProps {
 
 export default function ProfessionalMiniDetail({ professional }: ProfessionalMiniDetailProps) {
   const navigate = useNavigate();
-  const [isExpanded, setIsExpanded] = useState(false);
 
   if (!professional) {
     return (
@@ -74,8 +71,8 @@ export default function ProfessionalMiniDetail({ professional }: ProfessionalMin
   };
 
   return (
-    <div className="h-full bg-background overflow-y-auto scrollbar-hide">
-      <div className="p-6 space-y-6">
+    <div className="h-full w-full bg-background overflow-y-auto overflow-x-hidden">
+      <div className="p-6 space-y-6 max-w-none">
         {/* Header */}
         <div className="flex items-start space-x-4">
           <Avatar className="w-20 h-20 border-4 border-primary/20">
@@ -88,37 +85,22 @@ export default function ProfessionalMiniDetail({ professional }: ProfessionalMin
           <div className="flex-1 space-y-2">
             <div>
               <h2 className="text-xl font-bold text-foreground">
-                {professional.profile_full_name}
-              </h2>
-              <p className="text-lg text-primary font-semibold">
                 {professional.trade_name}
+              </h2>
+              {professional.specialty && (
+                <p className="text-lg text-primary font-semibold">
+                  {professional.specialty}
+                </p>
+              )}
+              <p className="text-sm text-muted-foreground mt-1">
+                {professional.profile_full_name}
               </p>
-            </div>
-            
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Clock className="h-4 w-4" />
-              <span>{professional.years_experience || 0} años de experiencia</span>
             </div>
           </div>
         </div>
 
         {/* Quick Stats */}
-        <div className="grid grid-cols-2 gap-4">
-          <Card className="p-4">
-            <div className="flex items-center space-x-2">
-              <DollarSign className="h-5 w-5 text-primary" />
-              <div>
-                <p className="text-sm text-muted-foreground">Tarifa por hora</p>
-                <p className="font-semibold">
-                  {professional.hourly_rate 
-                    ? `$${professional.hourly_rate.toLocaleString()}` 
-                    : 'A consultar'
-                  }
-                </p>
-              </div>
-            </div>
-          </Card>
-          
+        <div className="grid grid-cols-1 gap-4">
           <Card className="p-4">
             <div className="flex items-center space-x-2">
               <Star className="h-5 w-5 text-yellow-500" />
@@ -149,7 +131,7 @@ export default function ProfessionalMiniDetail({ professional }: ProfessionalMin
         {/* Description */}
         <div className="space-y-3">
           <h3 className="font-semibold">Descripción</h3>
-          <p className="text-sm text-muted-foreground leading-relaxed">
+          <p className="text-sm text-muted-foreground leading-relaxed break-words">
             {professional.description || "No hay descripción disponible."}
           </p>
         </div>
@@ -186,7 +168,7 @@ export default function ProfessionalMiniDetail({ professional }: ProfessionalMin
           </Button>
           
           {professional.has_contact_info && professional.whatsapp_phone && (
-            <Button 
+            <Button
               onClick={handleContactWhatsApp}
               variant="outline"
               className="w-full"
@@ -196,15 +178,6 @@ export default function ProfessionalMiniDetail({ professional }: ProfessionalMin
               Contactar por WhatsApp
             </Button>
           )}
-          
-          <Button 
-            variant="outline"
-            className="w-full"
-            size="lg"
-          >
-            <Calendar className="mr-2 h-4 w-4" />
-            Agendar cita
-          </Button>
         </div>
 
         {/* Contact Info */}

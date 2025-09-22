@@ -40,13 +40,27 @@
     --ring: 214 84% 56%;
 
     /* Custom gradients */
-    --gradient-hero: linear-gradient(135deg, hsl(214 84% 56%), hsl(214 84% 42%));
-    --gradient-accent: linear-gradient(135deg, hsl(214 84% 56%), hsl(214 84% 70%));
-    --gradient-subtle: linear-gradient(180deg, hsl(0 0% 100%), hsl(214 32% 98%));
+    --gradient-hero: linear-gradient(
+      135deg,
+      hsl(214 84% 56%),
+      hsl(214 84% 42%)
+    );
+    --gradient-accent: linear-gradient(
+      135deg,
+      hsl(214 84% 56%),
+      hsl(214 84% 70%)
+    );
+    --gradient-subtle: linear-gradient(
+      180deg,
+      hsl(0 0% 100%),
+      hsl(214 32% 98%)
+    );
 
     /* Shadows */
-    --shadow-card: 0 4px 6px -1px hsl(214 84% 56% / 0.1), 0 2px 4px -1px hsl(214 84% 56% / 0.06);
-    --shadow-elevated: 0 10px 15px -3px hsl(214 84% 56% / 0.1), 0 4px 6px -2px hsl(214 84% 56% / 0.05);
+    --shadow-card: 0 4px 6px -1px hsl(214 84% 56% / 0.1),
+      0 2px 4px -1px hsl(214 84% 56% / 0.06);
+    --shadow-elevated: 0 10px 15px -3px hsl(214 84% 56% / 0.1),
+      0 4px 6px -2px hsl(214 84% 56% / 0.05);
     --shadow-glow: 0 0 20px hsl(214 84% 56% / 0.15);
 
     /* Professional spacing and sizing */
@@ -102,12 +116,26 @@
     --input: 215 28% 25%;
     --ring: 214 84% 56%;
 
-    --gradient-hero: linear-gradient(135deg, hsl(214 84% 56%), hsl(214 84% 42%));
-    --gradient-accent: linear-gradient(135deg, hsl(214 84% 56%), hsl(214 84% 70%));
-    --gradient-subtle: linear-gradient(180deg, hsl(215 28% 17%), hsl(215 28% 25%));
+    --gradient-hero: linear-gradient(
+      135deg,
+      hsl(214 84% 56%),
+      hsl(214 84% 42%)
+    );
+    --gradient-accent: linear-gradient(
+      135deg,
+      hsl(214 84% 56%),
+      hsl(214 84% 70%)
+    );
+    --gradient-subtle: linear-gradient(
+      180deg,
+      hsl(215 28% 17%),
+      hsl(215 28% 25%)
+    );
 
-    --shadow-card: 0 4px 6px -1px hsl(0 0% 0% / 0.2), 0 2px 4px -1px hsl(0 0% 0% / 0.1);
-    --shadow-elevated: 0 10px 15px -3px hsl(0 0% 0% / 0.3), 0 4px 6px -2px hsl(0 0% 0% / 0.2);
+    --shadow-card: 0 4px 6px -1px hsl(0 0% 0% / 0.2),
+      0 2px 4px -1px hsl(0 0% 0% / 0.1);
+    --shadow-elevated: 0 10px 15px -3px hsl(0 0% 0% / 0.3),
+      0 4px 6px -2px hsl(0 0% 0% / 0.2);
     --shadow-glow: 0 0 20px hsl(214 84% 56% / 0.3);
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
@@ -144,6 +172,25 @@
   /* Hide scrollbar for IE and Edge legacy */
   .scrollbar-hide {
     -ms-overflow-style: none;
+  }
+
+  /* Explicitly show a thin scrollbar (overrides global hide) */
+  .scrollbar-visible {
+    scrollbar-width: auto; /* Firefox */
+    -ms-overflow-style: auto; /* IE/Edge legacy */
+  }
+  .scrollbar-visible::-webkit-scrollbar {
+    display: initial; /* Override global */
+    width: 8px;
+    height: 8px;
+  }
+  .scrollbar-visible::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .scrollbar-visible::-webkit-scrollbar-thumb {
+    background-color: hsl(var(--muted-foreground));
+    border-radius: 8px;
+    border: 2px solid transparent;
   }
 }
 

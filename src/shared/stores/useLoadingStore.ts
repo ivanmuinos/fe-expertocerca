@@ -1,17 +1,21 @@
-import { create } from 'zustand';
+import { create } from "zustand";
 
 interface LoadingState {
   // Simple global loading state
   isLoading: boolean;
-  
+
   // Whether to show the global overlay
   showGlobalOverlay: boolean;
-  
+
   // Optional loading message
   loadingMessage: string;
-  
+
   // Actions
-  setLoading: (loading: boolean, message?: string, showOverlay?: boolean) => void;
+  setLoading: (
+    loading: boolean,
+    message?: string,
+    showOverlay?: boolean
+  ) => void;
   clearLoading: () => void;
 }
 
@@ -19,32 +23,37 @@ export const useLoadingStore = create<LoadingState>((set) => ({
   // Initial state
   isLoading: false,
   showGlobalOverlay: false,
-  loadingMessage: 'Cargando...',
-  
+  loadingMessage: "Cargando...",
+
   // Actions
-  setLoading: (loading: boolean, message: string = '', showOverlay: boolean = false) => 
-    set({ 
+  setLoading: (
+    loading: boolean,
+    message: string = "",
+    showOverlay: boolean = false
+  ) =>
+    set({
       isLoading: loading,
       showGlobalOverlay: loading && showOverlay,
-      loadingMessage: message 
+      loadingMessage: message,
     }),
-    
-  clearLoading: () => 
-    set({ 
+
+  clearLoading: () =>
+    set({
       isLoading: false,
       showGlobalOverlay: false,
-      loadingMessage: 'Cargando...' 
-    })
+      loadingMessage: "Cargando...",
+    }),
 }));
 
 // Hook principal para usar loading
 export const useLoading = () => {
-  const { isLoading, loadingMessage, setLoading, clearLoading } = useLoadingStore();
-  
+  const { isLoading, loadingMessage, setLoading, clearLoading } =
+    useLoadingStore();
+
   // Función que envuelve cualquier operación asíncrona con loading
-  const withLoading = async <T,>(
+  const withLoading = async <T>(
     operation: () => Promise<T>,
-    message: string = ''
+    message: string = ""
   ): Promise<T> => {
     try {
       setLoading(true, message);
@@ -60,6 +69,6 @@ export const useLoading = () => {
     loadingMessage,
     setLoading,
     clearLoading,
-    withLoading
+    withLoading,
   };
 };

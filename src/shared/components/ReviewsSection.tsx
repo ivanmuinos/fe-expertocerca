@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useEffect, useCallback } from 'react';
 import { Star, Send, Edit2, Trash2 } from 'lucide-react';
 import { Button } from '@/src/shared/components/ui/button';

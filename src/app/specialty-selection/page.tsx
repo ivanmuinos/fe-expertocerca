@@ -93,7 +93,7 @@ const workZones = [
 ];
 
 // Helper function to determine initial section from URL
-const getInitialSpecialtySection = (location: Location, selectedSpecialty: any): "specialty" | "zone" => {
+const getInitialSpecialtySection = (location: { search: string }, selectedSpecialty: any): "specialty" | "zone" => {
   const searchParams = new URLSearchParams(location.search);
   const sectionParam = searchParams.get('section');
 
@@ -118,6 +118,7 @@ export default function SpecialtySelectionPage() {
   } = useOnboarding();
 
   const [currentSection, setCurrentSection] = useState<"specialty" | "zone">("specialty");
+  const [isLoading, setIsLoading] = useState(false);
 
   const { setCurrentStep, setSpecialtySection } = useOnboardingProgress();
 
@@ -173,7 +174,7 @@ export default function SpecialtySelectionPage() {
     navigate("/");
   };
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
     // If we're in the specialty section and have selected a specialty, scroll to zone
     if (currentSection === "specialty" && selectedSpecialty && zoneRef.current) {
       zoneRef.current.scrollIntoView({
@@ -184,8 +185,10 @@ export default function SpecialtySelectionPage() {
       setSpecialtySection("zone"); // Update progress
     } else if (currentSection === "zone" && selectedSpecialty && selectedWorkZone) {
       // If we're in the zone section and both are selected, proceed to next page
+      setIsLoading(true);
       markStepCompleted(2); // Mark specialty selection as completed
       navigate("/photo-guidelines");
+      // Loading will be reset when component unmounts
     }
   };
 
@@ -369,7 +372,8 @@ export default function SpecialtySelectionPage() {
             </button>
             <LoadingButton
               onClick={handleContinue}
-              disabled={!canContinue()}
+              loading={isLoading}
+              disabled={!canContinue() || isLoading}
               className='px-8 h-12 text-base font-medium'
             >
               Continuar

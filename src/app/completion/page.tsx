@@ -1,7 +1,7 @@
 "use client";
 
 import { useNavigate } from "@/src/shared/lib/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useAuthState } from "@/src/features/auth";
 import { apiClient } from "@/src/shared/lib/api-client";
 import { Star, CheckCircle, Home, Loader2 } from "lucide-react";
@@ -20,6 +20,10 @@ export default function CompletionPage() {
 
   const [isUploading, setIsUploading] = useState(true);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [hasUploaded, setHasUploaded] = useState(false);
+
+  // Usar useRef para controlar si ya se ejecutó el upload
+  const uploadExecutedRef = useRef(false);
 
   useEffect(() => {
     setCurrentStep(OnboardingStep.COMPLETION);
@@ -27,13 +31,21 @@ export default function CompletionPage() {
 
   useEffect(() => {
     const uploadPhotos = async () => {
-      if (!user || uploadedPhotos.length === 0) {
+      // Prevenir múltiples uploads usando ref
+      if (
+        !user ||
+        uploadedPhotos.length === 0 ||
+        hasUploaded ||
+        uploadExecutedRef.current
+      ) {
         setIsUploading(false);
         return;
       }
 
-      try {
+      // Marcar como ejecutado inmediatamente
+      uploadExecutedRef.current = true;
 
+      try {
         const profile = await apiClient.get("/profiles/professional");
 
         if (!profile || !(profile as any).id) {
@@ -42,7 +54,6 @@ export default function CompletionPage() {
 
         const uploadPromises = uploadedPhotos.map(async (photo, index) => {
           try {
-
             const formData = new FormData();
             formData.append("file", photo.file);
             formData.append("professional_profile_id", (profile as any).id);
@@ -60,7 +71,6 @@ export default function CompletionPage() {
             }
 
             const result = await response.json();
-
             return { success: true, photoId: photo.id };
           } catch (error) {
             return { success: false, photoId: photo.id, error };
@@ -71,20 +81,24 @@ export default function CompletionPage() {
         const failedUploads = results.filter((r) => !r.success);
 
         if (failedUploads.length > 0) {
+          console.error("Failed uploads:", failedUploads);
         }
 
+        setHasUploaded(true);
         resetOnboarding();
       } catch (error) {
         setUploadError(
           "Error al subir las fotos. Podés intentarlo más tarde desde tu perfil."
         );
+        // Resetear el ref en caso de error para permitir retry
+        uploadExecutedRef.current = false;
       } finally {
         setIsUploading(false);
       }
     };
 
     uploadPhotos();
-  }, [user, uploadedPhotos, resetOnboarding]);
+  }, [user?.id, uploadedPhotos.length]); // Remover hasUploaded de las dependencias
 
   const handleGoHome = () => {
     navigate("/");

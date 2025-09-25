@@ -12,12 +12,14 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Get professional profile
+    // Get the most recent professional profile
     const { data: profile, error } = await supabase
       .from('professional_profiles')
       .select('*')
       .eq('user_id', session.user.id)
-      .single()
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle()
 
     if (error && error.code !== 'PGRST116') {
       return NextResponse.json({ error: 'Failed to fetch professional profile' }, { status: 500 })

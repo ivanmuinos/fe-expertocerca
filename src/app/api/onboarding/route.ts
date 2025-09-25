@@ -45,9 +45,27 @@ export async function POST(request: NextRequest) {
 
     // Create professional profile (required fields: specialty, trade_name)
     if (data.specialty && data.tradeName) {
+      // First check how many profiles the user already has
+      const { count, error: countError } = await supabase
+        .from('professional_profiles')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', session.user.id);
+
+      if (countError) {
+        return NextResponse.json({ error: countError.message }, { status: 400 })
+      }
+
+      // Limit to 10 profiles per user
+      if (count && count >= 10) {
+        return NextResponse.json({
+          error: 'Has alcanzado el límite máximo de 10 publicaciones por usuario'
+        }, { status: 400 })
+      }
+
+      // Always insert a new profile (no upsert)
       const { data: professionalProfile, error: professionalError } = await supabase
         .from('professional_profiles')
-        .upsert({
+        .insert({
           user_id: session.user.id,
           specialty: data.specialty, // Required field
           trade_name: data.tradeName, // Required field
@@ -58,9 +76,9 @@ export async function POST(request: NextRequest) {
           whatsapp_phone: data.whatsappPhone,
           is_active: true, // Default to active
           accepts_new_clients: true, // Default to accepting clients
+          created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
-        },
-        { onConflict: 'user_id' })
+        })
         .select()
         .single();
 

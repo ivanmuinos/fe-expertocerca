@@ -12,6 +12,7 @@ import { useOnboardingProgress, OnboardingStep } from '@/src/shared/stores/useOn
 export default function PhotoGuidelinesPage() {
   const navigate = useNavigate();
   const { setCurrentStep } = useOnboardingProgress();
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     setCurrentStep(OnboardingStep.PHOTO_GUIDELINES);
@@ -26,8 +27,10 @@ export default function PhotoGuidelinesPage() {
     navigate('/');
   };
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
+    setIsLoading(true);
     navigate('/photo-upload');
+    // Loading will be reset when component unmounts
   };
 
   const goodPractices = [
@@ -141,6 +144,8 @@ export default function PhotoGuidelinesPage() {
             </button>
             <LoadingButton
               onClick={handleContinue}
+              loading={isLoading}
+              disabled={isLoading}
               className="px-8 h-12 text-base font-medium"
             >
               Continuar

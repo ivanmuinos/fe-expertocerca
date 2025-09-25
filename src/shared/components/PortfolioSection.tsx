@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Plus, Edit2, Trash2, Upload, X } from 'lucide-react';
+import { Plus, Trash2, Upload, X } from 'lucide-react';
 import Image from 'next/image';
 import { Button } from '@/src/shared/components/ui/button';
 import { Card, CardContent } from '@/src/shared/components/ui/card';
@@ -19,10 +19,9 @@ interface PortfolioSectionProps {
 
 export function PortfolioSection({ professionalProfileId, isOwner }: PortfolioSectionProps) {
   const { user, loading: authLoading } = useAuthState();
-  const { getPortfolioPhotos, uploadPortfolioPhoto, updatePortfolioPhoto, deletePortfolioPhoto, loading } = usePortfolio();
+  const { getPortfolioPhotos, uploadPortfolioPhoto, deletePortfolioPhoto, loading } = usePortfolio();
   const [photos, setPhotos] = useState<PortfolioPhoto[]>([]);
   const [showUploadDialog, setShowUploadDialog] = useState(false);
-  const [editingPhoto, setEditingPhoto] = useState<PortfolioPhoto | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [formData, setFormData] = useState({
     title: '',
@@ -73,22 +72,6 @@ export function PortfolioSection({ professionalProfileId, isOwner }: PortfolioSe
     }
   };
 
-  const handleEdit = async () => {
-    if (!editingPhoto) return;
-
-    const { success } = await updatePortfolioPhoto(
-      editingPhoto.id,
-      formData.title,
-      formData.description
-    );
-
-    if (success) {
-      setEditingPhoto(null);
-      setFormData({ title: '', description: '' });
-      loadPhotos();
-    }
-  };
-
   const handleDelete = async (photo: PortfolioPhoto) => {
     if (confirm('¿Estás seguro de que quieres eliminar esta foto?')) {
       const { success } = await deletePortfolioPhoto(photo.id, photo.image_url);
@@ -98,18 +81,9 @@ export function PortfolioSection({ professionalProfileId, isOwner }: PortfolioSe
     }
   };
 
-  const openEditDialog = (photo: PortfolioPhoto) => {
-    setEditingPhoto(photo);
-    setFormData({
-      title: photo.title,
-      description: photo.description || ''
-    });
-  };
-
   const resetForm = () => {
     setFormData({ title: '', description: '' });
     setSelectedFile(null);
-    setEditingPhoto(null);
   };
 
   return (
@@ -275,14 +249,7 @@ export function PortfolioSection({ professionalProfileId, isOwner }: PortfolioSe
                   </div>
                 )}
                 {isOwner && (
-                  <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity space-x-1">
-                    <Button
-                      size="sm"
-                      variant="secondary"
-                      onClick={() => openEditDialog(photo)}
-                    >
-                      <Edit2 className="w-3 h-3" />
-                    </Button>
+                  <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
                     <Button
                       size="sm"
                       variant="destructive"
@@ -322,55 +289,6 @@ export function PortfolioSection({ professionalProfileId, isOwner }: PortfolioSe
         </div>
       )}
 
-      {/* Edit Dialog */}
-      <Dialog open={!!editingPhoto} onOpenChange={(open) => !open && setEditingPhoto(null)}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>Editar información</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="edit-title">Título del trabajo</Label>
-              <Input
-                id="edit-title"
-                value={formData.title}
-                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                placeholder="Título del trabajo"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="edit-description">Descripción</Label>
-              <Textarea
-                id="edit-description"
-                value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                placeholder="Descripción del trabajo"
-                rows={3}
-              />
-            </div>
-
-            <div className="flex gap-3">
-              <Button 
-                onClick={handleEdit}
-                disabled={loading || !formData.title.trim()}
-                className="flex-1"
-              >
-                {loading ? 'Actualizando...' : 'Actualizar'}
-              </Button>
-              <Button 
-                variant="outline" 
-                onClick={() => {
-                  setEditingPhoto(null);
-                  resetForm();
-                }}
-              >
-                Cancelar
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }

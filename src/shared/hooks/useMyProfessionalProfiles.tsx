@@ -1,7 +1,7 @@
-import { useState } from 'react';
-import { apiClient } from '@/src/shared/lib/api-client';
-import { useToast } from '@/src/shared/hooks/use-toast';
-import { useAuthState } from '@/src/features/auth';
+import { useState, useCallback } from "react";
+import { apiClient } from "@/src/shared/lib/api-client";
+import { useToast } from "@/src/shared/hooks/use-toast";
+import { useAuthState } from "@/src/features/auth";
 
 interface MyProfessionalProfile {
   id: string;
@@ -29,30 +29,36 @@ export function useMyProfessionalProfiles() {
 
   /**
    * Load all professional profiles for the current user
+   * SOLUCIÓN 1: Usar solo user?.id como dependencia
    */
-  const loadMyProfiles = async (): Promise<void> => {
-    if (!user) return;
+  const loadMyProfiles = useCallback(async (): Promise<void> => {
+    if (!user?.id) return;
 
     setLoading(true);
     try {
-      const data = await apiClient.get('/my-profiles');
-      setMyProfiles(data || []);
+      const data = await apiClient.get("/my-profiles");
+      console.log("API Response:", data);
+      setMyProfiles((data as MyProfessionalProfile[]) || []);
     } catch (error) {
+      console.error("Error loading profiles:", error);
       toast({
         title: "Error",
         description: "No se pudieron cargar tus publicaciones",
         variant: "destructive",
       });
+      setMyProfiles([]);
     } finally {
       setLoading(false);
     }
-  };
+  }, [user?.id, toast]); // Solo dependencias primitivas
 
   /**
    * Delete a professional profile
    */
-  const deleteProfessionalProfile = async (profileId: string): Promise<boolean> => {
-    if (!user) return false;
+  const deleteProfessionalProfile = async (
+    profileId: string
+  ): Promise<boolean> => {
+    if (!user?.id) return false;
 
     try {
       await apiClient.delete(`/my-profiles?id=${profileId}`);
@@ -70,12 +76,14 @@ export function useMyProfessionalProfiles() {
   /**
    * Get a single professional profile by ID (for the current user)
    */
-  const getMyProfile = async (profileId: string): Promise<MyProfessionalProfile | null> => {
-    if (!user) return null;
+  const getMyProfile = async (
+    profileId: string
+  ): Promise<MyProfessionalProfile | null> => {
+    if (!user?.id) return null;
 
     try {
       const data = await apiClient.get(`/my-profiles/${profileId}`);
-      return data;
+      return data as MyProfessionalProfile;
     } catch (error) {
       return null;
     }

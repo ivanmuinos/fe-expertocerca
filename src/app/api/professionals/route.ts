@@ -77,6 +77,23 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json()
 
+    // Check how many profiles the user already has
+    const { count, error: countError } = await supabase
+      .from('professional_profiles')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', session.user.id);
+
+    if (countError) {
+      return NextResponse.json({ error: countError.message }, { status: 400 })
+    }
+
+    // Limit to 10 profiles per user
+    if (count && count >= 10) {
+      return NextResponse.json({
+        error: 'Has alcanzado el límite máximo de 10 publicaciones por usuario'
+      }, { status: 400 })
+    }
+
     const { data, error } = await supabase
       .from('professional_profiles')
       .insert([{

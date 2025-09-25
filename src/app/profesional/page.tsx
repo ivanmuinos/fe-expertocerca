@@ -4,10 +4,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "@/src/shared/lib/navigation";
 import {
   MapPin,
-  Clock,
-  DollarSign,
   Phone,
-  Star,
   Zap,
   Wrench,
   Hammer,
@@ -22,13 +19,6 @@ import {
   Triangle,
 } from "lucide-react";
 import { Button } from "@/src/shared/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/src/shared/components/ui/card";
-import { Badge } from "@/src/shared/components/ui/badge";
 import { useToast } from "@/src/shared/hooks/use-toast";
 import { useSecureProfessionals } from "@/src/features/professionals";
 import { ReviewsSection } from "@/src/shared/components/ReviewsSection";
@@ -49,11 +39,9 @@ export default function ProfesionalPage() {
   const { browseProfessionals, discoverProfessionals } =
     useSecureProfessionals();
 
-  // Search props for header
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedZone, setSelectedZone] = useState("all");
 
-  // Get id from URL params or query string
   useEffect(() => {
     if (typeof window !== "undefined") {
       // First try route params (for /profesional/[id] routes)
@@ -97,13 +85,12 @@ export default function ProfesionalPage() {
     if (id) {
       loadProfessional();
     }
-  }, [id]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [id]);
 
   const loadProfessional = async () => {
     if (!id) return;
 
     try {
-      // Use appropriate function based on authentication status
       const { data, error } = user
         ? await browseProfessionals()
         : await discoverProfessionals();
@@ -200,7 +187,6 @@ export default function ProfesionalPage() {
 
   const handleAvatarChange = (newUrl: string | null) => {
     setAvatarUrl(newUrl);
-    // Also update the professional object to reflect the change immediately
     if (professional) {
       setProfessional({
         ...professional,
@@ -240,16 +226,15 @@ export default function ProfesionalPage() {
     );
   }
 
-  // Check if current user is the owner of this professional profile
   const isOwner = user && professional && professional.user_id === user?.id;
 
   return (
-    <div className='min-h-screen bg-gradient-to-br from-background via-background to-muted/30'>
+    <div className='min-h-screen'>
       <SharedHeader
         showBackButton={true}
         showSearch={true}
         searchCollapsed={true}
-        variant="transparent"
+        variant='transparent'
         searchProps={{
           searchTerm,
           setSearchTerm,
@@ -260,253 +245,139 @@ export default function ProfesionalPage() {
         }}
       />
 
-      {/* Hero Section - Minimalista estilo Airbnb */}
-      <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6'>
-        {/* Title and basic info */}
-        <div className='space-y-4 mb-8'>
-          <h1 className='text-3xl sm:text-4xl font-bold text-foreground'>
-            {professional.profile_full_name} - {professional.trade_name}
-          </h1>
-
-          <div className='flex flex-wrap items-center gap-4 text-sm text-muted-foreground'>
-            <div className='flex items-center gap-1'>
-              {Array.from({ length: 5 }).map((_, i) => (
-                <Star
-                  key={i}
-                  className='w-4 h-4 text-yellow-400 fill-current'
-                />
-              ))}
-              <span className='ml-1 font-medium'>5.0</span>
-            </div>
-
-            <div className='flex items-center gap-2'>
-              <Clock className='w-4 h-4' />
-              <span>{professional.years_experience} años de experiencia</span>
-            </div>
-
-            {professional.profile_location_city && (
-              <div className='flex items-center gap-2'>
-                <MapPin className='w-4 h-4' />
-                <span>{professional.profile_location_city}</span>
-              </div>
-            )}
-
-            <span className='px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium'>
-              Verificado
-            </span>
-          </div>
-        </div>
-
-        {/* Portfolio Photos - Airbnb style grid */}
-        <PortfolioSection
-          professionalProfileId={professional?.id}
-          isOwner={isOwner || false}
-        />
-      </div>
-
-      {/* Content Section - Estilo Airbnb */}
-      <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 border-t border-border'>
-        <div className='grid grid-cols-1 lg:grid-cols-3 gap-8'>
-          {/* Main Content */}
-          <div className='lg:col-span-2 space-y-8'>
-            {/* Description */}
-            <div>
-              <h2 className='text-2xl font-bold text-foreground mb-6'>
-                Sobre mi trabajo
-              </h2>
-              <Card className='border-border/50'>
-                <CardContent className='p-6'>
-                  <p className='text-muted-foreground leading-relaxed text-base'>
-                    {professional.description || "Sin descripción disponible."}
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Skills */}
-            {professional.profile_skills &&
-              professional.profile_skills.length > 0 && (
-                <div>
-                  <h2 className='text-2xl font-bold text-foreground mb-6'>
-                    Especialidades
-                  </h2>
-                  <Card className='border-border/50'>
-                    <CardContent className='p-6'>
-                      <div className='flex flex-wrap gap-3'>
-                        {professional.profile_skills.map(
-                          (skill: string, index: number) => (
-                            <Badge
-                              key={index}
-                              variant='secondary'
-                              className='px-4 py-2 text-sm bg-primary/10 text-primary hover:bg-primary/20 border-primary/20'
-                            >
-                              {skill}
-                            </Badge>
-                          )
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              )}
-
-            {/* Reviews Section */}
-            <div>
-              <h2 className='text-2xl font-bold text-foreground mb-6'>
-                Reseñas de clientes
-              </h2>
-              <ReviewsSection professionalProfileId={professional?.id} />
-            </div>
-          </div>
-
-          {/* Sidebar */}
-          <div className='lg:col-span-1 space-y-6'>
-            {/* Contact Card - Sticky */}
-            <Card className='bg-card border-border sticky top-6'>
-              <CardContent className='p-6 space-y-4'>
-                <div className='flex items-center gap-3 mb-4'>
+      <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8'>
+        <div className='grid grid-cols-1 lg:grid-cols-12 gap-8'>
+          <div className='lg:col-span-5 xl:col-span-4'>
+            <div className='lg:sticky lg:top-20 space-y-6'>
+              <div className='bg-card rounded-2xl p-6 shadow-sm border border-border'>
+                <div className='flex items-center gap-4 mb-6 mt-8'>
                   <EditableAvatar
                     avatarUrl={avatarUrl}
                     userFullName={professional.profile_full_name}
-                    size='sm'
+                    size='lg'
                     onAvatarChange={handleAvatarChange}
                     showUploadButton={false}
                     isOwner={false}
                   />
                   <div>
-                    <p className='font-medium text-foreground text-sm'>
-                      Contactar a {professional.profile_full_name.split(" ")[0]}
-                    </p>
-                    <p className='text-xs text-muted-foreground'>
-                      Responde en promedio en 2 horas
-                    </p>
+                    <h3 className='text-xl font-bold text-foreground'>
+                      {professional.profile_full_name}
+                    </h3>
                   </div>
                 </div>
 
-                {professional.hourly_rate && (
-                  <div className='text-center py-3 border-y border-border'>
-                    <div className='flex items-center justify-center gap-2'>
-                      <DollarSign className='w-5 h-5 text-primary' />
-                      <span className='text-2xl font-bold text-foreground'>
-                        ARS ${professional.hourly_rate}
-                      </span>
-                      <span className='text-sm text-muted-foreground'>
-                        /hora
+                {/* Specialties */}
+                {professional.profile_skills &&
+                  professional.profile_skills.length > 0 && (
+                    <div className='mb-6'>
+                      <h4 className='font-semibold text-foreground mb-3'>
+                        Especialidades
+                      </h4>
+                      <div className='flex flex-wrap gap-2'>
+                        {professional.profile_skills
+                          .slice(0, 4)
+                          .map((skill: string, index: number) => (
+                            <span
+                              key={index}
+                              className='px-3 py-1.5 bg-gray-100 text-gray-800 rounded-full text-sm font-medium hover:bg-gray-200 transition-colors'
+                            >
+                              {skill}
+                            </span>
+                          ))}
+                        {professional.profile_skills.length > 4 && (
+                          <span className='px-3 py-1.5 bg-gray-50 text-gray-600 rounded-full text-sm border border-gray-200'>
+                            +{professional.profile_skills.length - 4} más
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                {/* Work Zones */}
+                {professional.profile_location_city && (
+                  <div className='mb-6'>
+                    <h4 className='font-semibold text-gray-900 mb-3'>
+                      Zona de trabajo
+                    </h4>
+                    <div className='flex items-center gap-3 p-4 bg-gray-50 rounded-xl border border-gray-100'>
+                      <div className='w-8 h-8 bg-red-100 rounded-full flex items-center justify-center'>
+                        <MapPin className='w-4 h-4 text-red-600' />
+                      </div>
+                      <span className='text-gray-700 font-medium'>
+                        {professional.profile_location_city}
                       </span>
                     </div>
-                    <p className='text-xs text-muted-foreground mt-1'>
-                      Tarifa orientativa
-                    </p>
                   </div>
                 )}
 
-                <Button
-                  onClick={handleContact}
-                  size='lg'
-                  className='w-full h-12'
-                  variant={user ? "default" : "outline"}
-                >
-                  <Phone className='w-4 h-4 mr-2' />
-                  {user
-                    ? "Contactar por WhatsApp"
-                    : "Inicia sesión para contactar"}
-                </Button>
-              </CardContent>
-            </Card>
+                <div className='space-y-4'>
+                  {professional.whatsapp_phone && user && (
+                    <div className='p-4 bg-green-50 border border-green-200 rounded-xl mb-4'>
+                      <div className='flex items-center gap-3 mb-2'>
+                        <div className='w-8 h-8 bg-green-100 rounded-full flex items-center justify-center'>
+                          <Phone className='w-4 h-4 text-green-600' />
+                        </div>
+                        <span className='font-semibold text-green-800'>
+                          WhatsApp
+                        </span>
+                      </div>
+                      <p className='text-green-700 font-mono text-sm ml-11'>
+                        {professional.whatsapp_phone}
+                      </p>
+                    </div>
+                  )}
 
-            {/* Quick Stats */}
-            <Card className='border-border/50'>
-              <CardHeader className='pb-4'>
-                <CardTitle className='text-lg'>Datos del profesional</CardTitle>
-              </CardHeader>
-              <CardContent className='space-y-3'>
-                <div className='flex items-center justify-between py-2 border-b border-border/50 last:border-0'>
-                  <span className='text-sm text-muted-foreground'>
-                    Experiencia
-                  </span>
-                  <span className='text-sm font-medium'>
-                    {professional.years_experience} años
-                  </span>
+                  {/* Professional CTA button */}
+                  <button
+                    onClick={handleContact}
+                    className='w-full bg-primary hover:bg-primary-dark text-primary-foreground font-semibold py-3.5 px-6 rounded-xl transition-all duration-200 transform hover:scale-[1.02] shadow-lg hover:shadow-xl'
+                  >
+                    {user
+                      ? "Contactar por WhatsApp"
+                      : "Inicia sesión para contactar"}
+                  </button>
                 </div>
-                <div className='flex items-center justify-between py-2 border-b border-border/50 last:border-0'>
-                  <span className='text-sm text-muted-foreground'>
-                    Valoración
-                  </span>
-                  <span className='text-sm font-medium'>5.0 ⭐</span>
-                </div>
-                {professional.profile_location_city && (
-                  <div className='flex items-center justify-between py-2'>
-                    <span className='text-sm text-muted-foreground'>
-                      Ubicación
-                    </span>
-                    <span className='text-sm font-medium'>
-                      {professional.profile_location_city}
-                    </span>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Trust Indicators */}
-            <Card className='border-border/50 bg-muted/30'>
-              <CardContent className='p-6 space-y-3'>
-                <h3 className='font-medium text-sm'>
-                  Tu seguridad es importante
-                </h3>
-                <div className='space-y-2 text-xs text-muted-foreground'>
-                  <div className='flex items-center gap-2'>
-                    <div className='w-2 h-2 rounded-full bg-green-500'></div>
-                    <span>Perfil verificado</span>
-                  </div>
-                  <div className='flex items-center gap-2'>
-                    <div className='w-2 h-2 rounded-full bg-green-500'></div>
-                    <span>Contacto seguro por WhatsApp</span>
-                  </div>
-                  <div className='flex items-center gap-2'>
-                    <div className='w-2 h-2 rounded-full bg-green-500'></div>
-                    <span>Experiencia verificada</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </div>
-        </div>
 
-        {/* Bottom CTA */}
-        <div className='mt-12'>
-          <Card className='bg-gradient-to-r from-primary/5 to-primary/10 border-primary/20'>
-            <CardContent className='p-8 text-center space-y-4'>
-              <h3 className='text-2xl font-bold text-foreground'>
-                ¿Listo para comenzar tu proyecto?
-              </h3>
-              <p className='text-muted-foreground max-w-2xl mx-auto'>
-                Contacta a {professional.profile_full_name} para recibir un
-                presupuesto personalizado y comenzar a trabajar en tu proyecto
-                hoy mismo.
-              </p>
-              <div className='flex flex-col sm:flex-row gap-4 justify-center items-center'>
-                <Button
-                  onClick={handleContact}
-                  size='lg'
-                  className='h-12 px-8'
-                  variant={user ? "default" : "outline"}
-                >
-                  <Phone className='w-4 h-4 mr-2' />
-                  {user
-                    ? "Contactar por WhatsApp"
-                    : "Inicia sesión para contactar"}
-                </Button>
-                <p className='text-sm text-muted-foreground'>
-                  Respuesta garantizada en 24 horas
+          <div className='lg:col-span-7 xl:col-span-8 space-y-8'>
+            <div>
+              <h2 className='text-2xl font-semibold text-gray-900 mb-8'>
+                Sobre mi trabajo
+              </h2>
+              <div className='bg-white border border-gray-200 rounded-2xl p-8'>
+                <p className='text-gray-700 leading-relaxed text-lg'>
+                  {professional.description ||
+                    "Profesional comprometido con la excelencia y la satisfacción del cliente. Brindo servicios de alta calidad con atención al detalle y dedicación en cada proyecto."}
                 </p>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+            {/* Portfolio Section */}
+            <div>
+              <PortfolioSection
+                professionalProfileId={professional?.id}
+                isOwner={user?.id === professional?.user_id}
+              />
+            </div>
+
+            {/* Reviews Section - Airbnb Style */}
+            <div>
+              <ReviewsSection professionalProfileId={professional?.id} />
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Spacer to push footer below the fold */}
-      <div className='h-screen'></div>
+      <div className='fixed bottom-4 left-4 right-4 lg:hidden z-50'>
+        <button
+          onClick={handleContact}
+          className='w-full bg-primary hover:bg-primary-dark text-primary-foreground font-semibold py-4 px-6 rounded-2xl transition-all duration-200 shadow-2xl hover:shadow-3xl flex items-center justify-center gap-3'
+        >
+          <Phone className='w-5 h-5' />
+          {user ? "Contactar por WhatsApp" : "Inicia sesión para contactar"}
+        </button>
+      </div>
 
       <Footer />
     </div>

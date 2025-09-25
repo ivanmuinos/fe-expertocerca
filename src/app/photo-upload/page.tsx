@@ -15,7 +15,7 @@ import { OnboardingProgressBar } from "@/src/shared/components/OnboardingProgres
 import { useOnboardingProgress, OnboardingStep } from "@/src/shared/stores/useOnboardingProgressStore";
 
 // Helper function to determine initial section from URL
-const getInitialSection = (location: Location, uploadedPhotos: any[]): 'photos' | 'description' => {
+const getInitialSection = (location: { search: string }, uploadedPhotos: any[]): 'photos' | 'description' => {
   const searchParams = new URLSearchParams(location.search);
   const sectionParam = searchParams.get('section');
 
@@ -45,6 +45,7 @@ export default function PhotoUploadPage() {
   const { setCurrentStep, setPhotoSection } = useOnboardingProgress();
 
   const [currentSection, setCurrentSection] = useState<'photos' | 'description'>('photos');
+  const [isLoading, setIsLoading] = useState(false);
 
   // Initialize location client-side
   useEffect(() => {
@@ -108,8 +109,10 @@ export default function PhotoUploadPage() {
       setPhotoSection('description'); // Update progress
     } else if (currentSection === 'description' && canProceedFromPhotos()) {
       // No upload here - just mark step as completed and proceed
+      setIsLoading(true);
       markStepCompleted(4); // Mark photo upload step as completed
       navigate("/personal-data");
+      // Loading will be reset when component unmounts
     }
   };
 
@@ -345,7 +348,8 @@ Mis clientes destacan mi puntualidad, prolijidad y precio justo. Atiendo zona no
             </button>
             <LoadingButton
               onClick={handleContinue}
-              disabled={currentSection === 'photos' ? uploadedPhotos.length < 2 : !canProceedFromPhotos()}
+              loading={isLoading}
+              disabled={isLoading || (currentSection === 'photos' ? uploadedPhotos.length < 2 : !canProceedFromPhotos())}
               className='px-8 h-12 text-base font-medium'
             >
               Continuar

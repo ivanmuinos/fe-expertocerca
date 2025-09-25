@@ -1,7 +1,7 @@
 "use client";
 
 import { useNavigate } from '@/src/shared/lib/navigation';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { LoadingButton } from '@/src/shared/components/ui/loading-button';
 import { Button } from '@/src/shared/components/ui/button';
 import { User, Star, Camera, Settings } from 'lucide-react';
@@ -12,13 +12,16 @@ import { useOnboardingProgress, OnboardingStep } from '@/src/shared/stores/useOn
 export default function ProfessionalIntroPage() {
   const navigate = useNavigate();
   const { setCurrentStep } = useOnboardingProgress();
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     setCurrentStep(OnboardingStep.PROFESSIONAL_INTRO);
   }, [setCurrentStep]);
 
-  const handleStart = () => {
+  const handleStart = async () => {
+    setIsLoading(true);
     navigate('/specialty-selection');
+    // Loading will be reset when component unmounts
   };
 
   const handleBack = () => {
@@ -141,6 +144,8 @@ export default function ProfessionalIntroPage() {
             </button>
             <LoadingButton
               onClick={handleStart}
+              loading={isLoading}
+              disabled={isLoading}
               className="px-8 h-12 text-base font-medium"
             >
               Continuar

@@ -30,6 +30,7 @@ export default function PersonalDataPage() {
   const { saveOnboardingData } = useProfiles();
   const { withLoading } = useLoading();
   const { setCurrentStep } = useOnboardingProgress();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Get data from onboarding store
   const {
@@ -89,41 +90,45 @@ export default function PersonalDataPage() {
   const handleContinue = async () => {
     if (!user) return;
 
+    setIsSubmitting(true);
+
     try {
-      await withLoading(async () => {
-        const onboardingData: OnboardingData = {
-          fullName: formData.fullName,
-          phone: formData.phone,
-          whatsappPhone: formData.phone, // Use phone as WhatsApp by default
-          locationProvince: "Buenos Aires", // TODO: Get from location selector
-          locationCity: "Ciudad Autónoma de Buenos Aires", // TODO: Get from location selector
-          bio: workDescription || "Descripción profesional", // From photo upload step
-          skills: professionalInfo?.skills?.length > 0 ? professionalInfo.skills : [], // From professional info
-          // Professional data from onboarding flow
-          specialty: selectedSpecialty || undefined,
-          workZone: selectedWorkZone || undefined,
-          tradeName: (professionalInfo?.tradeName && professionalInfo.tradeName.trim())
-                     ? professionalInfo.tradeName
-                     : formData.fullName, // Use full name as default
-          yearsExperience: (professionalInfo?.yearsExperience && professionalInfo.yearsExperience > 0)
-                           ? professionalInfo.yearsExperience
-                           : 1, // Default to 1 year
-          hourlyRate: (professionalInfo?.hourlyRate && professionalInfo.hourlyRate > 0)
-                      ? professionalInfo.hourlyRate
-                      : undefined,
-        };
+      const onboardingData: OnboardingData = {
+        fullName: formData.fullName,
+        phone: formData.phone,
+        whatsappPhone: formData.phone, // Use phone as WhatsApp by default
+        locationProvince: "Buenos Aires", // TODO: Get from location selector
+        locationCity: "Ciudad Autónoma de Buenos Aires", // TODO: Get from location selector
+        bio: workDescription || "Descripción profesional", // From photo upload step
+        skills: professionalInfo?.skills?.length > 0 ? professionalInfo.skills : [], // From professional info
+        // Professional data from onboarding flow
+        specialty: selectedSpecialty || undefined,
+        workZone: selectedWorkZone || undefined,
+        tradeName: (professionalInfo?.tradeName && professionalInfo.tradeName.trim())
+                   ? professionalInfo.tradeName
+                   : formData.fullName, // Use full name as default
+        yearsExperience: (professionalInfo?.yearsExperience && professionalInfo.yearsExperience > 0)
+                         ? professionalInfo.yearsExperience
+                         : 1, // Default to 1 year
+        hourlyRate: (professionalInfo?.hourlyRate && professionalInfo.hourlyRate > 0)
+                    ? professionalInfo.hourlyRate
+                    : undefined,
+      };
 
-        const result = await saveOnboardingData(onboardingData, user.id);
+      const result = await saveOnboardingData(onboardingData, user.id);
 
-        if (result.success) {
-          // Go to completion page (don't clear onboarding data yet - completion will handle photos)
-          navigate("/completion");
-        } else {
-          throw new Error(`Failed to save personal data: ${result.error?.message || 'Unknown error'}`);
-        }
-      }, "Guardando tus datos...");
+      if (result.success) {
+        // Go to completion page (loading state will persist until completion page finishes)
+        navigate("/completion");
+        // Don't reset isSubmitting - it will be handled by completion page or component unmount
+      } else {
+        setIsSubmitting(false);
+        throw new Error(`Failed to save personal data: ${result.error?.message || 'Unknown error'}`);
+      }
     } catch (error) {
-      // Error will be handled by the loading component
+      setIsSubmitting(false);
+      // Show error to user if needed
+      console.error("Error saving personal data:", error);
     }
   };
 
@@ -314,7 +319,8 @@ export default function PersonalDataPage() {
             </button>
             <LoadingButton
               onClick={handleContinue}
-              disabled={!canProceed}
+              loading={isSubmitting}
+              disabled={!canProceed || isSubmitting}
               className='px-8 h-12 text-base font-medium'
             >
               Completar registro

@@ -47,9 +47,39 @@ export async function POST(request: NextRequest) {
 
     // Create professional profile (required fields: specialty, trade_name)
     if (data.specialty && data.tradeName) {
+      // First check how many profiles the user already has
+      const { count, error: countError } = await supabase
+        .from('professional_profiles')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', session.user.id);
+
+      if (countError) {
+        return NextResponse.json({ error: countError.message }, { status: 400 })
+      }
+
+      // Limit to 10 profiles per user
+      if (count && count >= 10) {
+        return NextResponse.json({
+          error: 'Has alcanzado el límite máximo de 10 publicaciones por usuario'
+        }, { status: 400 })
+      }
+
+      // Always insert a new profile (no upsert)
+      console.log('Attempting to insert professional profile for user:', session.user.id);
+      console.log('Current count:', count);
+      console.log('Profile data:', {
+        user_id: session.user.id,
+        specialty: data.specialty,
+        trade_name: data.tradeName,
+        description: data.bio,
+        skills: data.skills,
+        years_experience: data.yearsExperience || 0,
+        hourly_rate: data.hourlyRate
+      });
+
       const { data: professionalProfile, error: professionalError } = await supabase
         .from('professional_profiles')
-        .upsert({
+        .insert({
           user_id: session.user.id,
           specialty: data.specialty, // Required field
           trade_name: data.tradeName, // Required field
@@ -60,14 +90,19 @@ export async function POST(request: NextRequest) {
           whatsapp_phone: data.whatsappPhone,
           is_active: true, // Default to active
           accepts_new_clients: true, // Default to accepting clients
+          created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
-        },
-        { onConflict: 'user_id' })
+        })
         .select()
         .single();
 
       if (professionalError) {
-        return NextResponse.json({ error: 'Failed to save professional profile' }, { status: 500 })
+        console.error('Professional profile error:', professionalError);
+        return NextResponse.json({
+          error: 'Failed to save professional profile',
+          details: professionalError.message,
+          code: professionalError.code
+        }, { status: 500 })
       }
 
       // If work zone is specified and it's a valid UUID, save it to professional_work_zones

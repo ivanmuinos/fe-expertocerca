@@ -3,14 +3,18 @@ import { createSupabaseServerClient } from '@/src/config/supabase-server'
 
 export async function GET() {
   try {
+    console.log('API: my-profiles GET called'); // Debug log
     const supabase = await createSupabaseServerClient()
 
     // Get current session
     const { data: { session }, error: sessionError } = await supabase.auth.getSession()
 
     if (sessionError || !session) {
+      console.log('API: Unauthorized - no session'); // Debug log
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
+
+    console.log('API: User ID:', session.user.id); // Debug log
 
     // Get professional profiles for current user
     const { data: profiles, error: profilesError } = await supabase
@@ -31,19 +35,29 @@ export async function GET() {
       .order('created_at', { ascending: false });
 
     if (profilesError) {
+      console.log('API: Profiles error:', profilesError); // Debug log
       return NextResponse.json({ error: 'Failed to load profiles' }, { status: 500 })
     }
 
-    // Get profile data for the current user
+    console.log('API: Found profiles:', profiles?.length || 0); // Debug log
+
+    // Get profile data for the current user (optional)
     const { data: profileData, error: profileError } = await supabase
       .from('profiles')
       .select('full_name, location_city, location_province, skills, avatar_url')
       .eq('user_id', session.user.id)
-      .single();
+      .maybeSingle();
 
-    if (profileError || !profileData) {
-      return NextResponse.json({ error: 'Failed to load profile data' }, { status: 500 })
-    }
+    // If no profile exists, use default values
+    const defaultProfileData = {
+      full_name: null,
+      location_city: null,
+      location_province: null,
+      skills: [],
+      avatar_url: null
+    };
+
+    const finalProfileData = profileData || defaultProfileData;
 
     // Map the data to include profile information at the top level
     const mappedProfiles = (profiles || []).map(prof => ({
@@ -55,15 +69,16 @@ export async function GET() {
       whatsapp_phone: prof.whatsapp_phone,
       work_phone: prof.work_phone,
       user_id: prof.user_id,
-      profile_full_name: profileData.full_name,
-      profile_location_city: profileData.location_city,
-      profile_location_province: profileData.location_province,
-      profile_skills: profileData.skills || [],
-      profile_avatar_url: profileData.avatar_url,
+      profile_full_name: finalProfileData.full_name,
+      profile_location_city: finalProfileData.location_city,
+      profile_location_province: finalProfileData.location_province,
+      profile_skills: finalProfileData.skills || [],
+      profile_avatar_url: finalProfileData.avatar_url,
       created_at: prof.created_at,
       updated_at: prof.updated_at,
     }));
 
+    console.log('API: Returning mapped profiles:', mappedProfiles.length); // Debug log
     return NextResponse.json({ data: mappedProfiles })
   } catch (error) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })

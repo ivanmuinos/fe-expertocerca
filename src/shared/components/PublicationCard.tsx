@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { Badge } from "@/src/shared/components/ui/badge";
 
-interface Professional {
+interface Publication {
   id: string;
   trade_name: string;
   description?: string;
@@ -32,10 +32,10 @@ interface Professional {
   main_portfolio_image?: string;
 }
 
-interface ProfessionalCardProps {
-  professional: Professional;
+interface PublicationCardProps {
+  professional: Publication;
   isSelected?: boolean;
-  onClick?: (professional: Professional) => void;
+  onClick?: (professional: Publication) => void;
   showAllSkills?: boolean;
   className?: string;
 }
@@ -56,13 +56,13 @@ const getSpecialtyIcon = (specialty: string) => {
   return specialtyMap[specialty] || null;
 };
 
-export function ProfessionalCard({
+export function PublicationCard({
   professional,
   isSelected = false,
   onClick,
   showAllSkills = false,
   className = "",
-}: ProfessionalCardProps) {
+}: PublicationCardProps) {
   const handleClick = () => {
     if (onClick) {
       onClick(professional);
@@ -91,46 +91,20 @@ export function ProfessionalCard({
         className='bg-white rounded-xl hover:shadow-md transition-shadow duration-300 overflow-hidden'
         style={{ outline: "none" }}
       >
-        {/* Avatar section - cuadrado como Airbnb */}
-        <div className='aspect-square relative bg-gray-100 overflow-hidden'>
-          {(() => {
-            // Priority: portfolio image > avatar > fallback
-            const portfolioUrl = professional.main_portfolio_image;
-            const avatarUrl =
-              professional.profile_avatar_url ||
-              (professional as any).avatar_url;
-
-            const imageUrl = portfolioUrl || avatarUrl;
-            if (!imageUrl) return null;
-
-            // Only apply Google Photos resize to avatar URLs
-            const src =
-              avatarUrl && imageUrl === avatarUrl && imageUrl.includes("=s96-c")
-                ? imageUrl.replace("=s96-c", "=s400-c")
-                : imageUrl;
-
-            return (
-              <img
-                src={src}
-                alt={professional.profile_full_name || "Professional"}
-                className='w-full h-full object-cover'
-                loading='lazy'
-                onError={(e) => {
-                  console.log("Error loading image:", imageUrl);
-                  // Fallback to original URL if modified doesn't work
-                  if (e.currentTarget.src.includes("=s400-c") && avatarUrl) {
-                    e.currentTarget.src = avatarUrl;
-                  } else {
-                    e.currentTarget.style.display = "none";
-                  }
-                }}
-              />
-            );
-          })() || (
-            <div className='w-full h-full bg-primary text-primary-foreground text-4xl font-bold flex items-center justify-center'>
-              {professional.profile_full_name?.charAt(0) || "U"}
-            </div>
-          )}
+        {/* Image section - cuadrado como Airbnb */}
+        <div className='aspect-square relative bg-gray-200 overflow-hidden'>
+          {professional.main_portfolio_image ? (
+            <img
+              src={professional.main_portfolio_image}
+              alt={professional.profile_full_name || "Publication"}
+              className='w-full h-full object-cover'
+              loading='lazy'
+              onError={(e) => {
+                console.log("Error loading image:", professional.main_portfolio_image);
+                e.currentTarget.style.display = "none";
+              }}
+            />
+          ) : null}
         </div>
 
         {/* Content section */}
@@ -197,4 +171,4 @@ export function ProfessionalCard({
   );
 }
 
-export default ProfessionalCard;
+export default PublicationCard;

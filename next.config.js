@@ -6,6 +6,9 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: false,
   },
+  devIndicators: {
+    buildActivity: false,
+  },
   images: {
     domains: ['localhost'],
     remotePatterns: [

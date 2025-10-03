@@ -5,7 +5,8 @@ export * from "./ui";
 export * from "./providers";
 
 // Navigation
-export { SharedHeader } from "./navigation/SharedHeader";
+export { SharedHeader } from "./SharedHeader";
+export { MobileNavbar } from "./MobileNavbar";
 
 // Layout
 export { Footer } from "./Footer";
@@ -20,3 +21,4 @@ export { ZoneSelector } from "./forms/ZoneSelector";
 // Common Components
 export { GlobalLoading } from "./GlobalLoading";
 export { LoginModal } from "./LoginModal";
+export { DynamicLayoutWrapper } from "./DynamicLayoutWrapper";

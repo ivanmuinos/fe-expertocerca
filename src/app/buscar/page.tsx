@@ -19,7 +19,7 @@ import { useToast } from "@/src/shared/hooks/use-toast";
 import { useAuthState } from "@/src/features/auth";
 import { SharedHeader } from "@/src/shared/components/SharedHeader";
 import ProfessionalMiniDetail from "@/src/shared/components/ProfessionalMiniDetail";
-import ProfessionalCard from "@/src/shared/components/ProfessionalCard";
+import PublicationCard from "@/src/shared/components/PublicationCard";
 import { Footer } from "@/src/shared/components";
 
 interface Professional {
@@ -288,7 +288,7 @@ export default function BuscarPage() {
             ) : filteredProfessionals.length > 0 ? (
               <div className='grid grid-cols-1 md:grid-cols-3 xl:grid-cols-4 gap-4'>
                 {filteredProfessionals.map((professional) => (
-                  <ProfessionalCard
+                  <PublicationCard
                     key={professional.id}
                     professional={professional}
                     isSelected={selectedProfessional?.id === professional.id}

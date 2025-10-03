@@ -52,7 +52,7 @@ export function ServiceSelector({ value, onValueChange, popularServices, isOther
             <SelectValue placeholder={
               <div className="flex items-center gap-2">
                 <Search className="h-4 w-4 text-muted-foreground" />
-                <span>Elegí el servicio que necesitas</span>
+                <span className="font-bold">Empezá tu búsqueda</span>
               </div>
             }>
               {value && (

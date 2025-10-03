@@ -1,6 +1,9 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import { ClientProviders } from "./providers";
+import { MobileNavbar } from "@/src/shared/components/MobileNavbar";
+import { MobileWrapper } from "@/src/shared/components/MobileWrapper";
+import { DynamicLayoutWrapper } from "@/src/shared/components/DynamicLayoutWrapper";
 import "./globals.css";
 
 const inter = Inter({
@@ -8,6 +11,13 @@ const inter = Inter({
   weight: ["300", "400", "500", "600", "700"],
   display: "swap",
 });
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 0.9,
+  maximumScale: 1,
+  userScalable: false,
+}
 
 export const metadata: Metadata = {
   metadataBase: new URL(
@@ -52,9 +62,12 @@ export default function RootLayout({
     <html lang='en'>
       <body className={inter.className}>
         <ClientProviders>
-          <div className='md:pb-0'>
-            {children}
-          </div>
+          <MobileWrapper>
+            <DynamicLayoutWrapper>
+              {children}
+            </DynamicLayoutWrapper>
+            <MobileNavbar />
+          </MobileWrapper>
         </ClientProviders>
       </body>
     </html>

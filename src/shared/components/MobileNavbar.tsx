@@ -4,6 +4,7 @@ import { usePathname } from 'next/navigation';
 import { useNavigate } from '@/src/shared/lib/navigation';
 import { useState, useEffect } from 'react';
 import { useMobile } from './MobileWrapper';
+import { useAuthState } from '@/src/features/auth';
 import {
   Search,
   Heart,
@@ -11,10 +12,11 @@ import {
   MessageCircle,
   User,
   Home,
-  Briefcase
+  Briefcase,
+  LogIn
 } from 'lucide-react';
 
-const navItems = [
+const loggedInNavItems = [
   {
     id: 'inicio',
     label: 'Inicio',
@@ -31,7 +33,7 @@ const navItems = [
     id: 'publicar',
     label: 'Publicar',
     icon: Plus,
-    path: '/publicar'
+    path: '/specialty-selection'
   },
   {
     id: 'publicaciones',
@@ -47,12 +49,37 @@ const navItems = [
   }
 ];
 
+const loggedOutNavItems = [
+  {
+    id: 'inicio',
+    label: 'Inicio',
+    icon: Home,
+    path: '/'
+  },
+  {
+    id: 'buscar',
+    label: 'Buscar',
+    icon: Search,
+    path: '/buscar'
+  },
+  {
+    id: 'login',
+    label: 'Iniciar sesión',
+    icon: LogIn,
+    path: null // Special handling - opens modal
+  }
+];
+
 export function MobileNavbar() {
   const pathname = usePathname();
   const navigate = useNavigate();
-  const { isMobile, isMobileSearchOpen, setIsMobileSearchOpen } = useMobile();
+  const { isMobile, isMobileSearchOpen, setIsMobileSearchOpen, setIsMobileNavbarVisible } = useMobile();
+  const { user } = useAuthState();
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
+
+  // Choose nav items based on auth state
+  const navItems = user ? loggedInNavItems : loggedOutNavItems;
 
   useEffect(() => {
     let ticking = false;
@@ -81,15 +108,17 @@ export function MobileNavbar() {
             : window.innerHeight;
           const isAtBottom = (scrollHeight - currentScrollY - clientHeight) < 100;
 
-          // Calculate scroll difference
-          const scrollDiff = currentScrollY - lastScrollY;
-
-          // If at bottom, ignore scroll events to prevent jitter
+          // If at bottom, show navbar
           if (isAtBottom) {
+            setIsVisible(true);
+            setIsMobileNavbarVisible(true);
             setLastScrollY(currentScrollY);
             ticking = false;
             return;
           }
+
+          // Calculate scroll difference
+          const scrollDiff = currentScrollY - lastScrollY;
 
           // Require minimum scroll movement (10px threshold)
           if (Math.abs(scrollDiff) < 10) {
@@ -100,10 +129,12 @@ export function MobileNavbar() {
           // Scrolling down & past 50px - hide navbar
           if (scrollDiff > 0 && currentScrollY > 50) {
             setIsVisible(false);
+            setIsMobileNavbarVisible(false);
           }
           // Scrolling up - show navbar
           else if (scrollDiff < 0) {
             setIsVisible(true);
+            setIsMobileNavbarVisible(true);
           }
 
           setLastScrollY(currentScrollY);
@@ -130,6 +161,19 @@ export function MobileNavbar() {
     return pathname?.startsWith(path);
   };
 
+  // Define onboarding routes where navbar should be hidden
+  const onboardingRoutes = [
+    '/specialty-selection',
+    '/user-type-selection',
+    '/onboarding',
+    '/photo-upload',
+    '/photo-guidelines',
+    '/professional-intro',
+    '/personal-data'
+  ];
+
+  const isOnboardingRoute = onboardingRoutes.some(route => pathname?.startsWith(route));
+
   // Check if body has overflow hidden (modal open) - solo para la búsqueda
   const isModalOpen = typeof document !== 'undefined' &&
                        document.body.style.overflow === 'hidden' &&
@@ -141,6 +185,9 @@ export function MobileNavbar() {
   // Hide completely when modal is open on search page
   if (isModalOpen) return null;
 
+  // Hide navbar during onboarding process
+  if (isOnboardingRoute) return null;
+
   return (
     <div className={`fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 shadow-lg transition-transform duration-300 ${
       isVisible ? 'translate-y-0' : 'translate-y-full'
@@ -150,12 +197,15 @@ export function MobileNavbar() {
           const Icon = item.icon;
           const active = isActive(item.path);
 
-          // Special handling for search button
+          // Special handling for search and login buttons
           const handleClick = () => {
             if (item.id === 'buscar') {
               // Open search modal instead of navigating
               setIsMobileSearchOpen(true);
-            } else {
+            } else if (item.id === 'login') {
+              // Open login modal by dispatching custom event
+              window.dispatchEvent(new CustomEvent('openLoginModal'));
+            } else if (item.path) {
               navigate(item.path);
             }
           };

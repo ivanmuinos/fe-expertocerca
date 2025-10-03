@@ -60,16 +60,16 @@ export default function PhotoGuidelinesPage() {
     <div className="h-screen bg-gradient-subtle flex flex-col overflow-hidden">
       {/* Header */}
       <div className="flex-shrink-0 bg-background/95 backdrop-blur-sm border-b border-border">
-        <div className="w-full px-8 py-4 flex items-center justify-between">
+        <div className="w-full px-3 py-2 md:px-8 md:py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-              <Star className="w-5 h-5 text-white" />
+            <div className="w-6 h-6 md:w-8 md:h-8 bg-primary rounded-full flex items-center justify-center">
+              <Star className="w-4 h-4 md:w-5 md:h-5 text-white" />
             </div>
           </div>
           <Button
             variant="outline"
             onClick={handleExit}
-            className="px-4 py-2 bg-white border-gray-300 rounded-full hover:bg-gray-100 hover:border-gray-400 text-gray-700 hover:text-gray-900 font-medium transition-all duration-200"
+            className="px-3 py-1 md:px-4 md:py-2 text-xs md:text-sm bg-white border-gray-300 rounded-full hover:bg-gray-100 hover:border-gray-400 text-gray-700 hover:text-gray-900 font-medium transition-all duration-200"
           >
             Salir
           </Button>
@@ -77,7 +77,7 @@ export default function PhotoGuidelinesPage() {
       </div>
 
       {/* Content */}
-      <div className="flex-1 w-full max-w-md md:max-w-2xl mx-auto px-4 py-6 flex flex-col min-h-0">
+      <div className="flex-1 w-full max-w-md md:max-w-2xl mx-auto px-3 py-3 md:px-4 md:py-6 flex flex-col min-h-0">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -85,11 +85,11 @@ export default function PhotoGuidelinesPage() {
           className="flex-1 flex flex-col"
         >
           {/* Main Title */}
-          <div className="mb-6 text-left">
-            <h1 className="text-xl text-foreground mb-2">
+          <div className="mb-3 md:mb-6 text-left">
+            <h1 className="text-base md:text-xl text-foreground mb-1 md:mb-2">
               Mostrá tus mejores trabajos
             </h1>
-            <p className="text-muted-foreground">
+            <p className="text-xs md:text-sm text-muted-foreground">
               Subí fotos que demuestren tu calidad y experiencia
             </p>
           </div>
@@ -98,26 +98,26 @@ export default function PhotoGuidelinesPage() {
           <div className="flex-1 overflow-auto scrollbar-hide">
             {/* Good practices */}
             <div>
-              <h2 className="text-base font-semibold text-foreground mb-4">
+              <h2 className="text-sm md:text-base font-semibold text-foreground mb-2 md:mb-4">
                 Qué fotos funcionan mejor:
               </h2>
-              <div className="space-y-3">
+              <div className="space-y-2 md:space-y-3">
                 {goodPractices.map((practice, index) => (
                   <motion.div
                     key={practice.title}
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.5, delay: index * 0.1 }}
-                    className="flex items-start gap-3 p-4 rounded-2xl bg-white border border-border shadow-sm"
+                    className="flex items-start gap-2 md:gap-3 p-3 md:p-4 rounded-2xl bg-white border border-border shadow-sm"
                   >
-                    <div className="flex-shrink-0 w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
-                      <practice.icon className="w-5 h-5 text-primary" />
+                    <div className="flex-shrink-0 w-8 h-8 md:w-10 md:h-10 bg-primary/10 rounded-xl flex items-center justify-center">
+                      <practice.icon className="w-4 h-4 md:w-5 md:h-5 text-primary" />
                     </div>
                     <div className="flex-1">
-                      <h3 className="font-semibold text-foreground text-base mb-1">
+                      <h3 className="font-semibold text-foreground text-xs md:text-base mb-0.5 md:mb-1">
                         {practice.title}
                       </h3>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-[10px] md:text-sm text-muted-foreground">
                         {practice.description}
                       </p>
                     </div>
@@ -129,16 +129,17 @@ export default function PhotoGuidelinesPage() {
         </motion.div>
       </div>
 
-      {/* Progress Bar - Fixed */}
-      <OnboardingProgressBar fixed />
-
-      {/* Footer */}
+      {/* Footer with Progress Bar */}
       <div className="flex-shrink-0 w-full bg-background/95 backdrop-blur-sm">
-        <div className="w-full px-8 py-6">
+        {/* Progress Bar */}
+        <OnboardingProgressBar />
+
+        {/* Footer Buttons */}
+        <div className="w-full px-3 py-3 md:px-8 md:py-6">
           <div className="flex items-center justify-between">
             <button
               onClick={handleBack}
-              className="text-sm text-black hover:text-gray-700 underline font-medium"
+              className="text-xs md:text-sm text-black hover:text-gray-700 underline font-medium"
             >
               Atrás
             </button>
@@ -146,7 +147,7 @@ export default function PhotoGuidelinesPage() {
               onClick={handleContinue}
               loading={isLoading}
               disabled={isLoading}
-              className="px-8 h-12 text-base font-medium"
+              className="px-6 h-9 text-sm md:px-8 md:h-12 md:text-base font-medium"
             >
               Continuar
             </LoadingButton>

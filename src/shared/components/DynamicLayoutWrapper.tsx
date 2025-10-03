@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import { useMobile } from './MobileWrapper';
 
 interface DynamicLayoutWrapperProps {
@@ -9,8 +10,22 @@ interface DynamicLayoutWrapperProps {
 
 export function DynamicLayoutWrapper({ children }: DynamicLayoutWrapperProps) {
   const { isMobile } = useMobile();
+  const pathname = usePathname();
   const [isNavbarVisible, setIsNavbarVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
+
+  // Define onboarding routes where padding should not be applied
+  const onboardingRoutes = [
+    '/specialty-selection',
+    '/user-type-selection',
+    '/onboarding',
+    '/photo-upload',
+    '/photo-guidelines',
+    '/professional-intro',
+    '/personal-data'
+  ];
+
+  const isOnboardingRoute = onboardingRoutes.some(route => pathname?.startsWith(route));
 
   useEffect(() => {
     const controlNavbar = () => {
@@ -31,7 +46,8 @@ export function DynamicLayoutWrapper({ children }: DynamicLayoutWrapperProps) {
     return () => window.removeEventListener('scroll', controlNavbar);
   }, [lastScrollY]);
 
-  const paddingBottom = isMobile
+  // Don't add padding on onboarding routes
+  const paddingBottom = !isOnboardingRoute && isMobile
     ? (isNavbarVisible ? 'pb-20' : 'pb-4')
     : 'pb-0';
 

@@ -73,16 +73,17 @@ export function OnboardingLayout({
         </div>
       </div>
 
-      {/* Progress Bar - Full Width */}
-      <div className="flex-shrink-0 w-full bg-gray-200">
-        <div 
-          className="h-2 bg-primary transition-[width] duration-1000 ease-in-out"
-          style={{ width: `${progressPercentage}%` }}
-        />
-      </div>
-
-      {/* Footer */}
+      {/* Footer with Progress Bar */}
       <div className="flex-shrink-0 w-full bg-background/95 backdrop-blur-sm">
+        {/* Progress Bar */}
+        <div className="w-full bg-gray-200">
+          <div
+            className="h-2 bg-primary transition-[width] duration-1000 ease-in-out"
+            style={{ width: `${progressPercentage}%` }}
+          />
+        </div>
+
+        {/* Footer Buttons */}
         <div className="w-full px-8 py-6">
           <div className="flex items-center justify-between">
             <button

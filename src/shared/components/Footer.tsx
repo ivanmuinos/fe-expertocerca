@@ -6,13 +6,15 @@ export function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className='bg-gray-50 border-t border-gray-200 mt-8 md:mt-12'>
+    <footer className='bg-gray-50 border-t border-gray-200 mt-8 md:mt-12  md:pb-0'>
       <div className='max-w-7xl mx-auto px-3 md:px-6 py-6 md:py-12'>
         {/* Main Footer Content */}
         <div className='grid grid-cols-2 md:grid-cols-2 gap-4 md:gap-8 mb-6 md:mb-8'>
           {/* Soporte */}
           <div>
-            <h3 className='font-semibold text-gray-900 mb-2 md:mb-4 text-sm md:text-base'>Soporte</h3>
+            <h3 className='font-semibold text-gray-900 mb-2 md:mb-4 text-sm md:text-base'>
+              Soporte
+            </h3>
             <ul className='space-y-2 md:space-y-3'>
               <li>
                 <a
@@ -43,7 +45,9 @@ export function Footer() {
 
           {/* Expertos */}
           <div>
-            <h3 className='font-semibold text-gray-900 mb-2 md:mb-4 text-sm md:text-base'>Expertos</h3>
+            <h3 className='font-semibold text-gray-900 mb-2 md:mb-4 text-sm md:text-base'>
+              Expertos
+            </h3>
             <ul className='space-y-2 md:space-y-3'>
               <li>
                 <a

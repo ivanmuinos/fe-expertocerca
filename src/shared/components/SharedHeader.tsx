@@ -154,6 +154,18 @@ export function SharedHeader({
     loadProfile();
   }, [user?.id]); // Only depend on user.id to avoid infinite loops
 
+  // Listen for custom event to open login modal (from MobileNavbar)
+  useEffect(() => {
+    const handleOpenLoginModal = () => {
+      setIsLoginModalOpen(true);
+    };
+
+    window.addEventListener('openLoginModal', handleOpenLoginModal);
+    return () => {
+      window.removeEventListener('openLoginModal', handleOpenLoginModal);
+    };
+  }, []);
+
   // Handle scroll for header styling and search behavior
   useEffect(() => {
     let ticking = false;

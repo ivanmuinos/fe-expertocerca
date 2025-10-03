@@ -51,6 +51,14 @@ export const usePortfolio = () => {
         throw new Error('Usuario no autenticado en Supabase');
       }
 
+      // Check if this is the first photo
+      const { data: existingPhotos } = await supabase
+        .from('portfolio_photos')
+        .select('id')
+        .eq('professional_profile_id', photoData.professional_profile_id);
+
+      const isFirstPhoto = !existingPhotos || existingPhotos.length === 0;
+
       // Generate unique filename
       const fileExt = photoData.file.name.split('.').pop();
       const fileName = `${userId}/${Date.now()}.${fileExt}`;
@@ -89,10 +97,19 @@ export const usePortfolio = () => {
         throw dbError;
       }
 
+      // If this is the first photo, set it as main_portfolio_image
+      if (isFirstPhoto) {
+        await supabase
+          .from('professional_profiles')
+          .update({ main_portfolio_image: publicUrl })
+          .eq('id', photoData.professional_profile_id);
+      }
 
       toast({
         title: "¡Foto subida!",
-        description: "Tu foto de trabajo ha sido agregada al portafolio",
+        description: isFirstPhoto
+          ? "Tu foto ha sido agregada y establecida como imagen principal"
+          : "Tu foto de trabajo ha sido agregada al portafolio",
       });
 
       return { success: true };
@@ -180,11 +197,42 @@ export const usePortfolio = () => {
     }
   };
 
+  const setAsMainImage = async (professionalProfileId: string, imageUrl: string) => {
+    setLoading(true);
+    try {
+      const { error } = await supabase
+        .from('professional_profiles')
+        .update({ main_portfolio_image: imageUrl })
+        .eq('id', professionalProfileId);
+
+      if (error) {
+        throw error;
+      }
+
+      toast({
+        title: 'Imagen principal actualizada',
+        description: 'Esta foto ahora aparecerá como imagen principal en tu perfil.',
+      });
+
+      return { success: true };
+    } catch (error: any) {
+      toast({
+        title: 'Error',
+        description: error.message || 'Error al establecer la imagen principal',
+        variant: 'destructive',
+      });
+      return { success: false, error };
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return {
     loading,
     getPortfolioPhotos,
     uploadPortfolioPhoto,
     updatePortfolioPhoto,
-    deletePortfolioPhoto
+    deletePortfolioPhoto,
+    setAsMainImage
   };
 };

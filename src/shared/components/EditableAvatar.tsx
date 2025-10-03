@@ -15,24 +15,28 @@ interface EditableAvatarProps {
   onAvatarChange?: (newUrl: string | null) => void;
   showUploadButton?: boolean;
   isOwner?: boolean; // Nueva prop para indicar si es el propietario del perfil
+  fallbackAvatarUrl?: string | null; // Avatar alternativo (ej: Google avatar del profesional)
 }
 
-export function EditableAvatar({ 
-  avatarUrl, 
-  userFullName = '', 
+export function EditableAvatar({
+  avatarUrl,
+  userFullName = '',
   size = 'md',
   onAvatarChange,
   showUploadButton = true,
-  isOwner = false
+  isOwner = false,
+  fallbackAvatarUrl = null
 }: EditableAvatarProps) {
   const { user, loading } = useAuthState();
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
 
-  // Get Google avatar from user metadata as fallback, but only for owner
+  // Get Google avatar from user metadata as fallback for owner, or use provided fallback
   const googleAvatar = user?.user_metadata?.avatar_url || user?.user_metadata?.picture;
-  const displayAvatar = avatarUrl || (isOwner ? googleAvatar : null);
+  const displayAvatar = avatarUrl || (isOwner ? googleAvatar : null) || fallbackAvatarUrl;
+
+
   
   const sizeClasses = {
     sm: 'h-12 w-12',

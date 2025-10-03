@@ -77,6 +77,18 @@ class ApiClient {
     return this.request('/professionals?mode=browse')
   }
 
+  async getProfessionalById(id: string) {
+    return this.request(`/professionals/${id}`)
+  }
+
+  async syncAvatar() {
+    return this.request('/sync-avatar', { method: 'POST' })
+  }
+
+  async bulkSyncAvatars() {
+    return this.request('/sync-avatar', { method: 'PUT' })
+  }
+
   async getMyProfiles() {
     return this.request('/my-profiles')
   }

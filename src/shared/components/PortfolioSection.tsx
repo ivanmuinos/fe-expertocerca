@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Plus, Trash2, Upload, X } from 'lucide-react';
+import { Plus, Trash2, Upload, X, Star } from 'lucide-react';
 import Image from 'next/image';
 import { Button } from '@/src/shared/components/ui/button';
 import { Card, CardContent } from '@/src/shared/components/ui/card';
@@ -9,6 +9,7 @@ import { Input } from '@/src/shared/components/ui/input';
 import { Label } from '@/src/shared/components/ui/label';
 import { Textarea } from '@/src/shared/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/src/shared/components/ui/dialog';
+import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 import { usePortfolio, type PortfolioPhoto } from '@/src/features/user-profile';
 import { useAuthState } from '@/src/features/auth'
 
@@ -19,7 +20,7 @@ interface PortfolioSectionProps {
 
 export function PortfolioSection({ professionalProfileId, isOwner }: PortfolioSectionProps) {
   const { user, loading: authLoading } = useAuthState();
-  const { getPortfolioPhotos, uploadPortfolioPhoto, deletePortfolioPhoto, loading } = usePortfolio();
+  const { getPortfolioPhotos, uploadPortfolioPhoto, deletePortfolioPhoto, setAsMainImage, loading } = usePortfolio();
   const [photos, setPhotos] = useState<PortfolioPhoto[]>([]);
   const [showUploadDialog, setShowUploadDialog] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -27,6 +28,8 @@ export function PortfolioSection({ professionalProfileId, isOwner }: PortfolioSe
     title: '',
     description: ''
   });
+  const [showPhotoModal, setShowPhotoModal] = useState(false);
+  const [selectedPhoto, setSelectedPhoto] = useState<PortfolioPhoto | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const loadPhotos = useCallback(async () => {
@@ -84,6 +87,21 @@ export function PortfolioSection({ professionalProfileId, isOwner }: PortfolioSe
   const resetForm = () => {
     setFormData({ title: '', description: '' });
     setSelectedFile(null);
+  };
+
+  const handlePhotoClick = (photo: PortfolioPhoto) => {
+    setSelectedPhoto(photo);
+    setShowPhotoModal(true);
+  };
+
+  const handleSetAsMain = async (photo: PortfolioPhoto) => {
+    console.log('Setting as main image:', photo.image_url, 'for profile:', professionalProfileId);
+    const { success } = await setAsMainImage(professionalProfileId, photo.image_url);
+    if (success) {
+      console.log('Successfully set as main image');
+      // Reload the page to reflect changes
+      window.location.reload();
+    }
   };
 
   return (
@@ -209,8 +227,8 @@ export function PortfolioSection({ professionalProfileId, isOwner }: PortfolioSe
             <Upload className="w-8 h-8 text-muted-foreground" />
           </div>
           <p className="text-muted-foreground">
-            {isOwner 
-              ? 'Aún no has subido fotos de tus trabajos. ¡Comparte tu experiencia!' 
+            {isOwner
+              ? 'Aún no has subido fotos de tus trabajos. ¡Comparte tu experiencia!'
               : 'Este profesional aún no ha compartido fotos de sus trabajos.'
             }
           </p>
@@ -219,22 +237,26 @@ export function PortfolioSection({ professionalProfileId, isOwner }: PortfolioSe
         <div className="grid grid-cols-4 grid-rows-2 gap-2 h-96 rounded-xl overflow-hidden">
           {photos.map((photo, index) => {
             const isMainPhoto = index === 0;
-            const gridClass = isMainPhoto 
-              ? "col-span-2 row-span-2" 
-              : index === 1 
-                ? "col-span-1 row-span-1" 
-                : index === 2 
-                  ? "col-span-1 row-span-1" 
-                  : index === 3 
-                    ? "col-span-1 row-span-1" 
-                    : index === 4 
-                      ? "col-span-1 row-span-1" 
+            const gridClass = isMainPhoto
+              ? "col-span-2 row-span-2"
+              : index === 1
+                ? "col-span-1 row-span-1"
+                : index === 2
+                  ? "col-span-1 row-span-1"
+                  : index === 3
+                    ? "col-span-1 row-span-1"
+                    : index === 4
+                      ? "col-span-1 row-span-1"
                       : "hidden";
-            
+
             if (index > 4) return null;
-            
+
             return (
-              <div key={photo.id} className={`relative overflow-hidden group cursor-pointer ${gridClass}`}>
+              <div
+                key={photo.id}
+                className={`relative overflow-hidden group cursor-pointer ${gridClass}`}
+                onClick={() => handlePhotoClick(photo)}
+              >
                 <Image
                   src={photo.image_url}
                   alt={photo.title}
@@ -248,46 +270,81 @@ export function PortfolioSection({ professionalProfileId, isOwner }: PortfolioSe
                     <span className="text-white font-semibold">+{photos.length - 5}</span>
                   </div>
                 )}
-                {isOwner && (
-                  <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Button
-                      size="sm"
-                      variant="destructive"
-                      onClick={() => handleDelete(photo)}
-                    >
-                      <Trash2 className="w-3 h-3" />
-                    </Button>
-                  </div>
-                )}
               </div>
             );
           })}
         </div>
       )}
-      
-      {/* Show photo details below grid */}
-      {photos.length > 0 && (
-        <div className="mt-6 space-y-4">
-          {photos.slice(0, 3).map((photo) => (
-            <div key={photo.id} className="border-b border-border pb-4 last:border-b-0">
-              <h4 className="font-medium text-foreground">{photo.title}</h4>
-              {photo.description && (
-                <p className="text-sm text-muted-foreground mt-1">
-                  {photo.description}
-                </p>
-              )}
-              <p className="text-xs text-muted-foreground mt-2">
-                {new Date(photo.created_at).toLocaleDateString()}
-              </p>
+
+      {/* Photo Modal */}
+      <Dialog open={showPhotoModal} onOpenChange={setShowPhotoModal}>
+        <DialogContent className="max-w-7xl w-[95vw] max-h-[95vh] h-[90vh] p-0">
+          <VisuallyHidden>
+            <DialogTitle>Galería de fotos</DialogTitle>
+          </VisuallyHidden>
+          {selectedPhoto && (
+            <div className="grid grid-cols-1 lg:grid-cols-3 h-full">
+              {/* Image Section - Takes up 2/3 of the space */}
+              <div className="lg:col-span-2 relative bg-gray-100 min-h-[50vh] lg:min-h-full overflow-hidden">
+                <Image
+                  src={selectedPhoto.image_url}
+                  alt={selectedPhoto.title}
+                  fill
+                  className="object-cover"
+                />
+              </div>
+
+              {/* Content Section - Takes up 1/3 of the space */}
+              <div className="p-8 flex flex-col bg-gray-50/50">
+                {/* Title at the top */}
+                <div className="mb-6">
+                  <h3 className="text-3xl font-bold text-foreground">
+                    {selectedPhoto.title}
+                  </h3>
+                </div>
+
+                {/* Description in a card below title (only if exists and not empty) */}
+                {selectedPhoto.description && selectedPhoto.description.trim() && (
+                  <div className="bg-white border border-gray-200 rounded-2xl p-6 mb-6">
+                    <p className="text-muted-foreground leading-relaxed text-lg">
+                      {selectedPhoto.description}
+                    </p>
+                  </div>
+                )}
+
+                {/* Action Buttons - Only visible to owner */}
+                {isOwner && (
+                  <div className="mt-auto space-y-3">
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start gap-2 h-12 text-base border-blue-200 hover:bg-blue-50 hover:border-blue-300"
+                      onClick={() => {
+                        handleSetAsMain(selectedPhoto);
+                        setShowPhotoModal(false);
+                      }}
+                    >
+                      <Star className="w-5 h-5 text-blue-600" />
+                      <span>Establecer como imagen principal</span>
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start gap-2 h-12 text-base border-red-200 hover:bg-red-50 hover:border-red-300 text-red-600 hover:text-red-700"
+                      onClick={() => {
+                        setShowPhotoModal(false);
+                        handleDelete(selectedPhoto);
+                      }}
+                    >
+                      <Trash2 className="w-5 h-5" />
+                      <span>Eliminar foto</span>
+                    </Button>
+                  </div>
+                )}
+
+              </div>
             </div>
-          ))}
-          {photos.length > 3 && (
-            <Button variant="outline" className="w-full">
-              Ver todos los trabajos ({photos.length})
-            </Button>
           )}
-        </div>
-      )}
+        </DialogContent>
+      </Dialog>
 
     </div>
   );

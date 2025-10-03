@@ -5,7 +5,7 @@ import useEmblaCarousel from "embla-carousel-react";
 import { Button } from "@/src/shared/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useNavigate } from "@/src/shared/lib/navigation";
-import ProfessionalCard from "@/src/shared/components/ProfessionalCard";
+import PublicationCard from "@/src/shared/components/PublicationCard";
 
 interface Professional {
   id: string;
@@ -58,10 +58,6 @@ export function ProfessionalCarousel({
       <div className='flex items-center justify-between'>
         <h2 className='text-lg sm:text-xl font-semibold'>{categoryName}</h2>
         <div className='flex items-center gap-2'>
-          <span className='text-xs sm:text-sm text-muted-foreground'>
-            {professionals.length} disponible
-            {professionals.length !== 1 ? "s" : ""}
-          </span>
           <div className='hidden sm:flex gap-2'>
             <Button
               variant='outline'
@@ -90,7 +86,7 @@ export function ProfessionalCarousel({
               key={professional.id}
               className='flex-shrink-0 w-[160px] sm:w-[180px]'
             >
-              <ProfessionalCard
+              <PublicationCard
                 professional={professional}
                 onClick={() => navigate(`/profesional?id=${professional.id}`)}
                 showAllSkills={false}

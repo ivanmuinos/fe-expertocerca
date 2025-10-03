@@ -35,6 +35,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ServiceSelector } from "@/src/shared/components/ServiceSelector";
 import { ZoneSelector } from "@/src/shared/components/ZoneSelector";
 import { LoginModal } from "@/src/shared/components/LoginModal";
+import { useMobile } from "@/src/shared/components/MobileWrapper";
 
 export interface SharedHeaderProps {
   // Navigation
@@ -80,6 +81,7 @@ export function SharedHeader({
   const { signOut } = useAuthActions();
   const onboardingStatus = useOnboardingStatus();
   const [profile, setProfile] = useState<any>(null);
+  const { isMobileSearchOpen, setIsMobileSearchOpen } = useMobile();
 
   const handleSearch = () => {
     console.log("SharedHeader handleSearch called", {
@@ -117,7 +119,6 @@ export function SharedHeader({
     }
   };
 
-  const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   const [isDesktopSearchExpanded, setIsDesktopSearchExpanded] = useState(
     (!searchCollapsed || pathname === "/") && !pathname.startsWith("/profesional")
   );
@@ -312,10 +313,6 @@ export function SharedHeader({
     }
   };
 
-  const baseHeaderClasses = `
-    bg-secondary shadow-sm
-  `;
-
   const handleMobileSearchOpen = () => {
     setIsMobileSearchOpen(true);
   };
@@ -342,16 +339,45 @@ export function SharedHeader({
       {/* Mobile-first Airbnb-style header */}
       <header
         ref={headerRef}
-        className={`sticky top-0 z-40 transition-all duration-300 ease-out ${
-          variant === "transparent"
-            ? `${
-                pathname === "/" ? "bg-gray-50/95" : pathname.startsWith("/profesional") || pathname === "/perfil" ? "bg-white/95" : "bg-background/95"
-              } backdrop-blur-sm ${isScrolled ? "shadow-sm" : ""}`
-            : `${baseHeaderClasses} ${isScrolled ? "shadow-md" : "shadow-sm"}`
-        }`}
+        className={`sticky top-0 z-40 transition-all duration-300 ease-out bg-white ${isScrolled ? "shadow-md" : "shadow-sm"}`}
       >
-        <div className='w-full px-6 sm:px-8 lg:px-10 pt-2'>
-          <div className='flex items-center justify-between h-16 sm:h-18 w-full'>
+        <div className='w-full px-3 md:px-6 sm:px-8 lg:px-10 pt-2'>
+
+          {/* Mobile: ONLY search bar */}
+          <div className='md:hidden h-16 flex items-center'>
+            {showSearch && searchProps ? (
+              <div className='w-full'>
+                <Button
+                  variant='ghost'
+                  onClick={handleMobileSearchOpen}
+                  className='w-full bg-white border border-border/50 rounded-full shadow-sm px-6 py-4 h-14 flex items-center gap-3 hover:shadow-md transition-all'
+                >
+                  <Search className='h-5 w-5 text-muted-foreground flex-shrink-0' />
+                  <div className='text-sm font-medium text-foreground truncate'>
+                    {searchProps.searchTerm && searchProps.searchTerm !== "all"
+                      ? searchProps.searchTerm
+                      : "Empezá tu búsqueda"}
+                  </div>
+                </Button>
+              </div>
+            ) : (
+              <div className='flex items-center justify-center w-full relative'>
+                {showBackButton && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => navigate(-1)}
+                    className="absolute left-0 p-2 h-8 w-8 hover:bg-muted/50"
+                  >
+                    <ArrowLeft className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Desktop: Full header */}
+          <div className='hidden md:flex items-center justify-between h-16 sm:h-18 w-full'>
             {/* Logo a la izquierda */}
             <div className='flex-shrink-0'>
               <h1
@@ -363,24 +389,6 @@ export function SharedHeader({
                 </>
               </h1>
             </div>
-
-            {/* Mobile: Minimal search bar (Airbnb style) */}
-            {showSearch && searchProps && (
-              <div className='md:hidden flex-1 mx-4'>
-                <Button
-                  variant='ghost'
-                  onClick={handleMobileSearchOpen}
-                  className='w-full bg-white border border-border/50 rounded-full shadow-sm px-4 py-2 h-12 flex items-center gap-3 hover:shadow-md transition-all'
-                >
-                  <Search className='h-4 w-4 text-muted-foreground flex-shrink-0' />
-                  <div className='text-sm text-foreground truncate'>
-                    {searchProps.searchTerm && searchProps.searchTerm !== "all"
-                      ? searchProps.searchTerm
-                      : "Encuentra a tu experto"}
-                  </div>
-                </Button>
-              </div>
-            )}
 
             {/* Desktop: Centered search bar - Compact version */}
             {showSearch &&
@@ -398,7 +406,7 @@ export function SharedHeader({
                         <Search className='h-4 w-4 text-muted-foreground flex-shrink-0' />
                         <div className='text-sm text-foreground font-medium truncate'>
                           {searchProps.searchTerm &&
-                          searchProps.searchTerm !== "Todos"
+                          searchProps.searchTerm !== "all"
                             ? searchProps.searchTerm
                             : "Cualquier servicio"}
                         </div>
@@ -548,8 +556,9 @@ export function SharedHeader({
           </div>
 
           {/* Desktop: Full search section - Airbnb style */}
-          {showSearch &&
-            searchProps &&
+          <div className="hidden md:block">
+            {showSearch &&
+              searchProps &&
             (!searchCollapsed || isDesktopSearchExpanded) && (
               <div className='hidden md:block pb-6 relative'>
                 <motion.div
@@ -585,9 +594,7 @@ export function SharedHeader({
                       <div className='text-sm text-gray-600'>
                         {searchProps.searchTerm &&
                         searchProps.searchTerm !== "all"
-                          ? searchProps.searchTerm === "Todos"
-                            ? "Todos los servicios"
-                            : searchProps.searchTerm
+                          ? searchProps.searchTerm
                           : "Buscar servicios"}
                       </div>
 
@@ -621,9 +628,7 @@ export function SharedHeader({
                                       {service.name}
                                     </div>
                                     <div className='text-xs text-gray-500'>
-                                      {service.name === "Todos"
-                                        ? "Ver todos los profesionales"
-                                        : "Servicio profesional"}
+                                      {"Servicio profesional"}
                                     </div>
                                   </div>
                                 </div>
@@ -755,6 +760,7 @@ export function SharedHeader({
                 </motion.div>
               </div>
             )}
+          </div>
         </div>
       </header>
 

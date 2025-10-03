@@ -162,11 +162,42 @@ export const usePortfolio = () => {
     }
   };
 
+  const setAsMainImage = async (professionalProfileId: string, imageUrl: string) => {
+    setLoading(true);
+    try {
+      const { error } = await supabase
+        .from('professional_profiles')
+        .update({ main_portfolio_image: imageUrl })
+        .eq('id', professionalProfileId);
+
+      if (error) {
+        throw error;
+      }
+
+      toast({
+        title: 'Imagen principal actualizada',
+        description: 'Esta foto ahora aparecerá como imagen principal en tu perfil.',
+      });
+
+      return { success: true };
+    } catch (error: any) {
+      toast({
+        title: 'Error',
+        description: error.message || 'Error al establecer la imagen principal',
+        variant: 'destructive',
+      });
+      return { success: false, error };
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return {
     loading,
     getPortfolioPhotos,
     uploadPortfolioPhoto,
     updatePortfolioPhoto,
-    deletePortfolioPhoto
+    deletePortfolioPhoto,
+    setAsMainImage
   };
 };

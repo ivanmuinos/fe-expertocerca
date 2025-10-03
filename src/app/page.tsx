@@ -81,7 +81,7 @@ export default function HomePage() {
     { name: "Albañil", icon: HomeIcon },
     { name: "Jardinero", icon: Scissors },
     { name: "Mecánico", icon: Car },
-    { name: "Técnico AC", icon: Snowflake },
+    { name: "Técnico en aires", icon: Snowflake },
     { name: "Gasista", icon: Flame },
     { name: "Cerrajero", icon: Key },
     { name: "Soldador", icon: ZapIcon },
@@ -125,17 +125,16 @@ export default function HomePage() {
     setSelectedService(serviceName === selectedService ? "" : serviceName);
   };
 
-  // Group professionals by category for display
   const groupProfessionalsByCategory = () => {
     const groups: { [key: string]: any[] } = {};
 
     displayedProfessionals.forEach((prof) => {
       const location =
         prof.profile_location_city && prof.profile_location_province
-          ? `${prof.profile_location_city}, ${prof.profile_location_province}`
+          ? `${prof.profile_location_city}`
           : prof.profile_location_province || "Argentina";
 
-      const categoryKey = `${prof.trade_name} en ${location}`;
+      const categoryKey = location;
 
       if (!groups[categoryKey]) {
         groups[categoryKey] = [];
@@ -148,7 +147,6 @@ export default function HomePage() {
 
   const groupedProfessionals = groupProfessionalsByCategory();
 
-  // Show loading screen while checking for redirects
   if (isCheckingRedirect) {
     return (
       <div className='min-h-screen bg-background flex items-center justify-center'>
@@ -175,7 +173,6 @@ export default function HomePage() {
         }}
       />
 
-      {/* Results Section - Mobile first */}
       <section className='px-3 sm:px-4 md:px-6 lg:px-8 pb-6 pt-2'>
         <div className='max-w-7xl mx-auto'>
           {loading ? (

@@ -69,7 +69,7 @@ export default function ProfesionalPage() {
     { name: "Albañil", icon: HomeIcon },
     { name: "Jardinero", icon: Scissors },
     { name: "Mecánico", icon: Car },
-    { name: "Técnico AC", icon: Snowflake },
+    { name: "Técnico en aires", icon: Snowflake },
     { name: "Gasista", icon: Flame },
     { name: "Cerrajero", icon: Key },
     { name: "Soldador", icon: ZapIcon },
@@ -91,6 +91,22 @@ export default function ProfesionalPage() {
     if (!id) return;
 
     try {
+      // Try to get individual professional with metadata first
+      try {
+        const response = await fetch(`/api/professionals/${id}`);
+        if (response.ok) {
+          const result = await response.json();
+          if (result.data) {
+            setProfessional(result.data);
+            setAvatarUrl(result.data.profile_avatar_url);
+            return;
+          }
+        }
+      } catch (individualError) {
+        console.log('Individual fetch failed, falling back to list:', individualError);
+      }
+
+      // Fallback to original method
       const { data, error } = user
         ? await browseProfessionals()
         : await discoverProfessionals();
@@ -232,9 +248,9 @@ export default function ProfesionalPage() {
     <div className='min-h-screen'>
       <SharedHeader
         showBackButton={true}
-        showSearch={true}
+        showSearch={false}
         searchCollapsed={true}
-        variant='transparent'
+        variant='default'
         searchProps={{
           searchTerm,
           setSearchTerm,
@@ -245,9 +261,75 @@ export default function ProfesionalPage() {
         }}
       />
 
-      <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8'>
-        <div className='grid grid-cols-1 lg:grid-cols-12 gap-8'>
-          <div className='lg:col-span-5 xl:col-span-4'>
+      <div className='max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-4 pb-8 lg:pb-8'>
+        {/* Mobile Hero Section */}
+        <div className='lg:hidden mb-6'>
+          <div className='bg-card rounded-xl p-4 shadow-sm border border-border'>
+            <div className='flex items-center gap-3 mb-4'>
+              <EditableAvatar
+                avatarUrl={avatarUrl}
+                userFullName={professional.profile_full_name}
+                size='md'
+                onAvatarChange={handleAvatarChange}
+                showUploadButton={false}
+                isOwner={false}
+              />
+              <div className='flex-1'>
+                <h1 className='text-lg font-bold text-foreground leading-tight'>
+                  {professional.profile_full_name}
+                </h1>
+                {professional.profile_location_city && (
+                  <div className='flex items-center gap-1 mt-1'>
+                    <MapPin className='w-3 h-3 text-gray-500' />
+                    <span className='text-sm text-gray-600'>
+                      {professional.profile_location_city}
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Mobile Specialties */}
+            {professional.profile_skills && professional.profile_skills.length > 0 && (
+              <div className='mb-4'>
+                <div className='flex flex-wrap gap-1.5'>
+                  {professional.profile_skills.slice(0, 3).map((skill: string, index: number) => (
+                    <span
+                      key={index}
+                      className='px-2 py-1 bg-gray-100 text-gray-800 rounded-full text-xs font-medium'
+                    >
+                      {skill}
+                    </span>
+                  ))}
+                  {professional.profile_skills.length > 3 && (
+                    <span className='px-2 py-1 bg-gray-50 text-gray-600 rounded-full text-xs border border-gray-200'>
+                      +{professional.profile_skills.length - 3} más
+                    </span>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Mobile WhatsApp Info */}
+            {professional.whatsapp_phone && user && (
+              <div className='p-3 bg-green-50 border border-green-200 rounded-lg'>
+                <div className='flex items-center gap-2'>
+                  <div className='w-6 h-6 bg-green-100 rounded-full flex items-center justify-center'>
+                    <Phone className='w-3 h-3 text-green-600' />
+                  </div>
+                  <span className='font-medium text-green-800 text-sm'>WhatsApp</span>
+                </div>
+                <p className='text-green-700 font-mono text-xs mt-1 ml-8'>
+                  {professional.whatsapp_phone}
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className='grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8'>
+          {/* Desktop Sidebar */}
+          <div className='hidden lg:block lg:col-span-5 xl:col-span-4'>
             <div className='lg:sticky lg:top-20 space-y-6'>
               <div className='bg-card rounded-2xl p-6 shadow-sm border border-border'>
                 <div className='flex items-center gap-4 mb-6 mt-8'>
@@ -258,7 +340,7 @@ export default function ProfesionalPage() {
                     onAvatarChange={handleAvatarChange}
                     showUploadButton={false}
                     isOwner={false}
-                  />
+                      />
                   <div>
                     <h3 className='text-xl font-bold text-foreground'>
                       {professional.profile_full_name}
@@ -341,18 +423,21 @@ export default function ProfesionalPage() {
             </div>
           </div>
 
-          <div className='lg:col-span-7 xl:col-span-8 space-y-8'>
+          {/* Main Content */}
+          <div className='lg:col-span-7 xl:col-span-8 space-y-6 lg:space-y-8'>
+            {/* About Section */}
             <div>
-              <h2 className='text-2xl font-semibold text-gray-900 mb-8'>
+              <h2 className='text-xl lg:text-2xl font-semibold text-gray-900 mb-4 lg:mb-8 px-1'>
                 Sobre mi trabajo
               </h2>
-              <div className='bg-white border border-gray-200 rounded-2xl p-8'>
-                <p className='text-gray-700 leading-relaxed text-lg'>
+              <div className='bg-white border border-gray-200 rounded-xl lg:rounded-2xl p-4 lg:p-8'>
+                <p className='text-gray-700 leading-relaxed text-base lg:text-lg'>
                   {professional.description ||
                     "Profesional comprometido con la excelencia y la satisfacción del cliente. Brindo servicios de alta calidad con atención al detalle y dedicación en cada proyecto."}
                 </p>
               </div>
             </div>
+
             {/* Portfolio Section */}
             <div>
               <PortfolioSection
@@ -361,7 +446,7 @@ export default function ProfesionalPage() {
               />
             </div>
 
-            {/* Reviews Section - Airbnb Style */}
+            {/* Reviews Section */}
             <div>
               <ReviewsSection professionalProfileId={professional?.id} />
             </div>
@@ -369,13 +454,16 @@ export default function ProfesionalPage() {
         </div>
       </div>
 
-      <div className='fixed bottom-4 left-4 right-4 lg:hidden z-50'>
+      {/* Mobile Contact Button - Above navbar */}
+      <div className='fixed bottom-16 left-3 right-3 lg:hidden z-40'>
         <button
           onClick={handleContact}
-          className='w-full bg-primary hover:bg-primary-dark text-primary-foreground font-semibold py-4 px-6 rounded-2xl transition-all duration-200 shadow-2xl hover:shadow-3xl flex items-center justify-center gap-3'
+          className='w-full bg-primary hover:bg-primary-dark text-primary-foreground font-semibold py-3.5 px-6 rounded-xl transition-all duration-200 flex items-center justify-center gap-2 active:scale-[0.98] shadow-lg'
         >
-          <Phone className='w-5 h-5' />
-          {user ? "Contactar por WhatsApp" : "Inicia sesión para contactar"}
+          <Phone className='w-4 h-4' />
+          <span className='text-sm'>
+            {user ? "Contactar por WhatsApp" : "Inicia sesión para contactar"}
+          </span>
         </button>
       </div>
 

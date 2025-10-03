@@ -10,6 +10,8 @@ interface MobileContextType {
   orientation: 'portrait' | 'landscape';
   isMobileSearchOpen: boolean;
   setIsMobileSearchOpen: (open: boolean) => void;
+  isMobileNavbarVisible: boolean;
+  setIsMobileNavbarVisible: (visible: boolean) => void;
 }
 
 const MobileContext = createContext<MobileContextType>({
@@ -19,7 +21,9 @@ const MobileContext = createContext<MobileContextType>({
   screenWidth: 1024,
   orientation: 'landscape',
   isMobileSearchOpen: false,
-  setIsMobileSearchOpen: () => {}
+  setIsMobileSearchOpen: () => {},
+  isMobileNavbarVisible: true,
+  setIsMobileNavbarVisible: () => {}
 });
 
 export const useMobile = () => useContext(MobileContext);
@@ -32,6 +36,7 @@ export function MobileWrapper({ children }: MobileWrapperProps) {
   const [screenWidth, setScreenWidth] = useState(1024);
   const [orientation, setOrientation] = useState<'portrait' | 'landscape'>('landscape');
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
+  const [isMobileNavbarVisible, setIsMobileNavbarVisible] = useState(true);
 
   useEffect(() => {
     const updateScreenInfo = () => {
@@ -63,7 +68,9 @@ export function MobileWrapper({ children }: MobileWrapperProps) {
     screenWidth,
     orientation,
     isMobileSearchOpen,
-    setIsMobileSearchOpen
+    setIsMobileSearchOpen,
+    isMobileNavbarVisible,
+    setIsMobileNavbarVisible
   };
 
   return (

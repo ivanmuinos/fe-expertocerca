@@ -60,16 +60,16 @@ export default function ProfessionalIntroPage() {
     <div className="h-screen bg-gradient-subtle flex flex-col overflow-hidden">
       {/* Header */}
       <div className="flex-shrink-0 bg-background/95 backdrop-blur-sm border-b border-border">
-        <div className="w-full px-8 py-4 flex items-center justify-between">
+        <div className="w-full px-3 py-2 md:px-8 md:py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-              <Star className="w-5 h-5 text-white" />
+            <div className="w-6 h-6 md:w-8 md:h-8 bg-primary rounded-full flex items-center justify-center">
+              <Star className="w-4 h-4 md:w-5 md:h-5 text-white" />
             </div>
           </div>
           <Button
             variant="outline"
             onClick={handleExit}
-            className="px-4 py-2 bg-white border-gray-300 rounded-full hover:bg-gray-100 hover:border-gray-400 text-gray-700 hover:text-gray-900 font-medium transition-all duration-200"
+            className="px-3 py-1 md:px-4 md:py-2 text-xs md:text-sm bg-white border-gray-300 rounded-full hover:bg-gray-100 hover:border-gray-400 text-gray-700 hover:text-gray-900 font-medium transition-all duration-200"
           >
             Salir
           </Button>
@@ -77,7 +77,7 @@ export default function ProfessionalIntroPage() {
       </div>
 
       {/* Content */}
-      <div className="flex-1 w-full max-w-md md:max-w-2xl mx-auto px-4 py-6 flex flex-col min-h-0">
+      <div className="flex-1 w-full max-w-md md:max-w-2xl mx-auto px-3 py-3 md:px-4 md:py-6 flex flex-col min-h-0">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -86,10 +86,10 @@ export default function ProfessionalIntroPage() {
         >
           {/* Steps */}
           <div className="flex-1 overflow-auto scrollbar-hide">
-            <div className="space-y-6">
+            <div className="space-y-3 md:space-y-6">
               {/* Title inside scrollable area */}
-              <div className="mb-6">
-                <h1 className="text-xl text-foreground text-left">
+              <div className="mb-3 md:mb-6">
+                <h1 className="text-base md:text-xl text-foreground text-left">
                   Comenzar como experto es fácil
                 </h1>
               </div>
@@ -99,26 +99,26 @@ export default function ProfessionalIntroPage() {
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: index * 0.2 }}
-                className="flex gap-4 bg-white/50 rounded-2xl p-4 border border-border/20"
+                className="flex gap-3 md:gap-4 bg-white/50 rounded-2xl p-3 md:p-4 border border-border/20"
               >
                 {/* Step Number & Icon */}
                 <div className="flex-shrink-0">
-                  <div className={`w-10 h-10 rounded-xl ${step.color} flex items-center justify-center`}>
-                    <step.icon className="w-5 h-5" />
+                  <div className={`w-8 h-8 md:w-10 md:h-10 rounded-xl ${step.color} flex items-center justify-center`}>
+                    <step.icon className="w-4 h-4 md:w-5 md:h-5" />
                   </div>
                 </div>
 
                 {/* Step Content */}
                 <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="text-lg font-semibold text-foreground">
+                  <div className="flex items-center gap-1 md:gap-2 mb-1 md:mb-2">
+                    <span className="text-sm md:text-lg font-semibold text-foreground">
                       {step.number}
                     </span>
-                    <h2 className="text-base font-semibold text-foreground">
+                    <h2 className="text-sm md:text-base font-semibold text-foreground">
                       {step.title}
                     </h2>
                   </div>
-                  <p className="text-sm text-muted-foreground leading-relaxed">
+                  <p className="text-xs md:text-sm text-muted-foreground leading-relaxed">
                     {step.description}
                   </p>
                 </div>
@@ -129,16 +129,17 @@ export default function ProfessionalIntroPage() {
         </motion.div>
       </div>
 
-      {/* Progress Bar - Fixed */}
-      <OnboardingProgressBar fixed />
-
-      {/* Footer */}
+      {/* Footer with Progress Bar */}
       <div className="flex-shrink-0 w-full bg-background/95 backdrop-blur-sm">
-        <div className="w-full px-8 py-6">
+        {/* Progress Bar */}
+        <OnboardingProgressBar />
+
+        {/* Footer Buttons */}
+        <div className="w-full px-3 py-3 md:px-8 md:py-6">
           <div className="flex items-center justify-between">
             <button
               onClick={handleBack}
-              className="text-sm text-black hover:text-gray-700 underline font-medium"
+              className="text-xs md:text-sm text-black hover:text-gray-700 underline font-medium"
             >
               Atrás
             </button>
@@ -146,7 +147,7 @@ export default function ProfessionalIntroPage() {
               onClick={handleStart}
               loading={isLoading}
               disabled={isLoading}
-              className="px-8 h-12 text-base font-medium"
+              className="px-6 h-9 text-sm md:px-8 md:h-12 md:text-base font-medium"
             >
               Continuar
             </LoadingButton>

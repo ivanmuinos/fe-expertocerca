@@ -161,16 +161,16 @@ export default function PhotoUploadPage() {
     <div className='h-screen bg-gradient-subtle overflow-hidden'>
       {/* Header - Fixed at top */}
       <div className='fixed top-0 left-0 right-0 z-10 bg-background/95 backdrop-blur-sm border-b border-border'>
-        <div className='w-full px-8 py-4 flex items-center justify-between'>
+        <div className='w-full px-3 py-2 md:px-8 md:py-4 flex items-center justify-between'>
           <div className='flex items-center gap-2'>
-            <div className='w-8 h-8 bg-primary rounded-full flex items-center justify-center'>
-              <Star className='w-5 h-5 text-white' />
+            <div className='w-6 h-6 md:w-8 md:h-8 bg-primary rounded-full flex items-center justify-center'>
+              <Star className='w-4 h-4 md:w-5 md:h-5 text-white' />
             </div>
           </div>
           <Button
             variant='outline'
             onClick={handleExit}
-            className='px-4 py-2 bg-white border-gray-300 rounded-full hover:bg-gray-100 hover:border-gray-400 text-gray-700 hover:text-gray-900 font-medium transition-all duration-200'
+            className='px-3 py-1 md:px-4 md:py-2 text-xs md:text-sm bg-white border-gray-300 rounded-full hover:bg-gray-100 hover:border-gray-400 text-gray-700 hover:text-gray-900 font-medium transition-all duration-200'
           >
             Salir
           </Button>
@@ -178,7 +178,7 @@ export default function PhotoUploadPage() {
       </div>
 
       {/* Main Content Container - Scrollable */}
-      <div className='h-full pt-20 pb-24 overflow-y-auto snap-y snap-mandatory scrollbar-hide'>
+      <div className='h-full pt-14 pb-20 md:pt-20 md:pb-24 overflow-y-auto snap-y snap-mandatory scrollbar-hide'>
         {/* Section 1: Photo Upload - 100vh */}
         <motion.div
           ref={photosRef}
@@ -187,19 +187,19 @@ export default function PhotoUploadPage() {
           transition={{ duration: 0.6 }}
           className='min-h-screen snap-start flex flex-col'
         >
-          <div className='flex-1 w-full max-w-md md:max-w-4xl mx-auto px-4 py-6 flex flex-col'>
+          <div className='flex-1 w-full max-w-md md:max-w-4xl mx-auto px-3 py-3 md:px-4 md:py-6 flex flex-col'>
             {/* Photo slots grid */}
             <div className='flex-1 overflow-auto'>
               {/* Section Title inside scrollable area */}
-              <div className='mb-6 text-left mt-18'>
-                <h1 className='text-xl text-foreground mb-2'>
+              <div className='mb-3 md:mb-6 text-left mt-2 md:mt-18'>
+                <h1 className='text-base md:text-xl text-foreground mb-1 md:mb-2'>
                   Cargá tus mejores fotos
                 </h1>
-                <p className='text-sm text-muted-foreground'>
+                <p className='text-xs md:text-sm text-muted-foreground'>
                   Las fotos son el factor más importante para que los clientes confíen en tu trabajo
                 </p>
               </div>
-              <div className='grid grid-cols-2 md:grid-cols-4 gap-4'>
+              <div className='grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4'>
                 {Array.from({ length: 8 }, (_, index) => {
                   const hasImage = index < uploadedPhotos.length;
                   const isRequired = index < 2;
@@ -285,15 +285,15 @@ export default function PhotoUploadPage() {
             transition={{ duration: 0.6, delay: 0.2 }}
             className='min-h-screen snap-start flex flex-col'
           >
-            <div className='flex-1 w-full max-w-md md:max-w-2xl mx-auto px-4 py-6 flex flex-col'>
+            <div className='flex-1 w-full max-w-md md:max-w-2xl mx-auto px-3 py-3 md:px-4 md:py-6 flex flex-col'>
               {/* Work Description Textarea */}
               <div className='flex-1 flex flex-col'>
                 {/* Section Title inside scrollable area */}
-                <div className='mb-6 text-left mt-18'>
-                  <h2 className='text-xl text-foreground mb-2'>
+                <div className='mb-3 md:mb-6 text-left mt-2 md:mt-18'>
+                  <h2 className='text-base md:text-xl text-foreground mb-1 md:mb-2'>
                     Describí los trabajos que realizás
                   </h2>
-                  <p className='text-sm text-muted-foreground'>
+                  <p className='text-xs md:text-sm text-muted-foreground'>
                     Contá a tus potenciales clientes sobre tu experiencia y los servicios que ofrecés
                   </p>
                 </div>
@@ -333,16 +333,17 @@ Mis clientes destacan mi puntualidad, prolijidad y precio justo. Atiendo zona no
         )}
       </div>
 
-      {/* Progress Bar - Fixed at bottom */}
-      <OnboardingProgressBar fixed />
-
-      {/* Footer - Fixed at bottom */}
+      {/* Footer with Progress Bar - Fixed at bottom */}
       <div className='fixed bottom-0 left-0 right-0 z-10 bg-background/95 backdrop-blur-sm'>
-        <div className='w-full px-8 py-6'>
+        {/* Progress Bar */}
+        <OnboardingProgressBar />
+
+        {/* Footer Buttons */}
+        <div className='w-full px-3 py-3 md:px-8 md:py-6'>
           <div className='flex items-center justify-between'>
             <button
               onClick={handleBack}
-              className='text-sm text-black hover:text-gray-700 underline font-medium'
+              className='text-xs md:text-sm text-black hover:text-gray-700 underline font-medium'
             >
               Atrás
             </button>
@@ -350,7 +351,7 @@ Mis clientes destacan mi puntualidad, prolijidad y precio justo. Atiendo zona no
               onClick={handleContinue}
               loading={isLoading}
               disabled={isLoading || (currentSection === 'photos' ? uploadedPhotos.length < 2 : !canProceedFromPhotos())}
-              className='px-8 h-12 text-base font-medium'
+              className='px-6 h-9 text-sm md:px-8 md:h-12 md:text-base font-medium'
             >
               Continuar
             </LoadingButton>

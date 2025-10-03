@@ -62,13 +62,13 @@ export function ServiceSelector({ value, onValueChange, popularServices, isOther
             </SelectValue>
           </SelectTrigger>
           <SelectContent
-            className="max-h-80 overflow-y-auto rounded-xl border border-border/20 shadow-xl bg-background p-2 z-50 w-full data-[state=open]:animate-enter data-[state=closed]:animate-exit"
+            className="max-h-[500px] overflow-y-auto rounded-xl border border-border/20 shadow-xl bg-background p-3 z-50 w-auto min-w-[400px] md:min-w-[600px] data-[state=open]:animate-enter data-[state=closed]:animate-exit"
             align="center"
             side="bottom"
             sideOffset={8}
             position="popper"
           >
-            <div className="space-y-1">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
               {popularServices
                 .filter((service) => service?.name && service.name.trim().length > 0)
                 .map((service) => (

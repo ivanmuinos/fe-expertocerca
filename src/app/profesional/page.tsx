@@ -27,6 +27,7 @@ import { useAuthState } from "@/src/features/auth";
 import { EditableAvatar } from "@/src/shared/components/EditableAvatar";
 import { SharedHeader } from "@/src/shared/components/SharedHeader";
 import { Footer } from "@/src/shared/components";
+import { useMobile } from "@/src/shared/components/MobileWrapper";
 
 export default function ProfesionalPage() {
   const [id, setId] = useState<string>("");
@@ -38,6 +39,7 @@ export default function ProfesionalPage() {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const { browseProfessionals, discoverProfessionals } =
     useSecureProfessionals();
+  const { isMobileNavbarVisible } = useMobile();
 
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedZone, setSelectedZone] = useState("all");
@@ -104,7 +106,10 @@ export default function ProfesionalPage() {
           }
         }
       } catch (individualError) {
-        console.log('Individual fetch failed, falling back to list:', individualError);
+        console.log(
+          "Individual fetch failed, falling back to list:",
+          individualError
+        );
       }
 
       // Fallback to original method
@@ -291,25 +296,28 @@ export default function ProfesionalPage() {
             </div>
 
             {/* Mobile Specialties */}
-            {professional.profile_skills && professional.profile_skills.length > 0 && (
-              <div className='mb-4'>
-                <div className='flex flex-wrap gap-1.5'>
-                  {professional.profile_skills.slice(0, 3).map((skill: string, index: number) => (
-                    <span
-                      key={index}
-                      className='px-2 py-1 bg-gray-100 text-gray-800 rounded-full text-xs font-medium'
-                    >
-                      {skill}
-                    </span>
-                  ))}
-                  {professional.profile_skills.length > 3 && (
-                    <span className='px-2 py-1 bg-gray-50 text-gray-600 rounded-full text-xs border border-gray-200'>
-                      +{professional.profile_skills.length - 3} más
-                    </span>
-                  )}
+            {professional.profile_skills &&
+              professional.profile_skills.length > 0 && (
+                <div className='mb-4'>
+                  <div className='flex flex-wrap gap-1.5'>
+                    {professional.profile_skills
+                      .slice(0, 3)
+                      .map((skill: string, index: number) => (
+                        <span
+                          key={index}
+                          className='px-2 py-1 bg-gray-100 text-gray-800 rounded-full text-xs font-medium'
+                        >
+                          {skill}
+                        </span>
+                      ))}
+                    {professional.profile_skills.length > 3 && (
+                      <span className='px-2 py-1 bg-gray-50 text-gray-600 rounded-full text-xs border border-gray-200'>
+                        +{professional.profile_skills.length - 3} más
+                      </span>
+                    )}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
 
             {/* Mobile WhatsApp Info */}
             {professional.whatsapp_phone && user && (
@@ -318,7 +326,9 @@ export default function ProfesionalPage() {
                   <div className='w-6 h-6 bg-green-100 rounded-full flex items-center justify-center'>
                     <Phone className='w-3 h-3 text-green-600' />
                   </div>
-                  <span className='font-medium text-green-800 text-sm'>WhatsApp</span>
+                  <span className='font-medium text-green-800 text-sm'>
+                    WhatsApp
+                  </span>
                 </div>
                 <p className='text-green-700 font-mono text-xs mt-1 ml-8'>
                   {professional.whatsapp_phone}
@@ -341,7 +351,7 @@ export default function ProfesionalPage() {
                     onAvatarChange={handleAvatarChange}
                     showUploadButton={false}
                     isOwner={false}
-                      />
+                  />
                   <div>
                     <h3 className='text-xl font-bold text-foreground'>
                       {professional.profile_full_name}
@@ -456,7 +466,11 @@ export default function ProfesionalPage() {
       </div>
 
       {/* Mobile Contact Button - Above navbar */}
-      <div className='fixed bottom-16 left-3 right-3 lg:hidden z-40'>
+      <div
+        className={`fixed left-3 right-3 lg:hidden z-40 transition-all duration-300 ${
+          isMobileNavbarVisible ? 'bottom-16 mb-6' : 'bottom-3 mb-3'
+        }`}
+      >
         <button
           onClick={handleContact}
           className='w-full bg-primary hover:bg-primary-dark text-primary-foreground font-semibold py-3.5 px-6 rounded-xl transition-all duration-200 flex items-center justify-center gap-2 active:scale-[0.98] shadow-lg'

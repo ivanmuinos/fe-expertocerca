@@ -11,6 +11,7 @@ import {
   Scissors,
   Car,
   Home,
+  X,
 } from "lucide-react";
 import { Button } from "@/src/shared/components/ui/button";
 import { Badge } from "@/src/shared/components/ui/badge";
@@ -21,6 +22,8 @@ import { SharedHeader } from "@/src/shared/components/SharedHeader";
 import ProfessionalMiniDetail from "@/src/shared/components/ProfessionalMiniDetail";
 import PublicationCard from "@/src/shared/components/PublicationCard";
 import { Footer } from "@/src/shared/components";
+import { motion, AnimatePresence } from "framer-motion";
+import { useMobile } from "@/src/shared/components/MobileWrapper";
 
 interface Professional {
   id: string;
@@ -46,11 +49,11 @@ export default function BuscarPage() {
     Professional[]
   >([]);
   // Selected values (what user picks from dropdowns)
-  const [searchTerm, setSearchTerm] = useState("Todos");
+  const [searchTerm, setSearchTerm] = useState("");
   const [selectedZone, setSelectedZone] = useState("all");
 
   // Applied values (what's actually used for filtering)
-  const [appliedSearchTerm, setAppliedSearchTerm] = useState("Todos");
+  const [appliedSearchTerm, setAppliedSearchTerm] = useState("");
   const [appliedSelectedZone, setAppliedSelectedZone] = useState("all");
   const [selectedProfessional, setSelectedProfessional] =
     useState<Professional | null>(null);
@@ -79,9 +82,9 @@ export default function BuscarPage() {
   ];
 
   const clearFilters = () => {
-    setSearchTerm("Todos");
+    setSearchTerm("");
     setSelectedZone("all");
-    setAppliedSearchTerm("Todos");
+    setAppliedSearchTerm("");
     setAppliedSelectedZone("all");
   };
 
@@ -105,7 +108,7 @@ export default function BuscarPage() {
   // Obtener parámetros de la URL
   useEffect(() => {
     if (!searchParams) return;
-    const servicio = searchParams.get("servicio") || "Todos";
+    const servicio = searchParams.get("servicio") || "";
     const zona = searchParams.get("zona") || "all";
     setSearchTerm(servicio);
     setSelectedZone(zona);
@@ -172,7 +175,7 @@ export default function BuscarPage() {
     console.log("Sample professional data:", professionals[0]);
 
     // Filtro por término de búsqueda (servicio)
-    if (appliedSearchTerm && appliedSearchTerm !== "Todos") {
+    if (appliedSearchTerm && appliedSearchTerm.trim() !== "") {
       console.log("Filtering by search term:", appliedSearchTerm);
       filtered = filtered.filter((prof) => {
         const matchesName = prof.trade_name
@@ -239,6 +242,18 @@ export default function BuscarPage() {
 
   const handleProfessionalClick = (professional: Professional) => {
     setSelectedProfessional(professional);
+    // Bloquear scroll del body cuando se abre el modal en mobile
+    if (typeof window !== 'undefined' && window.innerWidth <= 768) {
+      document.body.style.overflow = 'hidden';
+    }
+  };
+
+  const handleCloseModal = () => {
+    setSelectedProfessional(null);
+    // Restaurar scroll del body
+    if (typeof window !== 'undefined') {
+      document.body.style.overflow = '';
+    }
   };
 
   return (
@@ -267,13 +282,13 @@ export default function BuscarPage() {
               <h2 className='text-2xl font-semibold'>
                 {filteredProfessionals.length} profesionales
               </h2>
-              {appliedSearchTerm && appliedSearchTerm !== "Todos" && (
+              {appliedSearchTerm && appliedSearchTerm.trim() !== "" && (
                 <Badge variant='secondary'>Servicio: {appliedSearchTerm}</Badge>
               )}
             </div>
 
             {professionalsLoading ? (
-              <div className='grid grid-cols-1 md:grid-cols-3 xl:grid-cols-4 gap-4'>
+              <div className='grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4'>
                 {[...Array(8)].map((_, i) => (
                   <div key={i} className='animate-pulse'>
                     <div className='aspect-square bg-muted rounded-xl mb-3' />
@@ -286,7 +301,7 @@ export default function BuscarPage() {
                 ))}
               </div>
             ) : filteredProfessionals.length > 0 ? (
-              <div className='grid grid-cols-1 md:grid-cols-3 xl:grid-cols-4 gap-4'>
+              <div className='grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4'>
                 {filteredProfessionals.map((professional) => (
                   <PublicationCard
                     key={professional.id}
@@ -312,10 +327,7 @@ export default function BuscarPage() {
                 </div>
                 <Button
                   variant='outline'
-                  onClick={() => {
-                    setSearchTerm("Todos");
-                    setSelectedZone("all");
-                  }}
+                  onClick={clearFilters}
                 >
                   Limpiar filtros
                 </Button>
@@ -332,26 +344,60 @@ export default function BuscarPage() {
         </div>
 
         {/* Modal de detalle para mobile */}
-        {selectedProfessional && (
-          <div className='lg:hidden fixed inset-0 bg-black/50 z-50 flex items-end'>
-            <div className='bg-background rounded-t-2xl max-h-[80vh] w-full overflow-hidden'>
-              <div className='sticky top-0 bg-background border-b p-3 flex justify-between items-center'>
-                <h3 className='font-semibold'>Información del profesional</h3>
-                <Button
-                  variant='ghost'
-                  size='sm'
-                  onClick={() => setSelectedProfessional(null)}
-                  className='h-8 w-8 p-0'
-                >
-                  ✕
-                </Button>
-              </div>
-              <div className='overflow-y-auto scrollbar-hide'>
-                <ProfessionalMiniDetail professional={selectedProfessional} />
-              </div>
-            </div>
-          </div>
-        )}
+        <AnimatePresence>
+          {selectedProfessional && (
+            <motion.div
+              className='lg:hidden fixed inset-0 z-[60] flex items-end'
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3, ease: "easeOut" }}
+            >
+              {/* Backdrop */}
+              <motion.div
+                className='absolute inset-0 bg-black/60 backdrop-blur-sm'
+                onClick={handleCloseModal}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+              />
+
+              {/* Modal content */}
+              <motion.div
+                className='bg-background rounded-t-3xl max-h-[85vh] w-full overflow-hidden relative shadow-2xl'
+                initial={{ y: "100%" }}
+                animate={{ y: 0 }}
+                exit={{ y: "100%" }}
+                transition={{
+                  type: "spring",
+                  damping: 30,
+                  stiffness: 300,
+                  mass: 0.8
+                }}
+              >
+                {/* Drag handle */}
+                <div className='w-full flex justify-center pt-3 pb-2'>
+                  <div className='w-10 h-1 bg-gray-300 rounded-full' />
+                </div>
+
+                <div className='sticky top-0 bg-background/95 backdrop-blur-sm border-b border-gray-200 px-4 py-3 flex justify-between items-center z-10'>
+                  <h3 className='font-semibold text-lg'>Información del profesional</h3>
+                  <Button
+                    variant='ghost'
+                    size='sm'
+                    onClick={handleCloseModal}
+                    className='h-9 w-9 p-0 rounded-full hover:bg-gray-100'
+                  >
+                    <X className='h-5 w-5' />
+                  </Button>
+                </div>
+                <div className='overflow-y-auto scrollbar-hide max-h-[calc(85vh-4rem)]'>
+                  <ProfessionalMiniDetail professional={selectedProfessional} />
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Spacer to ensure footer is only visible on scroll */}

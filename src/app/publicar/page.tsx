@@ -41,13 +41,15 @@ export default function PublicarPage() {
 
   // Redirect if not authenticated
   useEffect(() => {
-    if (!user) {
+    if (!authLoading && !user) {
       navigate("/auth?next=/publicar");
       return;
     }
 
-    loadProfile();
-  }, [user, navigate, loadProfile]);
+    if (user) {
+      loadProfile();
+    }
+  }, [user?.id, authLoading, navigate, loadProfile]);
 
   const handleSave = async (data: ProfessionalServiceData) => {
     if (!user) return;

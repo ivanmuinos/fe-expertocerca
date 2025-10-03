@@ -121,19 +121,6 @@ export default function ProfessionalMiniDetail({
           </div>
         </div>
 
-        {/* Quick Stats */}
-        <div className='grid grid-cols-1 gap-4'>
-          <Card className='p-4'>
-            <div className='flex items-center space-x-2'>
-              <Star className='h-5 w-5 text-yellow-500' />
-              <div>
-                <p className='text-sm text-muted-foreground'>Calificación</p>
-                <p className='font-semibold'>4.8 ⭐ (24 reseñas)</p>
-              </div>
-            </div>
-          </Card>
-        </div>
-
         {/* Location */}
         <div className='space-y-2'>
           <div className='flex items-center gap-2 text-muted-foreground'>
@@ -194,21 +181,6 @@ export default function ProfessionalMiniDetail({
             </Button>
           )}
         </div>
-
-        {/* Contact Info */}
-        {professional.has_contact_info && (
-          <Card className='p-4 bg-muted/50'>
-            <div className='flex items-center space-x-2 text-sm'>
-              <Phone className='h-4 w-4 text-primary' />
-              <span className='font-medium'>
-                Información de contacto disponible
-              </span>
-            </div>
-            <p className='text-xs text-muted-foreground mt-1'>
-              El profesional ha verificado sus datos de contacto
-            </p>
-          </Card>
-        )}
       </div>
     </div>
   );

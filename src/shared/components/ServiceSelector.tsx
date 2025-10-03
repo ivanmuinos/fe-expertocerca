@@ -56,7 +56,7 @@ export function ServiceSelector({ value, onValueChange, popularServices, isOther
               {value && (
                 <div className="flex items-center gap-2">
                   <Search className="h-4 w-4 text-muted-foreground" />
-                  <span>{value === "all" ? "Todas las profesiones" : value}</span>
+                  <span>{value === "Todos" ? "Todos" : value}</span>
                 </div>
               )}
             </SelectValue>
@@ -69,18 +69,6 @@ export function ServiceSelector({ value, onValueChange, popularServices, isOther
             position="popper"
           >
             <div className="space-y-1">
-              <SelectItem value="all" className="p-0 pl-0 pr-0 border-0 focus:bg-transparent data-[highlighted]:bg-muted/50">
-                <div className="flex items-center w-full p-3 rounded-lg hover:bg-muted/50 cursor-pointer">
-                  <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center mr-3">
-                    <Search className="h-5 w-5 text-primary" />
-                  </div>
-                  <div className="flex-1 text-left">
-                    <div className="font-medium text-foreground text-sm">Todas las profesiones</div>
-                    <div className="text-xs text-muted-foreground">Ver todos los servicios disponibles</div>
-                  </div>
-                </div>
-              </SelectItem>
-
               {popularServices
                 .filter((service) => service?.name && service.name.trim().length > 0)
                 .map((service) => (

@@ -17,6 +17,7 @@ export const viewport: Viewport = {
   initialScale: 0.9,
   maximumScale: 1,
   userScalable: false,
+  viewportFit: 'cover',
 }
 
 export const metadata: Metadata = {
@@ -60,6 +61,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang='en'>
+      <head>
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="theme-color" content="#3B82F6" />
+      </head>
       <body className={inter.className}>
         <ClientProviders>
           <MobileWrapper>

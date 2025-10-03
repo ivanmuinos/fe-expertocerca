@@ -156,6 +156,17 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  /* iOS safe area support */
+  html {
+    padding: env(safe-area-inset-top, 0) env(safe-area-inset-right, 0) env(safe-area-inset-bottom, 0) env(safe-area-inset-left, 0);
+  }
+
+  body {
+    /* Ensure body fills viewport including safe areas */
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+  }
 }
 
 @layer utilities {

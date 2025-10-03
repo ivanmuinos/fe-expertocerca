@@ -146,12 +146,13 @@ export function SharedHeader({
         const data = await apiClient.get("/profiles/current");
         setProfile(data);
       } catch (error) {
-        // Error loading profile
+        // Error loading profile - fail silently
+        console.error("Failed to load profile:", error);
       }
     };
 
     loadProfile();
-  }, [user]);
+  }, [user?.id]); // Only depend on user.id to avoid infinite loops
 
   // Handle scroll for header styling and search behavior
   useEffect(() => {
@@ -350,13 +351,13 @@ export function SharedHeader({
                 <Button
                   variant='ghost'
                   onClick={handleMobileSearchOpen}
-                  className='w-full bg-white border border-border/50 rounded-full shadow-sm px-6 py-4 h-14 flex items-center gap-3 hover:shadow-md transition-all'
+                  className='w-full bg-white border border-border/50 rounded-full shadow-sm px-6 py-4 h-14 flex items-center gap-3 hover:shadow-md hover:bg-white transition-all focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none focus:outline-none active:scale-[0.98] active:bg-white'
                 >
                   <Search className='h-5 w-5 text-muted-foreground flex-shrink-0' />
-                  <div className='text-sm font-medium text-foreground truncate'>
-                    {searchProps.searchTerm && searchProps.searchTerm !== "all"
-                      ? searchProps.searchTerm
-                      : "Empezá tu búsqueda"}
+                  <div className='text-sm truncate'>
+                    {searchProps.searchTerm && searchProps.searchTerm.trim() !== ""
+                      ? <span className='font-medium text-foreground'>{searchProps.searchTerm}</span>
+                      : <span className='font-semibold text-foreground'>Empezá tu búsqueda</span>}
                   </div>
                 </Button>
               </div>
@@ -404,11 +405,10 @@ export function SharedHeader({
                       {/* Service section */}
                       <div className='flex items-center gap-2 px-4 py-3 flex-1 min-w-0'>
                         <Search className='h-4 w-4 text-muted-foreground flex-shrink-0' />
-                        <div className='text-sm text-foreground font-medium truncate'>
-                          {searchProps.searchTerm &&
-                          searchProps.searchTerm !== "all"
-                            ? searchProps.searchTerm
-                            : "Cualquier servicio"}
+                        <div className='text-sm truncate'>
+                          {searchProps.searchTerm && searchProps.searchTerm.trim() !== ""
+                            ? <span className='font-medium text-foreground'>{searchProps.searchTerm}</span>
+                            : <span className='font-semibold text-foreground'>Empezá tu búsqueda</span>}
                         </div>
                       </div>
 
@@ -458,63 +458,65 @@ export function SharedHeader({
                     )}
                   </Button>
 
-                  {/* Menú hamburguesa */}
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        variant='ghost'
-                        className='h-10 w-10 rounded-full p-0 hover:bg-gray-100 hover:shadow-sm border border-gray-300 transition-all duration-200 focus:ring-0 focus:outline-none focus:border-gray-300 focus-visible:ring-0 focus-visible:outline-none focus-visible:border-gray-300 active:border-gray-300 data-[state=open]:border-gray-300'
+                  {/* Menú hamburguesa - Solo desktop */}
+                  <div className='hidden md:block'>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant='ghost'
+                          className='h-10 w-10 rounded-full p-0 hover:bg-gray-100 hover:shadow-sm border border-gray-300 transition-all duration-200 focus:ring-0 focus:outline-none focus:border-gray-300 focus-visible:ring-0 focus-visible:outline-none focus-visible:border-gray-300 active:border-gray-300 data-[state=open]:border-gray-300'
+                        >
+                          <Menu className='h-4 w-4 text-foreground' />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent
+                        className='w-48 bg-white border-0 shadow-xl rounded-2xl p-2 z-50'
+                        align='end'
                       >
-                        <Menu className='h-4 w-4 text-foreground' />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent
-                      className='w-48 bg-white border-0 shadow-xl rounded-2xl p-2 z-50'
-                      align='end'
-                    >
-                      <div className='flex items-center justify-start gap-2 p-2 mb-2'>
-                        <div className='flex flex-col space-y-1 leading-none'>
-                          <p className='text-sm font-medium'>
-                            {profile?.full_name || "Usuario"}
-                          </p>
-                          <p className='text-xs text-muted-foreground truncate'>
-                            {user.email}
-                          </p>
+                        <div className='flex items-center justify-start gap-2 p-2 mb-2'>
+                          <div className='flex flex-col space-y-1 leading-none'>
+                            <p className='text-sm font-medium'>
+                              {profile?.full_name || "Usuario"}
+                            </p>
+                            <p className='text-xs text-muted-foreground truncate'>
+                              {user.email}
+                            </p>
+                          </div>
                         </div>
-                      </div>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem
-                        onClick={() => navigate("/mis-publicaciones")}
-                        className='text-sm rounded-xl px-4 py-3 hover:bg-gray-50 transition-colors'
-                      >
-                        <FileText className='mr-3 h-4 w-4' />
-                        Mis Publicaciones
-                      </DropdownMenuItem>
-                      {onboardingStatus.needsOnboarding && (
-                        <>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem
-                            onClick={() => navigate("/user-type-selection")}
-                            className='text-sm rounded-xl px-4 py-3 bg-orange-50 hover:bg-orange-100 text-orange-700'
-                          >
-                            <AlertCircle className='mr-3 h-4 w-4' />
-                            Completar registro
-                          </DropdownMenuItem>
-                        </>
-                      )}
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem
-                        onClick={async () => {
-                          await signOut();
-                          navigate("/");
-                        }}
-                        className='text-sm rounded-xl px-4 py-3 hover:bg-gray-50 transition-colors'
-                      >
-                        <LogOut className='mr-3 h-4 w-4' />
-                        Cerrar sesión
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          onClick={() => navigate("/mis-publicaciones")}
+                          className='text-sm rounded-xl px-4 py-3 hover:bg-gray-50 transition-colors'
+                        >
+                          <FileText className='mr-3 h-4 w-4' />
+                          Mis Publicaciones
+                        </DropdownMenuItem>
+                        {onboardingStatus.needsOnboarding && (
+                          <>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                              onClick={() => navigate("/user-type-selection")}
+                              className='text-sm rounded-xl px-4 py-3 bg-orange-50 hover:bg-orange-100 text-orange-700'
+                            >
+                              <AlertCircle className='mr-3 h-4 w-4' />
+                              Completar registro
+                            </DropdownMenuItem>
+                          </>
+                        )}
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          onClick={async () => {
+                            await signOut();
+                            navigate("/");
+                          }}
+                          className='text-sm rounded-xl px-4 py-3 hover:bg-gray-50 transition-colors'
+                        >
+                          <LogOut className='mr-3 h-4 w-4' />
+                          Cerrar sesión
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
                 </>
               ) : (
                 <>
@@ -527,29 +529,31 @@ export function SharedHeader({
                     Convertite en experto
                   </Button>
 
-                  {/* Menú hamburguesa */}
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        variant='ghost'
-                        className='h-10 w-10 rounded-full p-0 hover:bg-gray-100 hover:shadow-sm border border-gray-300 transition-all duration-200 focus:ring-0 focus:outline-none focus:border-gray-300 focus-visible:ring-0 focus-visible:outline-none focus-visible:border-gray-300 active:border-gray-300 data-[state=open]:border-gray-300'
+                  {/* Menú hamburguesa - Solo desktop */}
+                  <div className='hidden md:block'>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant='ghost'
+                          className='h-10 w-10 rounded-full p-0 hover:bg-gray-100 hover:shadow-sm border border-gray-300 transition-all duration-200 focus:ring-0 focus:outline-none focus:border-gray-300 focus-visible:ring-0 focus-visible:outline-none focus-visible:border-gray-300 active:border-gray-300 data-[state=open]:border-gray-300'
+                        >
+                          <Menu className='h-4 w-4 text-foreground' />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent
+                        className='w-48 bg-white border-0 shadow-xl rounded-2xl p-2 z-50'
+                        align='end'
                       >
-                        <Menu className='h-4 w-4 text-foreground' />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent
-                      className='w-48 bg-white border-0 shadow-xl rounded-2xl p-2 z-50'
-                      align='end'
-                    >
-                      <DropdownMenuItem
-                        onClick={() => setIsLoginModalOpen(true)}
-                        className='text-sm rounded-xl px-4 py-3 hover:bg-gray-50 transition-colors'
-                      >
-                        <User className='mr-3 h-4 w-4' />
-                        Iniciar sesión
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                        <DropdownMenuItem
+                          onClick={() => setIsLoginModalOpen(true)}
+                          className='text-sm rounded-xl px-4 py-3 hover:bg-gray-50 transition-colors'
+                        >
+                          <User className='mr-3 h-4 w-4' />
+                          Iniciar sesión
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
                 </>
               )}
             </div>
@@ -592,8 +596,7 @@ export function SharedHeader({
                         Servicio
                       </div>
                       <div className='text-sm text-gray-600'>
-                        {searchProps.searchTerm &&
-                        searchProps.searchTerm !== "all"
+                        {searchProps.searchTerm && searchProps.searchTerm.trim() !== ""
                           ? searchProps.searchTerm
                           : "Buscar servicios"}
                       </div>

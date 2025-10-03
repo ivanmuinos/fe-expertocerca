@@ -28,13 +28,18 @@ export default function MisPublicacionesPage() {
   const [hasLoadedProfiles, setHasLoadedProfiles] = useState(false);
 
   useEffect(() => {
+    if (!loading && !user) {
+      navigate("/auth?next=/mis-publicaciones");
+      return;
+    }
+
     if (user?.id && !hasLoadedProfiles) {
       console.log("Loading profiles for user:", user.id);
       loadMyProfiles().then(() => {
         setHasLoadedProfiles(true);
       });
     }
-  }, [user?.id, loadMyProfiles, hasLoadedProfiles]);
+  }, [user?.id, loading, navigate, loadMyProfiles, hasLoadedProfiles]);
 
   useEffect(() => {
     console.log("Current profiles:", myProfiles);

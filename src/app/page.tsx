@@ -53,7 +53,7 @@ import { Footer } from "@/src/shared/components";
 
 export default function HomePage() {
   const [professionals, setProfessionals] = useState<any[]>([]);
-  const [searchTerm, setSearchTerm] = useState("Todos");
+  const [searchTerm, setSearchTerm] = useState("");
   const [selectedService, setSelectedService] = useState("");
   const [selectedZone, setSelectedZone] = useState("all");
   const [showFilters, setShowFilters] = useState(false);
@@ -68,7 +68,7 @@ export default function HomePage() {
   const { isCheckingRedirect } = useUserRedirect();
 
   const clearFilters = () => {
-    setSearchTerm("Todos");
+    setSearchTerm("");
     setSelectedZone("all");
   };
 

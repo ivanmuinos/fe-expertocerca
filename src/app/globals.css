@@ -167,6 +167,22 @@
     min-height: 100vh;
     min-height: -webkit-fill-available;
   }
+
+  /* Prevent bounce/rubber band scrolling - SOLO EN MOBILE */
+  @media (max-width: 768px) {
+    html {
+      overflow: hidden;
+      height: 100%;
+    }
+
+    body {
+      overflow-y: auto;
+      overflow-x: hidden;
+      height: 100%;
+      overscroll-behavior-y: none;
+      -webkit-overflow-scrolling: touch;
+    }
+  }
 }
 
 @layer utilities {

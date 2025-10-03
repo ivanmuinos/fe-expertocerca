@@ -85,6 +85,7 @@ export default function ProfesionalPage() {
     if (id) {
       loadProfessional();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   const loadProfessional = async () => {

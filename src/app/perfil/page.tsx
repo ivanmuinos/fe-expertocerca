@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from '@/src/shared/lib/navigation';
-import { useAuthState } from '@/src/features/auth'
+import { useAuthState, useAuthActions } from '@/src/features/auth'
 import { useProfiles } from '@/src/features/user-profile';
 import { supabase } from '@/src/config/supabase';
 import { Button } from '@/src/shared/components/ui/button';
@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/src/shared/component
 import { Input } from '@/src/shared/components/ui/input';
 import { Label } from '@/src/shared/components/ui/label';
 import { Textarea } from '@/src/shared/components/ui/textarea';
-import { Save, User, Phone } from 'lucide-react';
+import { Save, User, Phone, LogOut } from 'lucide-react';
 import { useToast } from '@/src/shared/hooks/use-toast';
 import { EditableAvatar } from '@/src/shared/components/EditableAvatar';
 import { SharedHeader } from '@/src/shared/components/SharedHeader';
@@ -19,6 +19,7 @@ import { Footer } from '@/src/shared/components/Footer';
 export default function PerfilPage() {
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuthState();
+  const { signOut } = useAuthActions();
   const { getProfile, getProfessionalProfile, loading: profilesLoading } = useProfiles();
   const { toast } = useToast();
 
@@ -62,10 +63,15 @@ export default function PerfilPage() {
   }, [user, getProfile, getProfessionalProfile]);
 
   useEffect(() => {
+    if (!authLoading && !user) {
+      navigate("/auth?next=/perfil");
+      return;
+    }
+
     if (user) {
       loadUserData();
     }
-  }, [user, loadUserData]);
+  }, [user?.id, authLoading, navigate]); // Only depend on user.id to avoid infinite loops
 
   const handleSave = async () => {
     if (!user) return;
@@ -386,6 +392,23 @@ export default function PerfilPage() {
                   </Card>
                 ))}
               </div>
+            </div>
+
+            {/* Logout Section - Mobile */}
+            <div className="md:hidden">
+              <Card className="p-6 border border-gray-200 rounded-2xl shadow-sm">
+                <Button
+                  onClick={async () => {
+                    await signOut();
+                    navigate("/");
+                  }}
+                  variant="outline"
+                  className="w-full justify-start gap-3 h-12 text-base border-red-200 hover:bg-red-50 hover:border-red-300 text-red-600 hover:text-red-700"
+                >
+                  <LogOut className="w-5 h-5" />
+                  <span>Cerrar sesión</span>
+                </Button>
+              </Card>
             </div>
 
             {/* Edit Modal/Form (Hidden by default) */}

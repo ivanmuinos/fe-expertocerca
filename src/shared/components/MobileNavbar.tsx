@@ -50,33 +50,78 @@ const navItems = [
 export function MobileNavbar() {
   const pathname = usePathname();
   const navigate = useNavigate();
-  const { isMobile, isMobileSearchOpen } = useMobile();
+  const { isMobile, isMobileSearchOpen, setIsMobileSearchOpen } = useMobile();
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
 
   useEffect(() => {
+    let ticking = false;
+
     const controlNavbar = () => {
-      const currentScrollY = window.scrollY;
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          // En mobile el scroll está en body, en desktop en window
+          const isMobileView = window.innerWidth <= 768;
+          const currentScrollY = Math.max(0, isMobileView
+            ? document.body.scrollTop || document.documentElement.scrollTop
+            : window.scrollY);
 
-      // Don't control navbar if search modal is open
-      if (isMobileSearchOpen) {
-        return;
+          // Don't control navbar if search modal is open
+          if (isMobileSearchOpen) {
+            ticking = false;
+            return;
+          }
+
+          // Check if we're at the bottom
+          const scrollHeight = isMobileView
+            ? document.body.scrollHeight
+            : document.documentElement.scrollHeight;
+          const clientHeight = isMobileView
+            ? document.body.clientHeight
+            : window.innerHeight;
+          const isAtBottom = (scrollHeight - currentScrollY - clientHeight) < 100;
+
+          // Calculate scroll difference
+          const scrollDiff = currentScrollY - lastScrollY;
+
+          // If at bottom, ignore scroll events to prevent jitter
+          if (isAtBottom) {
+            setLastScrollY(currentScrollY);
+            ticking = false;
+            return;
+          }
+
+          // Require minimum scroll movement (10px threshold)
+          if (Math.abs(scrollDiff) < 10) {
+            ticking = false;
+            return;
+          }
+
+          // Scrolling down & past 50px - hide navbar
+          if (scrollDiff > 0 && currentScrollY > 50) {
+            setIsVisible(false);
+          }
+          // Scrolling up - show navbar
+          else if (scrollDiff < 0) {
+            setIsVisible(true);
+          }
+
+          setLastScrollY(currentScrollY);
+          ticking = false;
+        });
+        ticking = true;
       }
-
-      if (currentScrollY > lastScrollY && currentScrollY > 100) {
-        // Scrolling down & past 100px
-        setIsVisible(false);
-      } else if (currentScrollY < lastScrollY) {
-        // Scrolling up
-        setIsVisible(true);
-      }
-
-      setLastScrollY(currentScrollY);
     };
 
-    window.addEventListener('scroll', controlNavbar);
-    return () => window.removeEventListener('scroll', controlNavbar);
-  }, [lastScrollY, isMobileSearchOpen]);
+    // Listen to both window and body scroll events
+    window.addEventListener('scroll', controlNavbar, { passive: true });
+    document.body.addEventListener('scroll', controlNavbar, { passive: true });
+
+    return () => {
+      window.removeEventListener('scroll', controlNavbar);
+      document.body.removeEventListener('scroll', controlNavbar);
+    };
+  }, [isMobileSearchOpen, lastScrollY]);
 
   const isActive = (path: string) => {
     if (path === '/') {
@@ -85,8 +130,16 @@ export function MobileNavbar() {
     return pathname?.startsWith(path);
   };
 
+  // Check if body has overflow hidden (modal open) - solo para la búsqueda
+  const isModalOpen = typeof document !== 'undefined' &&
+                       document.body.style.overflow === 'hidden' &&
+                       pathname === '/buscar';
+
   // Only show on mobile and when search modal is not open
   if (!isMobile || isMobileSearchOpen) return null;
+
+  // Hide completely when modal is open on search page
+  if (isModalOpen) return null;
 
   return (
     <div className={`fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 shadow-lg transition-transform duration-300 ${
@@ -97,10 +150,20 @@ export function MobileNavbar() {
           const Icon = item.icon;
           const active = isActive(item.path);
 
+          // Special handling for search button
+          const handleClick = () => {
+            if (item.id === 'buscar') {
+              // Open search modal instead of navigating
+              setIsMobileSearchOpen(true);
+            } else {
+              navigate(item.path);
+            }
+          };
+
           return (
             <button
               key={item.id}
-              onClick={() => navigate(item.path)}
+              onClick={handleClick}
               className={`flex flex-col items-center justify-center py-2 px-3 min-w-0 flex-1 transition-colors duration-200 ${
                 active
                   ? 'text-primary'

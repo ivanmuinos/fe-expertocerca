@@ -12,17 +12,23 @@ import {
   type OnboardingPhoto,
 } from "@/src/shared/stores/useOnboardingStore";
 import { OnboardingProgressBar } from "@/src/shared/components/OnboardingProgressBar";
-import { useOnboardingProgress, OnboardingStep } from "@/src/shared/stores/useOnboardingProgressStore";
+import {
+  useOnboardingProgress,
+  OnboardingStep,
+} from "@/src/shared/stores/useOnboardingProgressStore";
 
 // Helper function to determine initial section from URL
-const getInitialSection = (location: { search: string }, uploadedPhotos: any[]): 'photos' | 'description' => {
+const getInitialSection = (
+  location: { search: string },
+  uploadedPhotos: any[]
+): "photos" | "description" => {
   const searchParams = new URLSearchParams(location.search);
-  const sectionParam = searchParams.get('section');
+  const sectionParam = searchParams.get("section");
 
-  if (sectionParam === 'description' && uploadedPhotos.length >= 2) {
-    return 'description';
+  if (sectionParam === "description" && uploadedPhotos.length >= 2) {
+    return "description";
   }
-  return 'photos';
+  return "photos";
 };
 
 export default function PhotoUploadPage() {
@@ -44,12 +50,14 @@ export default function PhotoUploadPage() {
 
   const { setCurrentStep, setPhotoSection } = useOnboardingProgress();
 
-  const [currentSection, setCurrentSection] = useState<'photos' | 'description'>('photos');
+  const [currentSection, setCurrentSection] = useState<
+    "photos" | "description"
+  >("photos");
   const [isLoading, setIsLoading] = useState(false);
 
   // Initialize location client-side
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       setLocation({ search: window.location.search });
     }
   }, []);
@@ -66,12 +74,12 @@ export default function PhotoUploadPage() {
     setCurrentStep(OnboardingStep.PHOTO_UPLOAD);
 
     // Scroll to correct section immediately if needed
-    if (targetSection === 'description' && descriptionRef.current) {
+    if (targetSection === "description" && descriptionRef.current) {
       // Use requestAnimationFrame to ensure DOM is ready
       requestAnimationFrame(() => {
         descriptionRef.current?.scrollIntoView({
-          behavior: 'instant', // Use instant to avoid glitch
-          block: 'start'
+          behavior: "instant", // Use instant to avoid glitch
+          block: "start",
         });
       });
     }
@@ -81,12 +89,12 @@ export default function PhotoUploadPage() {
 
   const handleBack = () => {
     // If we're in the description section, scroll back to photos section
-    if (currentSection === 'description') {
-      setCurrentSection('photos');
-      setPhotoSection('photos'); // Update progress
+    if (currentSection === "description") {
+      setCurrentSection("photos");
+      setPhotoSection("photos"); // Update progress
       photosRef.current?.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start'
+        behavior: "smooth",
+        block: "start",
       });
     } else {
       // If we're in the photos section, go back to previous page
@@ -100,14 +108,18 @@ export default function PhotoUploadPage() {
 
   const handleContinue = async () => {
     // If we're in the photos section and have required photos, scroll to description
-    if (currentSection === 'photos' && uploadedPhotos.length >= 2 && descriptionRef.current) {
+    if (
+      currentSection === "photos" &&
+      uploadedPhotos.length >= 2 &&
+      descriptionRef.current
+    ) {
       descriptionRef.current.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start'
+        behavior: "smooth",
+        block: "start",
       });
-      setCurrentSection('description');
-      setPhotoSection('description'); // Update progress
-    } else if (currentSection === 'description' && canProceedFromPhotos()) {
+      setCurrentSection("description");
+      setPhotoSection("description"); // Update progress
+    } else if (currentSection === "description" && canProceedFromPhotos()) {
       // No upload here - just mark step as completed and proceed
       setIsLoading(true);
       markStepCompleted(4); // Mark photo upload step as completed
@@ -161,16 +173,16 @@ export default function PhotoUploadPage() {
     <div className='h-screen bg-gradient-subtle overflow-hidden'>
       {/* Header - Fixed at top */}
       <div className='fixed top-0 left-0 right-0 z-10 bg-background/95 backdrop-blur-sm border-b border-border'>
-        <div className='w-full px-3 py-2 md:px-8 md:py-4 flex items-center justify-between'>
+        <div className='w-full px-4 py-3 md:px-8 md:py-4 flex items-center justify-between'>
           <div className='flex items-center gap-2'>
-            <div className='w-6 h-6 md:w-8 md:h-8 bg-primary rounded-full flex items-center justify-center'>
-              <Star className='w-4 h-4 md:w-5 md:h-5 text-white' />
+            <div className='w-7 h-7 md:w-8 md:h-8 bg-primary rounded-full flex items-center justify-center'>
+              <Star className='w-5 h-5 md:w-5 md:h-5 text-white' />
             </div>
           </div>
           <Button
             variant='outline'
             onClick={handleExit}
-            className='px-3 py-1 md:px-4 md:py-2 text-xs md:text-sm bg-white border-gray-300 rounded-full hover:bg-gray-100 hover:border-gray-400 text-gray-700 hover:text-gray-900 font-medium transition-all duration-200'
+            className='px-4 py-1.5 md:px-4 md:py-2 text-sm md:text-sm bg-white border-gray-300 rounded-full hover:bg-gray-100 hover:border-gray-400 text-gray-700 hover:text-gray-900 font-medium transition-all duration-200'
           >
             Salir
           </Button>
@@ -178,7 +190,7 @@ export default function PhotoUploadPage() {
       </div>
 
       {/* Main Content Container - Scrollable */}
-      <div className='h-full pt-14 pb-20 md:pt-20 md:pb-24 overflow-y-auto snap-y snap-mandatory scrollbar-hide'>
+      <div className='h-full pt-20 pb-20 md:pt-20 md:pb-24 overflow-y-auto snap-y snap-mandatory scrollbar-hide'>
         {/* Section 1: Photo Upload - 100vh */}
         <motion.div
           ref={photosRef}
@@ -187,16 +199,17 @@ export default function PhotoUploadPage() {
           transition={{ duration: 0.6 }}
           className='min-h-screen snap-start flex flex-col'
         >
-          <div className='flex-1 w-full max-w-md md:max-w-4xl mx-auto px-3 py-3 md:px-4 md:py-6 flex flex-col'>
+          <div className='flex-1 w-full max-w-md md:max-w-4xl mx-auto px-4 py-4 md:px-4 md:py-6 flex flex-col'>
             {/* Photo slots grid */}
             <div className='flex-1 overflow-auto'>
               {/* Section Title inside scrollable area */}
-              <div className='mb-3 md:mb-6 text-left mt-2 md:mt-18'>
-                <h1 className='text-base md:text-xl text-foreground mb-1 md:mb-2'>
+              <div className='mb-4 md:mb-6 text-left mt-2 md:mt-18'>
+                <h1 className='text-lg md:text-xl text-foreground mb-1 md:mb-2'>
                   Cargá tus mejores fotos
                 </h1>
                 <p className='text-xs md:text-sm text-muted-foreground'>
-                  Las fotos son el factor más importante para que los clientes confíen en tu trabajo
+                  Las fotos son el factor más importante para que los clientes
+                  confíen en tu trabajo
                 </p>
               </div>
               <div className='grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4'>
@@ -221,7 +234,7 @@ export default function PhotoUploadPage() {
                           <img
                             src={image.url}
                             alt={`Uploaded ${index + 1}`}
-                            className="w-full h-full object-cover rounded-2xl transition-all duration-200"
+                            className='w-full h-full object-cover rounded-2xl transition-all duration-200'
                           />
 
                           {/* Hover overlay for delete */}
@@ -248,17 +261,23 @@ export default function PhotoUploadPage() {
                                 multiple
                                 accept='image/*'
                                 className='absolute inset-0 w-full h-full opacity-0 cursor-pointer'
-                                onChange={(e) => handleFileSelect(e.target.files)}
+                                onChange={(e) =>
+                                  handleFileSelect(e.target.files)
+                                }
                               />
                               <div className='text-center'>
                                 <Plus
                                   className={`w-8 h-8 mb-2 mx-auto ${
-                                    isRequired ? "text-gray-600" : "text-gray-400"
+                                    isRequired
+                                      ? "text-gray-600"
+                                      : "text-gray-400"
                                   }`}
                                 />
                                 <span
                                   className={`text-xs font-medium ${
-                                    isRequired ? "text-gray-600" : "text-gray-400"
+                                    isRequired
+                                      ? "text-gray-600"
+                                      : "text-gray-400"
                                   }`}
                                 >
                                   {isRequired ? "Requerida" : "Opcional"}
@@ -285,37 +304,39 @@ export default function PhotoUploadPage() {
             transition={{ duration: 0.6, delay: 0.2 }}
             className='min-h-screen snap-start flex flex-col'
           >
-            <div className='flex-1 w-full max-w-md md:max-w-2xl mx-auto px-3 py-3 md:px-4 md:py-6 flex flex-col'>
+            <div className='flex-1 w-full max-w-md md:max-w-2xl mx-auto px-4 py-4 md:px-4 md:py-6 flex flex-col'>
               {/* Work Description Textarea */}
               <div className='flex-1 flex flex-col'>
                 {/* Section Title inside scrollable area */}
-                <div className='mb-3 md:mb-6 text-left mt-2 md:mt-18'>
-                  <h2 className='text-base md:text-xl text-foreground mb-1 md:mb-2'>
+                <div className='mb-4 md:mb-6 text-left mt-2 md:mt-18'>
+                  <h2 className='text-lg md:text-xl text-foreground mb-1 md:mb-2'>
                     Describí los trabajos que realizás
                   </h2>
                   <p className='text-xs md:text-sm text-muted-foreground'>
-                    Contá a tus potenciales clientes sobre tu experiencia y los servicios que ofrecés
+                    Contá a tus potenciales clientes sobre tu experiencia y los
+                    servicios que ofrecés
                   </p>
                 </div>
                 <Textarea
                   value={workDescription}
                   onChange={(e) => setWorkDescription(e.target.value)}
-                  placeholder="Ejemplo: Soy electricista con más de 10 años de experiencia. Me especializo en instalaciones residenciales y comerciales, reparación de averías eléctricas, instalación de aires acondicionados, automatización del hogar y sistemas de iluminación LED.
+                  placeholder='Ejemplo: Soy electricista con más de 10 años de experiencia. Me especializo en instalaciones residenciales y comerciales, reparación de averías eléctricas, instalación de aires acondicionados, automatización del hogar y sistemas de iluminación LED.
 
 Trabajo con materiales de primera calidad y ofrezco garantía en todos mis trabajos. Cuento con matrícula profesional y seguro de responsabilidad civil.
 
-Mis clientes destacan mi puntualidad, prolijidad y precio justo. Atiendo zona norte del GBA con disponibilidad de lunes a sábados."
+Mis clientes destacan mi puntualidad, prolijidad y precio justo. Atiendo zona norte del GBA con disponibilidad de lunes a sábados.'
                   className='flex-1 min-h-[200px] max-h-[400px] resize-none text-sm leading-relaxed bg-white/80 backdrop-blur-sm border-2 border-border focus:border-primary rounded-2xl p-4 transition-colors duration-200'
                   style={{
-                    fontFamily: 'system-ui, -apple-system, sans-serif',
-                    lineHeight: '1.6'
+                    fontFamily: "system-ui, -apple-system, sans-serif",
+                    lineHeight: "1.6",
                   }}
                 />
                 <div className='mt-2 flex justify-between items-center'>
                   <div className='text-xs'>
                     {workDescription.trim().length < 50 ? (
                       <span className='text-red-500'>
-                        Mínimo 50 caracteres (faltan {50 - workDescription.trim().length})
+                        Mínimo 50 caracteres (faltan{" "}
+                        {50 - workDescription.trim().length})
                       </span>
                     ) : (
                       <span className='text-green-600'>
@@ -339,19 +360,24 @@ Mis clientes destacan mi puntualidad, prolijidad y precio justo. Atiendo zona no
         <OnboardingProgressBar />
 
         {/* Footer Buttons */}
-        <div className='w-full px-3 py-3 md:px-8 md:py-6'>
+        <div className='w-full px-4 py-4 md:px-8 md:py-6'>
           <div className='flex items-center justify-between'>
             <button
               onClick={handleBack}
-              className='text-xs md:text-sm text-black hover:text-gray-700 underline font-medium'
+              className='text-sm md:text-sm text-black hover:text-gray-700 underline font-medium'
             >
               Atrás
             </button>
             <LoadingButton
               onClick={handleContinue}
               loading={isLoading}
-              disabled={isLoading || (currentSection === 'photos' ? uploadedPhotos.length < 2 : !canProceedFromPhotos())}
-              className='px-6 h-9 text-sm md:px-8 md:h-12 md:text-base font-medium'
+              disabled={
+                isLoading ||
+                (currentSection === "photos"
+                  ? uploadedPhotos.length < 2
+                  : !canProceedFromPhotos())
+              }
+              className='px-8 h-11 text-sm md:px-8 md:h-12 md:text-base font-medium'
             >
               Continuar
             </LoadingButton>

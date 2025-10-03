@@ -93,14 +93,17 @@ const workZones = [
 ];
 
 // Helper function to determine initial section from URL
-const getInitialSpecialtySection = (location: { search: string }, selectedSpecialty: any): "specialty" | "zone" => {
+const getInitialSpecialtySection = (
+  location: { search: string },
+  selectedSpecialty: any
+): "specialty" | "zone" => {
   const searchParams = new URLSearchParams(location.search);
-  const sectionParam = searchParams.get('section');
+  const sectionParam = searchParams.get("section");
 
-  if (sectionParam === 'zone' && selectedSpecialty) {
-    return 'zone';
+  if (sectionParam === "zone" && selectedSpecialty) {
+    return "zone";
   }
-  return 'specialty';
+  return "specialty";
 };
 
 export default function SpecialtySelectionPage() {
@@ -117,14 +120,16 @@ export default function SpecialtySelectionPage() {
     markStepCompleted,
   } = useOnboarding();
 
-  const [currentSection, setCurrentSection] = useState<"specialty" | "zone">("specialty");
+  const [currentSection, setCurrentSection] = useState<"specialty" | "zone">(
+    "specialty"
+  );
   const [isLoading, setIsLoading] = useState(false);
 
   const { setCurrentStep, setSpecialtySection } = useOnboardingProgress();
 
   // Initialize location client-side
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       setLocation({ search: window.location.search });
     }
   }, []);
@@ -133,7 +138,10 @@ export default function SpecialtySelectionPage() {
   useEffect(() => {
     if (!location) return;
 
-    const targetSection = getInitialSpecialtySection(location, selectedSpecialty);
+    const targetSection = getInitialSpecialtySection(
+      location,
+      selectedSpecialty
+    );
 
     // Update section and progress
     setCurrentSection(targetSection);
@@ -141,7 +149,7 @@ export default function SpecialtySelectionPage() {
     setCurrentStep(OnboardingStep.SPECIALTY_SELECTION);
 
     // Scroll to correct section immediately if needed
-    if (targetSection === 'zone' && zoneRef.current) {
+    if (targetSection === "zone" && zoneRef.current) {
       // Use requestAnimationFrame to ensure DOM is ready
       requestAnimationFrame(() => {
         zoneRef.current?.scrollIntoView({
@@ -176,14 +184,22 @@ export default function SpecialtySelectionPage() {
 
   const handleContinue = async () => {
     // If we're in the specialty section and have selected a specialty, scroll to zone
-    if (currentSection === "specialty" && selectedSpecialty && zoneRef.current) {
+    if (
+      currentSection === "specialty" &&
+      selectedSpecialty &&
+      zoneRef.current
+    ) {
       zoneRef.current.scrollIntoView({
         behavior: "smooth",
         block: "center",
       });
       setCurrentSection("zone");
       setSpecialtySection("zone"); // Update progress
-    } else if (currentSection === "zone" && selectedSpecialty && selectedWorkZone) {
+    } else if (
+      currentSection === "zone" &&
+      selectedSpecialty &&
+      selectedWorkZone
+    ) {
       // If we're in the zone section and both are selected, proceed to next page
       setIsLoading(true);
       markStepCompleted(2); // Mark specialty selection as completed
@@ -206,16 +222,16 @@ export default function SpecialtySelectionPage() {
     <div className='h-screen bg-gradient-subtle overflow-hidden'>
       {/* Header - Fixed at top */}
       <div className='fixed top-0 left-0 right-0 z-10 bg-background/95 backdrop-blur-sm border-b border-border'>
-        <div className='w-full px-3 py-2 md:px-8 md:py-4 flex items-center justify-between'>
+        <div className='w-full px-4 py-3 md:px-8 md:py-4 flex items-center justify-between'>
           <div className='flex items-center gap-2'>
-            <div className='w-6 h-6 md:w-8 md:h-8 bg-primary rounded-full flex items-center justify-center'>
-              <Star className='w-4 h-4 md:w-5 md:h-5 text-white' />
+            <div className='w-7 h-7 md:w-8 md:h-8 bg-primary rounded-full flex items-center justify-center'>
+              <Star className='w-5 h-5 md:w-5 md:h-5 text-white' />
             </div>
           </div>
           <Button
             variant='outline'
             onClick={handleExit}
-            className='px-3 py-1 md:px-4 md:py-2 text-xs md:text-sm bg-white border-gray-300 rounded-full hover:bg-gray-100 hover:border-gray-400 text-gray-700 hover:text-gray-900 font-medium transition-all duration-200'
+            className='px-4 py-1.5 md:px-4 md:py-2 text-sm md:text-sm bg-white border-gray-300 rounded-full hover:bg-gray-100 hover:border-gray-400 text-gray-700 hover:text-gray-900 font-medium transition-all duration-200'
           >
             Salir
           </Button>
@@ -223,7 +239,7 @@ export default function SpecialtySelectionPage() {
       </div>
 
       {/* Main Content Container - Scrollable */}
-      <div className='h-full pt-14 pb-20 md:pt-20 md:pb-24 overflow-y-auto snap-y snap-mandatory scrollbar-hide'>
+      <div className='h-full pt-28 pb-20 md:pt-20 md:pb-24 overflow-y-auto snap-y snap-mandatory scrollbar-hide'>
         {/* Section 1: Specialty Selection */}
         <motion.div
           ref={specialtyRef}
@@ -232,12 +248,12 @@ export default function SpecialtySelectionPage() {
           transition={{ duration: 0.6 }}
           className='min-h-screen snap-start flex flex-col'
         >
-          <div className='flex-1 w-full max-w-md md:max-w-2xl mx-auto px-3 py-3 md:px-4 md:py-6 flex flex-col'>
+          <div className='flex-1 w-full max-w-md md:max-w-2xl mx-auto px-4 py-4 md:px-4 md:py-6 flex flex-col'>
             {/* Services Grid */}
             <div className='flex-1 overflow-auto'>
               {/* Section Title inside scrollable area */}
-              <div className='mb-3 md:mb-6 text-left mt-2 md:mt-18'>
-                <h1 className='text-base md:text-xl text-foreground mb-1 md:mb-2'>
+              <div className='mb-4 md:mb-6 text-left mt-2 md:mt-18'>
+                <h1 className='text-lg md:text-xl text-foreground mb-1 md:mb-2'>
                   ¿Cuál es tu especialidad?
                 </h1>
                 <p className='text-xs md:text-sm text-muted-foreground'>
@@ -277,7 +293,7 @@ export default function SpecialtySelectionPage() {
                       <h3 className='font-semibold text-xs md:text-sm text-foreground mb-0.5 md:mb-1'>
                         {service.name}
                       </h3>
-                      <p className='text-[10px] md:text-xs text-muted-foreground leading-tight'>
+                      <p className='text-sm md:text-xs text-muted-foreground leading-tight'>
                         {service.description}
                       </p>
                     </div>
@@ -297,12 +313,12 @@ export default function SpecialtySelectionPage() {
             transition={{ duration: 0.6, delay: 0.2 }}
             className='min-h-screen snap-start flex flex-col'
           >
-            <div className='flex-1 w-full max-w-md md:max-w-2xl mx-auto px-3 py-3 md:px-4 md:py-6 flex flex-col'>
+            <div className='flex-1 w-full max-w-md md:max-w-2xl mx-auto px-4 py-4 md:px-4 md:py-6 flex flex-col'>
               {/* Work Zones Grid */}
               <div className='flex-1 overflow-auto'>
                 {/* Section Title inside scrollable area */}
-                <div className='mb-3 md:mb-6 text-left mt-2 md:mt-18'>
-                  <h2 className='text-base md:text-xl text-foreground mb-1 md:mb-2'>
+                <div className='mb-4 md:mb-6 text-left mt-2 md:mt-18'>
+                  <h2 className='text-lg md:text-xl text-foreground mb-1 md:mb-2'>
                     ¿En qué zona trabajas?
                   </h2>
                   <p className='text-xs md:text-sm text-muted-foreground'>
@@ -329,7 +345,7 @@ export default function SpecialtySelectionPage() {
                       <div className='flex items-center gap-2 md:gap-3'>
                         <div
                           className={`
-                          w-8 h-8 md:w-10 md:h-10 rounded-xl flex items-center justify-center flex-shrink-0
+                          w-9 h-9 md:w-10 md:h-10 rounded-xl flex items-center justify-center flex-shrink-0
                           ${
                             selectedWorkZone === zone.name
                               ? "bg-primary text-white"
@@ -337,13 +353,13 @@ export default function SpecialtySelectionPage() {
                           }
                         `}
                         >
-                          <zone.icon className='w-4 h-4 md:w-5 md:h-5' />
+                          <zone.icon className='w-5 h-5 md:w-5 md:h-5' />
                         </div>
                         <div className='flex-1'>
                           <h3 className='font-semibold text-xs md:text-sm text-foreground mb-0.5 md:mb-1'>
                             {zone.name}
                           </h3>
-                          <p className='text-[10px] md:text-xs text-muted-foreground leading-tight'>
+                          <p className='text-sm md:text-xs text-muted-foreground leading-tight'>
                             {zone.fullName}
                           </p>
                         </div>
@@ -363,11 +379,11 @@ export default function SpecialtySelectionPage() {
         <OnboardingProgressBar />
 
         {/* Footer Buttons */}
-        <div className='w-full px-3 py-3 md:px-8 md:py-6'>
+        <div className='w-full px-4 py-4 md:px-8 md:py-6'>
           <div className='flex items-center justify-between'>
             <button
               onClick={handleBack}
-              className='text-xs md:text-sm text-black hover:text-gray-700 underline font-medium'
+              className='text-sm md:text-sm text-black hover:text-gray-700 underline font-medium'
             >
               Atrás
             </button>
@@ -375,7 +391,7 @@ export default function SpecialtySelectionPage() {
               onClick={handleContinue}
               loading={isLoading}
               disabled={!canContinue() || isLoading}
-              className='px-6 h-9 text-sm md:px-8 md:h-12 md:text-base font-medium'
+              className='px-8 h-11 text-sm md:px-8 md:h-12 md:text-base font-medium'
             >
               Continuar
             </LoadingButton>

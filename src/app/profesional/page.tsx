@@ -27,7 +27,6 @@ import { useAuthState } from "@/src/features/auth";
 import { EditableAvatar } from "@/src/shared/components/EditableAvatar";
 import { SharedHeader } from "@/src/shared/components/SharedHeader";
 import { Footer } from "@/src/shared/components";
-import { useMobile } from "@/src/shared/components/MobileWrapper";
 
 export default function ProfesionalPage() {
   const [id, setId] = useState<string>("");
@@ -39,7 +38,6 @@ export default function ProfesionalPage() {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const { browseProfessionals, discoverProfessionals } =
     useSecureProfessionals();
-  const { isMobileNavbarVisible } = useMobile();
 
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedZone, setSelectedZone] = useState("all");
@@ -465,12 +463,8 @@ export default function ProfesionalPage() {
         </div>
       </div>
 
-      {/* Mobile Contact Button - Above navbar */}
-      <div
-        className={`fixed left-3 right-3 lg:hidden z-40 transition-all duration-300 ${
-          isMobileNavbarVisible ? 'bottom-16 mb-6' : 'bottom-3 mb-3'
-        }`}
-      >
+      {/* Mobile Contact Button - Fixed at bottom */}
+      <div className='fixed bottom-3 left-3 right-3 lg:hidden z-40 mb-3'>
         <button
           onClick={handleContact}
           className='w-full bg-primary hover:bg-primary-dark text-primary-foreground font-semibold py-3.5 px-6 rounded-xl transition-all duration-200 flex items-center justify-center gap-2 active:scale-[0.98] shadow-lg'

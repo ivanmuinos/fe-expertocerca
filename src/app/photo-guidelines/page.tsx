@@ -60,16 +60,16 @@ export default function PhotoGuidelinesPage() {
     <div className="h-screen bg-gradient-subtle flex flex-col overflow-hidden">
       {/* Header */}
       <div className="flex-shrink-0 bg-background/95 backdrop-blur-sm border-b border-border">
-        <div className="w-full px-3 py-2 md:px-8 md:py-4 flex items-center justify-between">
+        <div className="w-full px-4 py-3 md:px-8 md:py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 md:w-8 md:h-8 bg-primary rounded-full flex items-center justify-center">
-              <Star className="w-4 h-4 md:w-5 md:h-5 text-white" />
+            <div className="w-7 h-7 md:w-8 md:h-8 bg-primary rounded-full flex items-center justify-center">
+              <Star className="w-5 h-5 md:w-5 md:h-5 text-white" />
             </div>
           </div>
           <Button
             variant="outline"
             onClick={handleExit}
-            className="px-3 py-1 md:px-4 md:py-2 text-xs md:text-sm bg-white border-gray-300 rounded-full hover:bg-gray-100 hover:border-gray-400 text-gray-700 hover:text-gray-900 font-medium transition-all duration-200"
+            className="px-4 py-1.5 md:px-4 md:py-2 text-sm md:text-sm bg-white border-gray-300 rounded-full hover:bg-gray-100 hover:border-gray-400 text-gray-700 hover:text-gray-900 font-medium transition-all duration-200"
           >
             Salir
           </Button>
@@ -77,7 +77,7 @@ export default function PhotoGuidelinesPage() {
       </div>
 
       {/* Content */}
-      <div className="flex-1 w-full max-w-md md:max-w-2xl mx-auto px-3 py-3 md:px-4 md:py-6 flex flex-col min-h-0">
+      <div className="flex-1 w-full max-w-md md:max-w-2xl mx-auto px-4 py-4 md:px-4 md:py-6 flex flex-col min-h-0">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -85,8 +85,8 @@ export default function PhotoGuidelinesPage() {
           className="flex-1 flex flex-col"
         >
           {/* Main Title */}
-          <div className="mb-3 md:mb-6 text-left">
-            <h1 className="text-base md:text-xl text-foreground mb-1 md:mb-2">
+          <div className="mb-4 md:mb-6 text-left">
+            <h1 className="text-lg md:text-xl text-foreground mb-1 md:mb-2">
               Mostrá tus mejores trabajos
             </h1>
             <p className="text-xs md:text-sm text-muted-foreground">
@@ -110,11 +110,11 @@ export default function PhotoGuidelinesPage() {
                     transition={{ duration: 0.5, delay: index * 0.1 }}
                     className="flex items-start gap-2 md:gap-3 p-3 md:p-4 rounded-2xl bg-white border border-border shadow-sm"
                   >
-                    <div className="flex-shrink-0 w-8 h-8 md:w-10 md:h-10 bg-primary/10 rounded-xl flex items-center justify-center">
-                      <practice.icon className="w-4 h-4 md:w-5 md:h-5 text-primary" />
+                    <div className="flex-shrink-0 w-9 h-9 md:w-10 md:h-10 bg-primary/10 rounded-xl flex items-center justify-center">
+                      <practice.icon className="w-5 h-5 md:w-5 md:h-5 text-primary" />
                     </div>
                     <div className="flex-1">
-                      <h3 className="font-semibold text-foreground text-xs md:text-base mb-0.5 md:mb-1">
+                      <h3 className="font-semibold text-foreground text-sm md:text-base mb-0.5 md:mb-1">
                         {practice.title}
                       </h3>
                       <p className="text-[10px] md:text-sm text-muted-foreground">
@@ -135,11 +135,11 @@ export default function PhotoGuidelinesPage() {
         <OnboardingProgressBar />
 
         {/* Footer Buttons */}
-        <div className="w-full px-3 py-3 md:px-8 md:py-6">
+        <div className="w-full px-4 py-4 md:px-8 md:py-6">
           <div className="flex items-center justify-between">
             <button
               onClick={handleBack}
-              className="text-xs md:text-sm text-black hover:text-gray-700 underline font-medium"
+              className="text-sm md:text-sm text-black hover:text-gray-700 underline font-medium"
             >
               Atrás
             </button>
@@ -147,7 +147,7 @@ export default function PhotoGuidelinesPage() {
               onClick={handleContinue}
               loading={isLoading}
               disabled={isLoading}
-              className="px-6 h-9 text-sm md:px-8 md:h-12 md:text-base font-medium"
+              className="px-8 h-11 text-sm md:px-8 md:h-12 md:text-base font-medium"
             >
               Continuar
             </LoadingButton>

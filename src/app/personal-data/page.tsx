@@ -161,16 +161,16 @@ export default function PersonalDataPage() {
     <div className='h-screen bg-gradient-subtle flex flex-col overflow-hidden'>
       {/* Header */}
       <div className='flex-shrink-0 bg-background/95 backdrop-blur-sm border-b border-border'>
-        <div className='w-full px-3 py-2 md:px-8 md:py-4 flex items-center justify-between'>
+        <div className='w-full px-4 py-3 md:px-8 md:py-4 flex items-center justify-between'>
           <div className='flex items-center gap-2'>
-            <div className='w-6 h-6 md:w-8 md:h-8 bg-primary rounded-full flex items-center justify-center'>
-              <Star className='w-4 h-4 md:w-5 md:h-5 text-white' />
+            <div className='w-7 h-7 md:w-8 md:h-8 bg-primary rounded-full flex items-center justify-center'>
+              <Star className='w-5 h-5 md:w-5 md:h-5 text-white' />
             </div>
           </div>
           <Button
             variant='outline'
             onClick={handleExit}
-            className='px-3 py-1 md:px-4 md:py-2 text-xs md:text-sm bg-white border-gray-300 rounded-full hover:bg-gray-100 hover:border-gray-400 text-gray-700 hover:text-gray-900 font-medium transition-all duration-200'
+            className='px-4 py-1.5 md:px-4 md:py-2 text-sm md:text-sm bg-white border-gray-300 rounded-full hover:bg-gray-100 hover:border-gray-400 text-gray-700 hover:text-gray-900 font-medium transition-all duration-200'
           >
             Salir
           </Button>
@@ -178,7 +178,7 @@ export default function PersonalDataPage() {
       </div>
 
       {/* Content */}
-      <div className='flex-1 w-full max-w-md md:max-w-2xl mx-auto px-3 py-3 md:px-4 md:py-6 flex flex-col min-h-0'>
+      <div className='flex-1 w-full max-w-md md:max-w-2xl mx-auto px-4 py-4 md:px-4 md:py-6 flex flex-col min-h-0'>
         {/* Main Title */}
         {/* Form */}
         <div className='flex-1 overflow-auto'>
@@ -186,16 +186,16 @@ export default function PersonalDataPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5 }}
-            className='space-y-3 md:space-y-6'
+            className='space-y-4 md:space-y-6'
           >
             {/* Title inside scrollable area */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
-              className='mb-3 md:mb-6'
+              className='mb-4 md:mb-6'
             >
-              <h1 className='text-base md:text-xl text-foreground text-left'>
+              <h1 className='text-lg md:text-xl text-foreground text-left'>
                 Completá tus datos personales
               </h1>
               <p className='text-xs md:text-sm text-muted-foreground mt-1 md:mt-2 text-left'>
@@ -310,11 +310,11 @@ export default function PersonalDataPage() {
         <OnboardingProgressBar />
 
         {/* Footer Buttons */}
-        <div className='w-full px-3 py-3 md:px-8 md:py-6'>
+        <div className='w-full px-4 py-4 md:px-8 md:py-6'>
           <div className='flex items-center justify-between'>
             <button
               onClick={handleBack}
-              className='text-xs md:text-sm text-black hover:text-gray-700 underline font-medium'
+              className='text-sm md:text-sm text-black hover:text-gray-700 underline font-medium'
             >
               Atrás
             </button>
@@ -322,7 +322,7 @@ export default function PersonalDataPage() {
               onClick={handleContinue}
               loading={isSubmitting}
               disabled={!canProceed || isSubmitting}
-              className='px-6 h-9 text-sm md:px-8 md:h-12 md:text-base font-medium'
+              className='px-8 h-11 text-sm md:px-8 md:h-12 md:text-base font-medium'
             >
               Completar registro
             </LoadingButton>

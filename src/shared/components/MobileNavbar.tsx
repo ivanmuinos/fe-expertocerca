@@ -5,6 +5,7 @@ import { useNavigate } from '@/src/shared/lib/navigation';
 import { useState, useEffect } from 'react';
 import { useMobile } from './MobileWrapper';
 import { useAuthState } from '@/src/features/auth';
+import { Avatar, AvatarFallback, AvatarImage } from '@/src/shared/components/ui/avatar';
 import {
   Search,
   Heart,
@@ -77,9 +78,37 @@ export function MobileNavbar() {
   const { user } = useAuthState();
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
+  const [userProfile, setUserProfile] = useState<any>(null);
 
   // Choose nav items based on auth state
   const navItems = user ? loggedInNavItems : loggedOutNavItems;
+
+  // Load user profile for avatar
+  useEffect(() => {
+    const loadProfile = async () => {
+      if (!user) {
+        setUserProfile(null);
+        return;
+      }
+
+      try {
+        const { supabase } = await import('@/src/config/supabase');
+        const { data } = await supabase
+          .from('profiles')
+          .select('avatar_url, full_name')
+          .eq('id', user.id)
+          .single();
+
+        if (data) {
+          setUserProfile(data);
+        }
+      } catch (error) {
+        console.error('Error loading profile:', error);
+      }
+    };
+
+    loadProfile();
+  }, [user?.id]);
 
   useEffect(() => {
     let ticking = false;
@@ -161,18 +190,19 @@ export function MobileNavbar() {
     return pathname?.startsWith(path);
   };
 
-  // Define onboarding routes where navbar should be hidden
-  const onboardingRoutes = [
+  // Define routes where navbar should be hidden
+  const hiddenNavbarRoutes = [
     '/specialty-selection',
     '/user-type-selection',
     '/onboarding',
     '/photo-upload',
     '/photo-guidelines',
     '/professional-intro',
-    '/personal-data'
+    '/personal-data',
+    '/profesional'
   ];
 
-  const isOnboardingRoute = onboardingRoutes.some(route => pathname?.startsWith(route));
+  const isHiddenNavbarRoute = hiddenNavbarRoutes.some(route => pathname?.startsWith(route));
 
   // Check if body has overflow hidden (modal open) - solo para la búsqueda
   const isModalOpen = typeof document !== 'undefined' &&
@@ -185,8 +215,8 @@ export function MobileNavbar() {
   // Hide completely when modal is open on search page
   if (isModalOpen) return null;
 
-  // Hide navbar during onboarding process
-  if (isOnboardingRoute) return null;
+  // Hide navbar on specific routes (onboarding, professional profile, etc)
+  if (isHiddenNavbarRoute) return null;
 
   return (
     <div className={`fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 shadow-lg transition-transform duration-300 ${
@@ -220,12 +250,24 @@ export function MobileNavbar() {
                   : 'text-gray-500 hover:text-gray-700'
               }`}
             >
-              <Icon
-                className={`w-6 h-6 mb-1 ${
-                  active ? 'fill-current' : ''
-                }`}
-                strokeWidth={active ? 2.5 : 2}
-              />
+              {/* Show avatar for profile button if user is logged in */}
+              {item.id === 'perfil' && user && userProfile ? (
+                <div className="mb-1">
+                  <Avatar className="w-6 h-6">
+                    <AvatarImage src={userProfile.avatar_url || undefined} />
+                    <AvatarFallback className="text-[10px] bg-primary/10 text-primary">
+                      {userProfile.full_name?.charAt(0).toUpperCase() || 'U'}
+                    </AvatarFallback>
+                  </Avatar>
+                </div>
+              ) : (
+                <Icon
+                  className={`w-6 h-6 mb-1 ${
+                    active ? 'fill-current' : ''
+                  }`}
+                  strokeWidth={active ? 2.5 : 2}
+                />
+              )}
               <span className={`text-xs font-medium leading-none ${
                 active ? 'text-primary' : 'text-gray-500'
               }`}>

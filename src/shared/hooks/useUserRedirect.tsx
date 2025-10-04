@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useNavigate } from '@/src/shared/lib/navigation';
-import { usePathname } from 'next/navigation';
-import { useAuthState } from '@/src/features/auth';
-import { useOnboardingStatus } from './useOnboardingStatus';
+import { useEffect, useState } from "react";
+import { useNavigate } from "@/src/shared/lib/navigation";
+import { usePathname } from "next/navigation";
+import { useAuthState } from "@/src/features/auth";
+import { useOnboardingStatus } from "./useOnboardingStatus";
 
 export function useUserRedirect() {
   const { user, loading: authLoading } = useAuthState();
@@ -27,13 +27,9 @@ export function useUserRedirect() {
         return;
       }
 
-      
-      const isOnUserTypeSelection = pathname === '/user-type-selection';
-      const isOnOnboardingPage = pathname.includes('/professional-') ||
-                                pathname.includes('/specialty-') ||
-                                pathname.includes('/photo-') ||
-                                pathname.includes('/personal-data') ||
-                                pathname === '/completion';
+      const isOnUserTypeSelection =
+        pathname === "/onboarding/user-type-selection";
+      const isOnOnboardingPage = pathname.startsWith("/onboarding");
 
       // If user has no profile, allow them to navigate freely
       // Only suggest onboarding, don't force it
@@ -48,7 +44,7 @@ export function useUserRedirect() {
       if (onboardingStatus.isCompleted) {
         // If user is on user type selection page and already completed, redirect to home
         if (isOnUserTypeSelection) {
-          navigate('/');
+          navigate("/");
         }
         setIsCheckingRedirect(false);
         return;
@@ -56,7 +52,11 @@ export function useUserRedirect() {
 
       // If user has incomplete professional onboarding but is not on onboarding pages,
       // don't force redirect - they can complete later
-      if (onboardingStatus.needsOnboarding && !isOnOnboardingPage && !isOnUserTypeSelection) {
+      if (
+        onboardingStatus.needsOnboarding &&
+        !isOnOnboardingPage &&
+        !isOnUserTypeSelection
+      ) {
         // Just let them stay where they are - they can complete onboarding later
         setIsCheckingRedirect(false);
         return;
@@ -68,7 +68,7 @@ export function useUserRedirect() {
         setIsCheckingRedirect(false);
         return;
       }
-        
+
       setIsCheckingRedirect(false);
     };
 

@@ -26,7 +26,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import useEmblaCarousel from "embla-carousel-react";
-import { Button } from "@/src/shared/components/ui/button";
+import { LoadingButton } from "@/src/shared/components/ui/loading-button";
 import { Input } from "@/src/shared/components/ui/input";
 import {
   Select,
@@ -50,6 +50,7 @@ import { SharedHeader } from "@/src/shared/components/SharedHeader";
 
 import { ProfessionalCarousel } from "@/src/shared/components/ProfessionalCarousel";
 import { Footer } from "@/src/shared/components";
+import HomeSkeleton from "@/src/shared/components/HomeSkeleton";
 
 export default function HomePage() {
   const [professionals, setProfessionals] = useState<any[]>([]);
@@ -176,35 +177,7 @@ export default function HomePage() {
       <section className='px-3 sm:px-4 md:px-6 lg:px-8 pb-6 pt-2 mt-6'>
         <div className='max-w-7xl mx-auto'>
           {loading ? (
-            <div className='space-y-6'>
-              {[...Array(3)].map((_, categoryIndex) => (
-                <div key={categoryIndex} className='space-y-3'>
-                  <div className='h-5 bg-muted rounded w-48 animate-pulse' />
-                  <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4'>
-                    {[...Array(4)].map((_, i) => (
-                      <Card key={i} className='animate-pulse'>
-                        <CardContent className='p-3 sm:p-4'>
-                          <div className='space-y-3'>
-                            <div className='flex items-center space-x-3'>
-                              <div className='w-10 h-10 bg-muted rounded-full' />
-                              <div className='space-y-2 flex-1'>
-                                <div className='h-3 bg-muted rounded w-3/4' />
-                                <div className='h-2 bg-muted rounded w-1/2' />
-                              </div>
-                            </div>
-                            <div className='h-16 bg-muted rounded' />
-                            <div className='flex gap-1'>
-                              <div className='h-5 bg-muted rounded-full w-12' />
-                              <div className='h-5 bg-muted rounded-full w-16' />
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
+            <HomeSkeleton />
           ) : groupedProfessionals.length > 0 ? (
             <div className='space-y-8'>
               {groupedProfessionals.map(([categoryName, professionals]) => (
@@ -228,9 +201,14 @@ export default function HomePage() {
                   Intenta modificar tus filtros de búsqueda o explorar
                   diferentes servicios.
                 </p>
-                <Button onClick={clearFilters} variant='outline'>
+                <LoadingButton
+                  onClick={clearFilters}
+                  variant='outline'
+                  loading={loading}
+                  loadingText='Limpiando'
+                >
                   Limpiar filtros
-                </Button>
+                </LoadingButton>
               </div>
             </div>
           )}

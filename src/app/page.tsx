@@ -1,7 +1,9 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "@/src/shared/lib/navigation";
+import { queryKeys } from "@/src/shared/lib/query-keys";
 import {
   Search,
   Filter,
@@ -53,13 +55,12 @@ import { Footer } from "@/src/shared/components";
 import HomeSkeleton from "@/src/shared/components/HomeSkeleton";
 
 export default function HomePage() {
-  const [professionals, setProfessionals] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedService, setSelectedService] = useState("");
   const [selectedZone, setSelectedZone] = useState("all");
   const [showFilters, setShowFilters] = useState(false);
   const [isHeaderCollapsed, setIsHeaderCollapsed] = useState(false);
-  const { loading, discoverProfessionals, browseProfessionals } =
+  const { discoverProfessionals, browseProfessionals } =
     useSecureProfessionals();
   const { toast } = useToast();
   const { user, loading: authLoading } = useAuthState();
@@ -67,6 +68,38 @@ export default function HomePage() {
 
   // Handle user redirection for first-time users - runs in background
   const { isCheckingRedirect } = useUserRedirect();
+
+  // React Query: Cache professionals list
+  const {
+    data: professionals = [],
+    isLoading: loading,
+    error,
+  } = useQuery({
+    queryKey: queryKeys.professionals.list(user ? "browse" : "discover"),
+    queryFn: async () => {
+      const { data, error } = user
+        ? await browseProfessionals()
+        : await discoverProfessionals();
+
+      if (error) {
+        throw new Error(error);
+      }
+      return data || [];
+    },
+    staleTime: 5 * 60 * 1000, // 5 minutes cache
+    enabled: !authLoading, // Don't fetch until auth is ready
+  });
+
+  // Show error toast if query fails
+  useEffect(() => {
+    if (error) {
+      toast({
+        title: "Error",
+        description: "No se pudieron cargar los profesionales",
+        variant: "destructive",
+      });
+    }
+  }, [error, toast]);
 
   const clearFilters = () => {
     setSearchTerm("");
@@ -88,27 +121,6 @@ export default function HomePage() {
     { name: "Soldador", icon: ZapIcon },
     { name: "Techista", icon: Triangle },
   ];
-
-  const loadProfessionals = useCallback(async () => {
-    const { data, error } = user
-      ? await browseProfessionals()
-      : await discoverProfessionals();
-
-    if (error) {
-      toast({
-        title: "Error",
-        description: "No se pudieron cargar los profesionales",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setProfessionals(data || []);
-  }, [user, browseProfessionals, discoverProfessionals, toast]);
-
-  useEffect(() => {
-    loadProfessionals();
-  }, [loadProfessionals]);
 
   useEffect(() => {
     const handleScroll = () => {

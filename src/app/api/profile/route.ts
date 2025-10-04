@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/src/config/supabase-server";
+import { profileUpdateSchema } from "@/src/shared/lib/validation";
 
 export async function GET() {
   try {
@@ -39,15 +40,27 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const body = await request.json().catch(() => ({}));
-    const { phone, whatsapp_phone, avatar_url } = body || {};
+
+    // Validate input with Zod
+    const validation = profileUpdateSchema.safeParse(body);
+    if (!validation.success) {
+      return NextResponse.json(
+        {
+          error: "Validation failed",
+          details: validation.error.format(),
+        },
+        { status: 400 }
+      );
+    }
+
+    const { phone, whatsapp_phone, avatar_url } = validation.data;
 
     const updates: Record<string, any> = {
       updated_at: new Date().toISOString(),
     };
-    if (typeof phone === "string") updates.phone = phone;
-    if (typeof whatsapp_phone === "string")
-      updates.whatsapp_phone = whatsapp_phone;
-    if (typeof avatar_url === "string") updates.avatar_url = avatar_url;
+    if (phone !== undefined) updates.phone = phone;
+    if (whatsapp_phone !== undefined) updates.whatsapp_phone = whatsapp_phone;
+    if (avatar_url !== undefined) updates.avatar_url = avatar_url;
 
     if (Object.keys(updates).length === 1) {
       return NextResponse.json({ data: { updated: false } });

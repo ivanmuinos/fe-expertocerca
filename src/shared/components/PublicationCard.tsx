@@ -13,6 +13,8 @@ import {
   Home,
 } from "lucide-react";
 import { Badge } from "@/src/shared/components/ui/badge";
+import { LoadingButton } from "@/src/shared/components/ui/loading-button";
+import { useState } from "react";
 
 interface Publication {
   id: string;
@@ -63,9 +65,15 @@ export function PublicationCard({
   showAllSkills = false,
   className = "",
 }: PublicationCardProps) {
+  const [isLoading, setIsLoading] = useState(false);
   const handleClick = () => {
     if (onClick) {
-      onClick(professional);
+      setIsLoading(true);
+      try {
+        onClick(professional);
+      } finally {
+        setTimeout(() => setIsLoading(false), 600);
+      }
     }
   };
 
@@ -97,10 +105,15 @@ export function PublicationCard({
             <img
               src={professional.main_portfolio_image}
               alt={professional.profile_full_name || "Publication"}
-              className='w-full h-full object-cover'
+              className={`w-full h-full object-cover transition-all duration-300 ${
+                isLoading ? "brightness-110 scale-105" : ""
+              }`}
               loading='lazy'
               onError={(e) => {
-                console.log("Error loading image:", professional.main_portfolio_image);
+                console.log(
+                  "Error loading image:",
+                  professional.main_portfolio_image
+                );
                 e.currentTarget.style.display = "none";
               }}
             />

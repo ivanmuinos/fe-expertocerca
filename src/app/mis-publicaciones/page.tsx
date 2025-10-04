@@ -2,18 +2,31 @@
 
 import { useState, useEffect } from "react";
 import { useNavigate } from "@/src/shared/lib/navigation";
-import { Plus, Trash2, Eye } from "lucide-react";
+import { Plus, Trash2, Eye, Copy, PencilLine } from "lucide-react";
+import { LoadingButton } from "@/src/shared/components/ui/loading-button";
+import MisPublicationsSkeleton from "@/src/shared/components/MisPublicationsSkeleton";
 import { useToast } from "@/src/shared/hooks/use-toast";
 import { useAuthState } from "@/src/features/auth";
 import { EditableAvatar } from "@/src/shared/components/EditableAvatar";
 import { useMyProfessionalProfiles } from "@/src/features/professionals";
 import { SharedHeader } from "@/src/shared/components/SharedHeader";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/src/shared/components/ui/alert-dialog";
+import {
   useOnboardingProgress,
   OnboardingStep,
 } from "@/src/shared/stores/useOnboardingProgressStore";
 
-export default function MisPublicacionesPage() {
+export default function MyPublicationsPage() {
   const { user, loading } = useAuthState();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -28,48 +41,40 @@ export default function MisPublicacionesPage() {
   const [hasLoadedProfiles, setHasLoadedProfiles] = useState(false);
 
   useEffect(() => {
-    if (!loading && !user) {
-      navigate("/auth?next=/mis-publicaciones");
-      return;
+    if (loading || !user) return;
+    if (user.id && !hasLoadedProfiles) {
+      loadMyProfiles().then(() => setHasLoadedProfiles(true));
     }
-
-    if (user?.id && !hasLoadedProfiles) {
-      console.log("Loading profiles for user:", user.id);
-      loadMyProfiles().then(() => {
-        setHasLoadedProfiles(true);
-      });
-    }
-  }, [user?.id, loading, navigate, loadMyProfiles, hasLoadedProfiles]);
+  }, [user?.id, loading, loadMyProfiles, hasLoadedProfiles]);
 
   useEffect(() => {
     console.log("Current profiles:", myProfiles);
     console.log("Profiles loading:", profilesLoading);
   }, [myProfiles, profilesLoading]);
 
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const handleDeleteProfile = async (profileId: string) => {
-    if (
-      window.confirm(
-        "¿Estás seguro de que quieres eliminar esta publicación? Esta acción no se puede deshacer."
-      )
-    ) {
+    try {
+      setDeletingId(profileId);
       const success = await deleteProfessionalProfile(profileId);
       if (success) {
-        toast({
-          title: "Publicación eliminada",
-          description: "La publicación ha sido eliminada exitosamente",
-        });
         setHasLoadedProfiles(false);
       }
+    } finally {
+      setDeletingId(null);
     }
   };
 
+  const [createLoading, setCreateLoading] = useState(false);
   const handleCreateNew = () => {
     setCurrentStep(OnboardingStep.SPECIALTY_SELECTION);
-    navigate("/specialty-selection");
+    setCreateLoading(true);
+    navigate("/onboarding/specialty-selection");
+    setTimeout(() => setCreateLoading(false), 600);
   };
 
   const handleViewProfile = (profileId: string) => {
-    navigate(`/profesional?id=${profileId}`);
+    navigate(`/publication?id=${profileId}`);
   };
 
   if (loading) {
@@ -100,48 +105,44 @@ export default function MisPublicacionesPage() {
               Gestiona tus servicios profesionales y crea nuevas publicaciones
             </p>
           </div>
-          <button
+          <LoadingButton
             onClick={handleCreateNew}
             className='bg-primary hover:bg-primary-dark text-primary-foreground font-semibold py-3 px-6 rounded-xl transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center gap-2'
+            loading={createLoading}
+            loadingText='Abriendo'
           >
             <Plus className='w-5 h-5' />
             Nueva publicación
-          </button>
+          </LoadingButton>
         </div>
 
         {profilesLoading ? (
-          <div className='grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6'>
-            {Array.from({ length: 3 }).map((_, i) => (
-              <div
-                key={i}
-                className='bg-card border border-border rounded-2xl p-6 animate-pulse'
-              >
-                <div className='space-y-4'>
-                  <div className='flex gap-4'>
-                    <div className='h-16 w-16 bg-gray-200 rounded-full'></div>
-                    <div className='flex-1'>
-                      <div className='h-4 bg-gray-200 rounded w-3/4 mb-2'></div>
-                      <div className='h-3 bg-gray-200 rounded w-1/2'></div>
-                    </div>
-                  </div>
-                  <div className='h-20 bg-gray-200 rounded-xl'></div>
-                  <div className='flex gap-2'>
-                    <div className='h-6 bg-gray-200 rounded-full w-16'></div>
-                    <div className='h-6 bg-gray-200 rounded-full w-20'></div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+          <MisPublicationsSkeleton />
         ) : myProfiles.length > 0 ? (
           <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6'>
             {myProfiles.map((profile) => (
               <div
                 key={profile.id}
-                className='bg-card border border-border rounded-2xl p-4 sm:p-6 hover:shadow-lg transition-all duration-300 hover:scale-[1.02]'
+                className='bg-card border border-border rounded-2xl p-0 overflow-hidden hover:shadow-lg transition-all duration-300 hover:scale-[1.02]'
               >
-                <div className='space-y-5'>
-                  <div className='flex gap-4'>
+                <div className='space-y-4'>
+                  {/* Main image preview */}
+                  <div className='aspect-video bg-muted overflow-hidden'>
+                    {profile.main_portfolio_image ? (
+                      <img
+                        src={profile.main_portfolio_image}
+                        alt={profile.trade_name || "Publicación"}
+                        className='w-full h-full object-cover'
+                        loading='lazy'
+                      />
+                    ) : (
+                      <div className='w-full h-full flex items-center justify-center text-muted-foreground'>
+                        Sin imagen principal
+                      </div>
+                    )}
+                  </div>
+
+                  <div className='px-4 sm:px-6 flex gap-4'>
                     <EditableAvatar
                       avatarUrl={profile.profile_avatar_url}
                       userFullName={profile.profile_full_name}
@@ -153,16 +154,24 @@ export default function MisPublicacionesPage() {
                       <h3 className='font-semibold text-foreground truncate text-lg'>
                         {profile.trade_name}
                       </h3>
-                      <p className='text-muted-foreground text-sm'>
-                        {profile.profile_location_city}
-                      </p>
+                      <div className='text-muted-foreground text-sm space-y-0.5'>
+                        {profile.profile_location_city && (
+                          <p>{profile.profile_location_city}</p>
+                        )}
+                        {profile.specialty && (
+                          <p>Especialidad: {profile.specialty}</p>
+                        )}
+                        {typeof profile.years_experience === "number" && (
+                          <p>Experiencia: {profile.years_experience} años</p>
+                        )}
+                      </div>
                     </div>
                   </div>
                   {profile.profile_skills &&
                     profile.profile_skills.length > 0 && (
-                      <div className='flex flex-wrap gap-2'>
+                      <div className='flex flex-wrap gap-2 px-4 sm:px-6'>
                         {profile.profile_skills
-                          .slice(0, 3)
+                          .slice(0, 4)
                           .map((skill, index) => (
                             <span
                               key={index}
@@ -171,39 +180,80 @@ export default function MisPublicacionesPage() {
                               {skill}
                             </span>
                           ))}
-                        {profile.profile_skills.length > 3 && (
+                        {profile.profile_skills.length > 4 && (
                           <span className='px-3 py-1 bg-muted text-muted-foreground rounded-full text-sm border border-border'>
-                            +{profile.profile_skills.length - 3}
+                            +{profile.profile_skills.length - 4}
                           </span>
                         )}
                       </div>
                     )}
 
-                  {profile.hourly_rate && (
-                    <div className='bg-muted border border-border rounded-xl p-3'>
-                      <span className='font-semibold text-foreground text-lg'>
-                        ${profile.hourly_rate}
-                      </span>
-                      <span className='text-muted-foreground text-sm ml-1'>
-                        ARS / hora
-                      </span>
-                    </div>
-                  )}
+                  <div className='flex items-center justify-between px-4 sm:px-6'>
+                    {profile.hourly_rate ? (
+                      <div className='bg-muted border border-border rounded-xl px-3 py-2'>
+                        <span className='font-semibold text-foreground'>
+                          ${profile.hourly_rate}
+                        </span>
+                        <span className='text-muted-foreground text-sm ml-1'>
+                          ARS / hora
+                        </span>
+                      </div>
+                    ) : (
+                      <div />
+                    )}
+                    <button
+                      onClick={async () => {
+                        try {
+                          await navigator.clipboard.writeText(
+                            `${window.location.origin}/publication/?id=${profile.id}`
+                          );
+                        } catch {}
+                      }}
+                      className='text-xs text-muted-foreground hover:text-foreground flex items-center gap-1'
+                      title='Copiar enlace'
+                    >
+                      <Copy className='w-3.5 h-3.5' /> Copiar enlace
+                    </button>
+                  </div>
 
-                  <div className='flex gap-2 pt-2'>
+                  <div className='flex items-center gap-2 pt-2 px-4 sm:px-6 pb-4'>
                     <button
                       onClick={() => handleViewProfile(profile.id)}
                       className='flex-1 bg-secondary hover:bg-secondary/80 text-secondary-foreground font-medium py-2.5 px-2 sm:px-4 rounded-xl transition-colors duration-200 flex items-center justify-center gap-1 sm:gap-2'
                     >
                       <Eye className='w-4 h-4' />
-                      <span className='hidden sm:inline'>Ver</span>
+                      <span className='hidden sm:inline'>Ver publicación</span>
+                      <span className='sm:hidden'>Ver</span>
                     </button>
-                    <button
-                      onClick={() => handleDeleteProfile(profile.id)}
-                      className='px-2 sm:px-4 py-2.5 border border-destructive/20 hover:border-destructive/40 text-destructive hover:text-destructive/80 rounded-xl transition-colors duration-200 flex items-center justify-center'
-                    >
-                      <Trash2 className='w-4 h-4' />
-                    </button>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <button className='px-3 py-2 border border-destructive/20 hover:border-destructive/40 text-destructive hover:text-destructive/80 rounded-xl transition-colors flex items-center gap-1'>
+                          <Trash2 className='w-4 h-4' />
+                          <span className='hidden sm:inline'>Eliminar</span>
+                        </button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>
+                            ¿Eliminar publicación?
+                          </AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Esta acción no se puede deshacer.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() => handleDeleteProfile(profile.id)}
+                            disabled={deletingId === profile.id}
+                          >
+                            {deletingId === profile.id
+                              ? "Eliminando..."
+                              : "Eliminar"}
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   </div>
                 </div>
               </div>

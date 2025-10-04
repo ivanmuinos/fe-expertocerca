@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect } from 'react';
-import { usePathname } from 'next/navigation';
-import { useMobile } from './MobileWrapper';
+import { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
+import { useMobile } from "./MobileWrapper";
 
 interface DynamicLayoutWrapperProps {
   children: React.ReactNode;
@@ -16,17 +16,19 @@ export function DynamicLayoutWrapper({ children }: DynamicLayoutWrapperProps) {
 
   // Define routes where padding should not be applied
   const noPaddingRoutes = [
-    '/specialty-selection',
-    '/user-type-selection',
-    '/onboarding',
-    '/photo-upload',
-    '/photo-guidelines',
-    '/professional-intro',
-    '/personal-data',
-    '/profesional'
+    "/onboarding/user-type-selection",
+    "/onboarding/specialty-selection",
+    "/onboarding",
+    "/onboarding/photo-upload",
+    "/onboarding/photo-guidelines",
+    "/onboarding/professional-intro",
+    "/onboarding/personal-data",
+    "/publication",
   ];
 
-  const isNoPaddingRoute = noPaddingRoutes.some(route => pathname?.startsWith(route));
+  const isNoPaddingRoute = noPaddingRoutes.some((route) =>
+    pathname?.startsWith(route)
+  );
 
   useEffect(() => {
     const controlNavbar = () => {
@@ -43,14 +45,17 @@ export function DynamicLayoutWrapper({ children }: DynamicLayoutWrapperProps) {
       setLastScrollY(currentScrollY);
     };
 
-    window.addEventListener('scroll', controlNavbar);
-    return () => window.removeEventListener('scroll', controlNavbar);
+    window.addEventListener("scroll", controlNavbar);
+    return () => window.removeEventListener("scroll", controlNavbar);
   }, [lastScrollY]);
 
   // Don't add padding on specific routes
-  const paddingBottom = !isNoPaddingRoute && isMobile
-    ? (isNavbarVisible ? 'pb-20' : 'pb-4')
-    : 'pb-0';
+  const paddingBottom =
+    !isNoPaddingRoute && isMobile
+      ? isNavbarVisible
+        ? "pb-20"
+        : "pb-4"
+      : "pb-0";
 
   return (
     <div className={`${paddingBottom} transition-all duration-300`}>

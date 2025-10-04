@@ -15,8 +15,10 @@ export const supabase = (() => {
     supabaseInstance = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
       auth: {
         storage: typeof window !== 'undefined' ? localStorage : undefined,
+        storageKey: 'supabase.auth.token',
         persistSession: true,
         autoRefreshToken: true,
+        detectSessionInUrl: true,
       }
     });
   }

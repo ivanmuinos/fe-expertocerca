@@ -88,7 +88,7 @@ export function ProfessionalCarousel({
             >
               <PublicationCard
                 professional={professional}
-                onClick={() => navigate(`/profesional?id=${professional.id}`)}
+                onClick={() => navigate(`/publication?id=${professional.id}`)}
                 showAllSkills={false}
               />
             </div>

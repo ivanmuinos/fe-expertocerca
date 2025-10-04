@@ -14,6 +14,7 @@ import {
   X,
 } from "lucide-react";
 import { Button } from "@/src/shared/components/ui/button";
+import { LoadingButton } from "@/src/shared/components/ui/loading-button";
 import { Badge } from "@/src/shared/components/ui/badge";
 import { useSecureProfessionals } from "@/src/features/professionals";
 import { useToast } from "@/src/shared/hooks/use-toast";
@@ -93,7 +94,8 @@ export default function BuscarPage() {
       searchTerm,
       selectedZone,
     });
-    setAppliedSearchTerm(searchTerm);
+    // Si el término de búsqueda es "Todos", tratarlo como vacío
+    setAppliedSearchTerm(searchTerm === "Todos" ? "" : searchTerm);
     setAppliedSelectedZone(selectedZone);
   };
 
@@ -243,16 +245,16 @@ export default function BuscarPage() {
   const handleProfessionalClick = (professional: Professional) => {
     setSelectedProfessional(professional);
     // Bloquear scroll del body cuando se abre el modal en mobile
-    if (typeof window !== 'undefined' && window.innerWidth <= 768) {
-      document.body.style.overflow = 'hidden';
+    if (typeof window !== "undefined" && window.innerWidth <= 768) {
+      document.body.style.overflow = "hidden";
     }
   };
 
   const handleCloseModal = () => {
     setSelectedProfessional(null);
     // Restaurar scroll del body
-    if (typeof window !== 'undefined') {
-      document.body.style.overflow = '';
+    if (typeof window !== "undefined") {
+      document.body.style.overflow = "";
     }
   };
 
@@ -290,12 +292,19 @@ export default function BuscarPage() {
             {professionalsLoading ? (
               <div className='grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4'>
                 {[...Array(8)].map((_, i) => (
-                  <div key={i} className='animate-pulse'>
-                    <div className='aspect-square bg-muted rounded-xl mb-3' />
-                    <div className='space-y-2 p-3'>
-                      <div className='h-4 bg-muted rounded w-3/4' />
-                      <div className='h-3 bg-muted rounded w-1/2' />
-                      <div className='h-3 bg-muted rounded w-full' />
+                  <div key={i}>
+                    <div className='flex-shrink-0 w-full'>
+                      <div className='bg-white rounded-xl border border-border overflow-hidden'>
+                        <div className='aspect-square bg-muted animate-pulse' />
+                        <div className='p-3 space-y-2'>
+                          <div className='h-4 bg-muted rounded w-3/4 animate-pulse' />
+                          <div className='h-3 bg-muted rounded w-1/2 animate-pulse' />
+                          <div className='flex gap-1 pt-1'>
+                            <div className='h-5 bg-muted rounded-full w-12 animate-pulse' />
+                            <div className='h-5 bg-muted rounded-full w-16 animate-pulse' />
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -325,12 +334,14 @@ export default function BuscarPage() {
                     zonas.
                   </p>
                 </div>
-                <Button
+                <LoadingButton
                   variant='outline'
                   onClick={clearFilters}
+                  loading={professionalsLoading}
+                  loadingText='Limpiando'
                 >
                   Limpiar filtros
-                </Button>
+                </LoadingButton>
               </div>
             )}
           </div>
@@ -372,7 +383,7 @@ export default function BuscarPage() {
                   type: "spring",
                   damping: 30,
                   stiffness: 300,
-                  mass: 0.8
+                  mass: 0.8,
                 }}
               >
                 {/* Drag handle */}
@@ -381,7 +392,9 @@ export default function BuscarPage() {
                 </div>
 
                 <div className='sticky top-0 bg-background/95 backdrop-blur-sm border-b border-gray-200 px-4 py-3 flex justify-between items-center z-10'>
-                  <h3 className='font-semibold text-lg'>Información del profesional</h3>
+                  <h3 className='font-semibold text-lg'>
+                    Información del profesional
+                  </h3>
                   <Button
                     variant='ghost'
                     size='sm'

@@ -68,7 +68,7 @@ export default function ProfessionalMiniDetail({
   }
 
   const handleViewFullProfile = () => {
-    navigate(`/profesional?id=${professional.id}`);
+    navigate(`/publication?id=${professional.id}`);
   };
 
   const handleContactWhatsApp = () => {

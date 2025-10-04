@@ -93,16 +93,17 @@ export const usePortfolio = () => {
   const updatePortfolioPhoto = async (photoId: string, title: string, description: string) => {
     setLoading(true);
     try {
-      const { error } = await supabase
-        .from('portfolio_photos')
-        .update({ 
-          title, 
-          description, 
-          updated_at: new Date().toISOString() 
-        })
-        .eq('id', photoId);
+      const response = await fetch(`/api/portfolio/${photoId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title, description }),
+      });
 
-      if (error) throw error;
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to update photo');
+      }
 
       toast({
         title: "¡Foto actualizada!",

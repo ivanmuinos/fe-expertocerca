@@ -158,7 +158,7 @@ export function ReviewsSection({ professionalProfileId }: ReviewsSectionProps) {
             </p>
             <Button
               variant='outline'
-              onClick={() => (window.location.href = "/auth")}
+              onClick={() => window.dispatchEvent(new CustomEvent("openLoginModal"))}
             >
               Iniciar sesión
             </Button>

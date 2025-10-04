@@ -42,14 +42,17 @@ export const useReviews = () => {
   const createReview = async (reviewData: CreateReviewData, userId: string) => {
     setLoading(true);
     try {
-      const { error } = await supabase
-        .from('reviews')
-        .insert({
-          ...reviewData,
-          reviewer_user_id: userId
-        });
+      const response = await fetch('/api/reviews', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(reviewData),
+      });
 
-      if (error) throw error;
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to create review');
+      }
 
       toast({
         title: "¡Reseña enviada!",
@@ -58,9 +61,8 @@ export const useReviews = () => {
 
       return { success: true };
     } catch (error: any) {
-      
       // Handle unique constraint violation (user already reviewed)
-      if (error.code === '23505') {
+      if (error.message?.includes('duplicate') || error.message?.includes('already')) {
         toast({
           title: "Error",
           description: "Ya has dejado una reseña para este profesional",
@@ -73,7 +75,7 @@ export const useReviews = () => {
           variant: "destructive",
         });
       }
-      
+
       return { success: false, error };
     } finally {
       setLoading(false);
@@ -83,12 +85,17 @@ export const useReviews = () => {
   const updateReview = async (reviewId: string, rating: number, comment: string) => {
     setLoading(true);
     try {
-      const { error } = await supabase
-        .from('reviews')
-        .update({ rating, comment, updated_at: new Date().toISOString() })
-        .eq('id', reviewId);
+      const response = await fetch(`/api/reviews/${reviewId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ rating, comment }),
+      });
 
-      if (error) throw error;
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to update review');
+      }
 
       toast({
         title: "¡Reseña actualizada!",
@@ -111,12 +118,15 @@ export const useReviews = () => {
   const deleteReview = async (reviewId: string) => {
     setLoading(true);
     try {
-      const { error } = await supabase
-        .from('reviews')
-        .delete()
-        .eq('id', reviewId);
+      const response = await fetch(`/api/reviews/${reviewId}`, {
+        method: 'DELETE',
+      });
 
-      if (error) throw error;
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to delete review');
+      }
 
       toast({
         title: "Reseña eliminada",

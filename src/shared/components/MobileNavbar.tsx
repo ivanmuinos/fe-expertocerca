@@ -1,11 +1,15 @@
 "use client";
 
-import { usePathname } from 'next/navigation';
-import { useNavigate } from '@/src/shared/lib/navigation';
-import { useState, useEffect } from 'react';
-import { useMobile } from './MobileWrapper';
-import { useAuthState } from '@/src/features/auth';
-import { Avatar, AvatarFallback, AvatarImage } from '@/src/shared/components/ui/avatar';
+import { usePathname } from "next/navigation";
+import { useNavigate } from "@/src/shared/lib/navigation";
+import { useState, useEffect } from "react";
+import { useMobile } from "./MobileWrapper";
+import { useAuthState } from "@/src/features/auth";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/src/shared/components/ui/avatar";
 import {
   Search,
   Heart,
@@ -14,71 +18,77 @@ import {
   User,
   Home,
   Briefcase,
-  LogIn
-} from 'lucide-react';
+  LogIn,
+} from "lucide-react";
 
 const loggedInNavItems = [
   {
-    id: 'inicio',
-    label: 'Inicio',
+    id: "inicio",
+    label: "Inicio",
     icon: Home,
-    path: '/'
+    path: "/",
   },
   {
-    id: 'buscar',
-    label: 'Buscar',
+    id: "buscar",
+    label: "Buscar",
     icon: Search,
-    path: '/buscar'
+    path: "/buscar",
   },
   {
-    id: 'publicar',
-    label: 'Publicar',
+    id: "publicar",
+    label: "Publicar",
     icon: Plus,
-    path: '/specialty-selection'
+    path: "/onboarding/specialty-selection",
   },
   {
-    id: 'publicaciones',
-    label: 'Publicaciones',
+    id: "publicaciones",
+    label: "Publicaciones",
     icon: Briefcase,
-    path: '/mis-publicaciones'
+    path: "/mis-publicaciones",
   },
   {
-    id: 'perfil',
-    label: 'Perfil',
+    id: "perfil",
+    label: "Perfil",
     icon: User,
-    path: '/perfil'
-  }
+    path: "/perfil",
+  },
 ];
 
 const loggedOutNavItems = [
   {
-    id: 'inicio',
-    label: 'Inicio',
+    id: "inicio",
+    label: "Inicio",
     icon: Home,
-    path: '/'
+    path: "/",
   },
   {
-    id: 'buscar',
-    label: 'Buscar',
+    id: "buscar",
+    label: "Buscar",
     icon: Search,
-    path: '/buscar'
+    path: "/buscar",
   },
   {
-    id: 'login',
-    label: 'Iniciar sesión',
+    id: "login",
+    label: "Iniciar sesión",
     icon: LogIn,
-    path: null // Special handling - opens modal
-  }
+    path: null, // Special handling - opens modal
+  },
 ];
 
 export function MobileNavbar() {
   const pathname = usePathname();
   const navigate = useNavigate();
-  const { isMobile, isMobileSearchOpen, setIsMobileSearchOpen, setIsMobileNavbarVisible } = useMobile();
+  const {
+    isMobile,
+    isMobileSearchOpen,
+    setIsMobileSearchOpen,
+    setIsMobileNavbarVisible,
+  } = useMobile();
   const { user } = useAuthState();
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
   const [userProfile, setUserProfile] = useState<any>(null);
+  const [loadingId, setLoadingId] = useState<string | null>(null);
 
   // Choose nav items based on auth state
   const navItems = user ? loggedInNavItems : loggedOutNavItems;
@@ -92,18 +102,17 @@ export function MobileNavbar() {
       }
 
       try {
-        const { supabase } = await import('@/src/config/supabase');
-        const { data } = await supabase
-          .from('profiles')
-          .select('avatar_url, full_name')
-          .eq('id', user.id)
-          .single();
+        const { apiClient } = await import("@/src/shared/lib/api-client");
+        const data = await apiClient.get("/profiles/current");
 
         if (data) {
-          setUserProfile(data);
+          setUserProfile({
+            avatar_url: data.avatar_url,
+            full_name: data.full_name,
+          });
         }
       } catch (error) {
-        console.error('Error loading profile:', error);
+        console.error("Error loading profile:", error);
       }
     };
 
@@ -118,9 +127,12 @@ export function MobileNavbar() {
         window.requestAnimationFrame(() => {
           // En mobile el scroll está en body, en desktop en window
           const isMobileView = window.innerWidth <= 768;
-          const currentScrollY = Math.max(0, isMobileView
-            ? document.body.scrollTop || document.documentElement.scrollTop
-            : window.scrollY);
+          const currentScrollY = Math.max(
+            0,
+            isMobileView
+              ? document.body.scrollTop || document.documentElement.scrollTop
+              : window.scrollY
+          );
 
           // Don't control navbar if search modal is open
           if (isMobileSearchOpen) {
@@ -135,7 +147,7 @@ export function MobileNavbar() {
           const clientHeight = isMobileView
             ? document.body.clientHeight
             : window.innerHeight;
-          const isAtBottom = (scrollHeight - currentScrollY - clientHeight) < 100;
+          const isAtBottom = scrollHeight - currentScrollY - clientHeight < 100;
 
           // If at bottom, show navbar
           if (isAtBottom) {
@@ -174,40 +186,43 @@ export function MobileNavbar() {
     };
 
     // Listen to both window and body scroll events
-    window.addEventListener('scroll', controlNavbar, { passive: true });
-    document.body.addEventListener('scroll', controlNavbar, { passive: true });
+    window.addEventListener("scroll", controlNavbar, { passive: true });
+    document.body.addEventListener("scroll", controlNavbar, { passive: true });
 
     return () => {
-      window.removeEventListener('scroll', controlNavbar);
-      document.body.removeEventListener('scroll', controlNavbar);
+      window.removeEventListener("scroll", controlNavbar);
+      document.body.removeEventListener("scroll", controlNavbar);
     };
   }, [isMobileSearchOpen, lastScrollY]);
 
   const isActive = (path: string) => {
-    if (path === '/') {
-      return pathname === '/';
+    if (path === "/") {
+      return pathname === "/";
     }
     return pathname?.startsWith(path);
   };
 
   // Define routes where navbar should be hidden
   const hiddenNavbarRoutes = [
-    '/specialty-selection',
-    '/user-type-selection',
-    '/onboarding',
-    '/photo-upload',
-    '/photo-guidelines',
-    '/professional-intro',
-    '/personal-data',
-    '/profesional'
+    "/onboarding/specialty-selection",
+    "/onboarding/user-type-selection",
+    "/onboarding",
+    "/onboarding/photo-upload",
+    "/onboarding/photo-guidelines",
+    "/onboarding/professional-intro",
+    "/onboarding/personal-data",
+    "/publication",
   ];
 
-  const isHiddenNavbarRoute = hiddenNavbarRoutes.some(route => pathname?.startsWith(route));
+  const isHiddenNavbarRoute = hiddenNavbarRoutes.some((route) =>
+    pathname?.startsWith(route)
+  );
 
   // Check if body has overflow hidden (modal open) - solo para la búsqueda
-  const isModalOpen = typeof document !== 'undefined' &&
-                       document.body.style.overflow === 'hidden' &&
-                       pathname === '/buscar';
+  const isModalOpen =
+    typeof document !== "undefined" &&
+    document.body.style.overflow === "hidden" &&
+    pathname === "/buscar";
 
   // Only show on mobile and when search modal is not open
   if (!isMobile || isMobileSearchOpen) return null;
@@ -219,24 +234,29 @@ export function MobileNavbar() {
   if (isHiddenNavbarRoute) return null;
 
   return (
-    <div className={`fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 shadow-lg transition-transform duration-300 ${
-      isVisible ? 'translate-y-0' : 'translate-y-full'
-    }`} style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
-      <div className="flex items-center justify-around py-1">
+    <div
+      className={`fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 shadow-lg transition-transform duration-300 ${
+        isVisible ? "translate-y-0" : "translate-y-full"
+      }`}
+      style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+    >
+      <div className='flex items-center justify-around py-1'>
         {navItems.map((item) => {
           const Icon = item.icon;
           const active = isActive(item.path);
 
           // Special handling for search and login buttons
           const handleClick = () => {
-            if (item.id === 'buscar') {
+            if (item.id === "buscar") {
               // Open search modal instead of navigating
               setIsMobileSearchOpen(true);
-            } else if (item.id === 'login') {
+            } else if (item.id === "login") {
               // Open login modal by dispatching custom event
-              window.dispatchEvent(new CustomEvent('openLoginModal'));
+              window.dispatchEvent(new CustomEvent("openLoginModal"));
             } else if (item.path) {
+              setLoadingId(item.id);
               navigate(item.path);
+              setTimeout(() => setLoadingId(null), 600);
             }
           };
 
@@ -245,32 +265,37 @@ export function MobileNavbar() {
               key={item.id}
               onClick={handleClick}
               className={`flex flex-col items-center justify-center py-2 px-3 min-w-0 flex-1 transition-colors duration-200 ${
-                active
-                  ? 'text-primary'
-                  : 'text-gray-500 hover:text-gray-700'
+                active ? "text-primary" : "text-gray-500 hover:text-gray-700"
               }`}
             >
               {/* Show avatar for profile button if user is logged in */}
-              {item.id === 'perfil' && user && userProfile ? (
-                <div className="mb-1">
-                  <Avatar className="w-6 h-6">
+              {item.id === "perfil" && user && userProfile ? (
+                <div className='mb-1'>
+                  <Avatar className='w-6 h-6'>
                     <AvatarImage src={userProfile.avatar_url || undefined} />
-                    <AvatarFallback className="text-[10px] bg-primary/10 text-primary">
-                      {userProfile.full_name?.charAt(0).toUpperCase() || 'U'}
+                    <AvatarFallback className='text-[10px] bg-primary/10 text-primary'>
+                      {userProfile.full_name?.charAt(0).toUpperCase() || "U"}
                     </AvatarFallback>
                   </Avatar>
                 </div>
               ) : (
-                <Icon
-                  className={`w-6 h-6 mb-1 ${
-                    active ? 'fill-current' : ''
-                  }`}
-                  strokeWidth={active ? 2.5 : 2}
-                />
+                <div className='relative mb-1'>
+                  <Icon
+                    className={`w-6 h-6 ${active ? "fill-current" : ""}`}
+                    strokeWidth={active ? 2.5 : 2}
+                  />
+                  {loadingId === item.id && (
+                    <div className='absolute inset-0 flex items-center justify-center'>
+                      <div className='w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin' />
+                    </div>
+                  )}
+                </div>
               )}
-              <span className={`text-xs font-medium leading-none ${
-                active ? 'text-primary' : 'text-gray-500'
-              }`}>
+              <span
+                className={`text-xs font-medium leading-none ${
+                  active ? "text-primary" : "text-gray-500"
+                }`}
+              >
                 {item.label}
               </span>
             </button>

@@ -16,10 +16,15 @@ import { useAuthState } from "@/src/features/auth";
 
 interface ReviewsSectionProps {
   professionalProfileId: string;
+  professionalUserId?: string;
 }
 
-export function ReviewsSection({ professionalProfileId }: ReviewsSectionProps) {
+export function ReviewsSection({
+  professionalProfileId,
+  professionalUserId,
+}: ReviewsSectionProps) {
   const { user, loading: authLoading } = useAuthState();
+  const isOwner = user && professionalUserId && user.id === professionalUserId;
   const {
     getReviews,
     createReview,
@@ -127,11 +132,14 @@ export function ReviewsSection({ professionalProfileId }: ReviewsSectionProps) {
   );
 
   return (
-    <Card className='shadow-lg'>
-      <CardHeader>
-        <div className='flex items-center justify-between'>
+    <div>
+      {/* Divider */}
+      <div className='border-t border-gray-200 mb-8'></div>
+
+      <div>
+        <div className='flex items-center justify-between mb-6'>
           <div>
-            <CardTitle className='text-2xl sm:text-3xl'>Reseñas</CardTitle>
+            <h2 className='text-xl sm:text-xl font-bold'>Reseñas</h2>
             {reviewCount > 0 && (
               <div className='flex items-center gap-2 mt-2'>
                 <div className='flex items-center gap-1'>
@@ -145,35 +153,61 @@ export function ReviewsSection({ professionalProfileId }: ReviewsSectionProps) {
             )}
           </div>
 
-          {user && !userHasReviewed && !showForm && (
+          {user && !userHasReviewed && !showForm && !isOwner && (
             <Button onClick={() => setShowForm(true)}>Escribir reseña</Button>
           )}
         </div>
-      </CardHeader>
 
-      <CardContent className='p-6 sm:p-8 space-y-6'>
-        {/* Login prompt for non-authenticated users */}
-        {!user && (
-          <div className='bg-muted/30 p-6 rounded-lg text-center'>
-            <p className='text-muted-foreground mb-4'>
-              Inicia sesión para dejar una reseña sobre este profesional
-            </p>
-            <Button
-              variant='outline'
-              onClick={() => (window.location.href = "/auth")}
-            >
-              Iniciar sesión
-            </Button>
-          </div>
-        )}
+        <div className='space-y-6'>
+          {/* Login prompt for non-authenticated users */}
+          {!user && (
+            <div className='bg-muted/30 p-6 rounded-lg text-center'>
+              <p className='text-muted-foreground mb-4'>
+                Inicia sesión para dejar una reseña sobre este profesional
+              </p>
+              <Button
+                variant='outline'
+                onClick={() =>
+                  window.dispatchEvent(new CustomEvent("openLoginModal"))
+                }
+              >
+                Iniciar sesión
+              </Button>
+            </div>
+          )}
 
-        {/* Review form */}
-        {user && showForm && (
-          <Card className='border-2 border-primary/20'>
-            <CardContent className='p-6 space-y-4'>
+          {/* Review form */}
+          {user && showForm && (
+            <div className='bg-gray-50 rounded-lg p-6 space-y-4'>
               <h4 className='text-lg font-semibold'>
                 {editingReview ? "Editar reseña" : "Escribe tu reseña"}
               </h4>
+
+              <div className='space-y-2'>
+                <label className='text-sm font-medium'>Calificación</label>
+                <div className='flex gap-2'>
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      key={star}
+                      type='button'
+                      onClick={() => setFormData({ ...formData, rating: star })}
+                      className='focus:outline-none transition-transform hover:scale-110'
+                    >
+                      <Star
+                        className={`w-8 h-8 ${
+                          star <= formData.rating
+                            ? "fill-yellow-400 text-yellow-400"
+                            : "text-gray-300"
+                        }`}
+                      />
+                    </button>
+                  ))}
+                  <span className='ml-2 text-sm text-muted-foreground self-center'>
+                    {formData.rating}{" "}
+                    {formData.rating === 1 ? "estrella" : "estrellas"}
+                  </span>
+                </div>
+              </div>
 
               <div className='space-y-2'>
                 <label className='text-sm font-medium'>Comentario</label>
@@ -206,23 +240,21 @@ export function ReviewsSection({ professionalProfileId }: ReviewsSectionProps) {
                   Cancelar
                 </Button>
               </div>
-            </CardContent>
-          </Card>
-        )}
+            </div>
+          )}
 
-        {/* Reviews list */}
-        {reviews.length === 0 ? (
-          <div className='text-center py-8'>
-            <p className='text-muted-foreground'>
-              Aún no hay reseñas para este profesional. ¡Sé el primero en dejar
-              una!
-            </p>
-          </div>
-        ) : (
-          <div className='space-y-4'>
-            {reviews.map((review) => (
-              <Card key={review.id} className='border border-muted'>
-                <CardContent className='p-4'>
+          {/* Reviews list */}
+          {reviews.length === 0 ? (
+            <div className='text-center py-8'>
+              <p className='text-muted-foreground'>
+                Aún no hay reseñas para este profesional. ¡Sé el primero en
+                dejar una!
+              </p>
+            </div>
+          ) : (
+            <div className='space-y-4'>
+              {reviews.map((review) => (
+                <div key={review.id} className='bg-gray-50 rounded-lg p-4'>
                   <div className='flex items-start justify-between'>
                     <div className='flex-1'>
                       <div className='flex items-center gap-3 mb-2'>
@@ -263,12 +295,12 @@ export function ReviewsSection({ professionalProfileId }: ReviewsSectionProps) {
                       </div>
                     )}
                   </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        )}
-      </CardContent>
-    </Card>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
   );
 }

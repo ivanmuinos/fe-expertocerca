@@ -4,6 +4,7 @@ import { ClientProviders } from "./providers";
 import { MobileNavbar } from "@/src/shared/components/MobileNavbar";
 import { MobileWrapper } from "@/src/shared/components/MobileWrapper";
 import { DynamicLayoutWrapper } from "@/src/shared/components/DynamicLayoutWrapper";
+import { Toaster } from "@/src/shared/components/ui/toaster";
 import "./globals.css";
 
 const inter = Inter({
@@ -13,12 +14,12 @@ const inter = Inter({
 });
 
 export const viewport: Viewport = {
-  width: 'device-width',
+  width: "device-width",
   initialScale: 0.9,
   maximumScale: 1,
   userScalable: false,
-  viewportFit: 'cover',
-}
+  viewportFit: "cover",
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL(
@@ -26,7 +27,7 @@ export const metadata: Metadata = {
       ? "https://expertocerca.com"
       : "http://localhost:3000"
   ),
-  title: "ExpertoCerca - Conecta con Profesionales de Oficios",
+  title: "Experto Cerca",
   description:
     "Encuentra electricistas, plomeros, carpinteros y más profesionales calificados cerca de ti. Conecta con expertos verificados para tus proyectos del hogar.",
   authors: [{ name: "ExpertoCerca" }],
@@ -62,19 +63,21 @@ export default function RootLayout({
   return (
     <html lang='en'>
       <head>
-        <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-        <meta name="mobile-web-app-capable" content="yes" />
-        <meta name="theme-color" content="#3B82F6" />
+        <meta name='apple-mobile-web-app-capable' content='yes' />
+        <meta
+          name='apple-mobile-web-app-status-bar-style'
+          content='black-translucent'
+        />
+        <meta name='mobile-web-app-capable' content='yes' />
+        <meta name='theme-color' content='#3B82F6' />
       </head>
       <body className={inter.className}>
         <ClientProviders>
           <MobileWrapper>
-            <DynamicLayoutWrapper>
-              {children}
-            </DynamicLayoutWrapper>
+            <DynamicLayoutWrapper>{children}</DynamicLayoutWrapper>
             <MobileNavbar />
           </MobileWrapper>
+          <Toaster />
         </ClientProviders>
       </body>
     </html>

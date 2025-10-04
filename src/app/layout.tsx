@@ -4,6 +4,7 @@ import { ClientProviders } from "./providers";
 import { MobileNavbar } from "@/src/shared/components/MobileNavbar";
 import { MobileWrapper } from "@/src/shared/components/MobileWrapper";
 import { DynamicLayoutWrapper } from "@/src/shared/components/DynamicLayoutWrapper";
+import { PWAInstallBanner } from "@/src/shared/components/PWAInstallBanner";
 import { Toaster } from "@/src/shared/components/ui/toaster";
 import "./globals.css";
 
@@ -15,10 +16,13 @@ const inter = Inter({
 
 export const viewport: Viewport = {
   width: "device-width",
-  initialScale: 0.9,
-  maximumScale: 1,
-  userScalable: false,
+  initialScale: 1,
+  maximumScale: 5,
+  userScalable: true,
   viewportFit: "cover",
+  // Enable minimal-ui for Safari to hide address bar on scroll
+  interactiveWidget: "resizes-content",
+  themeColor: "#ffffff",
 };
 
 export const metadata: Metadata = {
@@ -27,9 +31,13 @@ export const metadata: Metadata = {
       ? "https://expertocerca.com"
       : "http://localhost:3000"
   ),
-  title: "Experto Cerca",
+  title: {
+    default: "Experto Cerca - Encuentra Profesionales de Oficios",
+    template: "%s | Experto Cerca",
+  },
   description:
     "Encuentra electricistas, plomeros, carpinteros y más profesionales calificados cerca de ti. Conecta con expertos verificados para tus proyectos del hogar.",
+  applicationName: "Experto Cerca",
   authors: [{ name: "ExpertoCerca" }],
   keywords: [
     "oficios",
@@ -41,11 +49,21 @@ export const metadata: Metadata = {
     "hogar",
     "reparaciones",
   ],
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Experto Cerca",
+  },
+  formatDetection: {
+    telephone: false,
+  },
   openGraph: {
     title: "ExpertoCerca - Conecta con Profesionales de Oficios",
     description:
       "La plataforma líder para conectar con profesionales de oficios verificados. Encuentra el experto que necesitas para tus proyectos.",
     type: "website",
+    siteName: "Experto Cerca",
     images: ["/opengraph-image.png"],
   },
   twitter: {
@@ -63,19 +81,33 @@ export default function RootLayout({
   return (
     <html lang='en'>
       <head>
-        <meta name='apple-mobile-web-app-capable' content='yes' />
-        <meta
-          name='apple-mobile-web-app-status-bar-style'
-          content='black-translucent'
+        {/* PWA Meta Tags */}
+        <link
+          rel='apple-touch-icon'
+          sizes='180x180'
+          href='/apple-touch-icon.png'
         />
-        <meta name='mobile-web-app-capable' content='yes' />
-        <meta name='theme-color' content='#3B82F6' />
+        <link
+          rel='icon'
+          type='image/png'
+          sizes='32x32'
+          href='/favicon-32x32.png'
+        />
+        <link
+          rel='icon'
+          type='image/png'
+          sizes='16x16'
+          href='/favicon-16x16.png'
+        />
+        <link rel='mask-icon' href='/safari-pinned-tab.svg' color='#3B82F6' />
+        <meta name='msapplication-TileColor' content='#ffffff' />
       </head>
       <body className={inter.className}>
         <ClientProviders>
           <MobileWrapper>
             <DynamicLayoutWrapper>{children}</DynamicLayoutWrapper>
             <MobileNavbar />
+            <PWAInstallBanner />
           </MobileWrapper>
           <Toaster />
         </ClientProviders>

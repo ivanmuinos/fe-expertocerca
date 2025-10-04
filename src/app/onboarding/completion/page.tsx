@@ -11,12 +11,15 @@ import {
   OnboardingStep,
 } from "@/src/shared/stores/useOnboardingProgressStore";
 import { useOnboarding } from "@/src/shared/stores/useOnboardingStore";
+import { useQueryClient } from "@tanstack/react-query";
+import { queryKeys } from "@/src/shared/lib/query-keys";
 
 export default function CompletionPage() {
   const navigate = useNavigate();
   const { user } = useAuthState();
   const { setCurrentStep } = useOnboardingProgress();
   const { uploadedPhotos, resetOnboarding } = useOnboarding();
+  const queryClient = useQueryClient();
 
   const [isUploading, setIsUploading] = useState(true);
   const [uploadError, setUploadError] = useState<string | null>(null);
@@ -71,7 +74,12 @@ export default function CompletionPage() {
             }
 
             const result = await response.json();
-            return { success: true, photoId: photo.id };
+            return {
+              success: true,
+              photoId: photo.id,
+              supabaseUrl: result.data?.image_url,
+              isMain: photo.isMain,
+            };
           } catch (error) {
             return { success: false, photoId: photo.id, error };
           }
@@ -85,15 +93,22 @@ export default function CompletionPage() {
         }
 
         // If a main photo was selected during onboarding, persist as main image
-        const mainLocal = uploadedPhotos.find((p) => p.isMain);
-        if (mainLocal) {
+        // If no main photo was selected, use the first successfully uploaded photo
+        let mainPhotoResult = results.find((r) => r.success && r.isMain);
+        if (!mainPhotoResult) {
+          mainPhotoResult = results.find((r) => r.success);
+        }
+
+        if (mainPhotoResult && mainPhotoResult.supabaseUrl) {
           try {
             const res = await fetch(
               `/api/professionals/${(profile as any).id}`,
               {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ main_portfolio_image: mainLocal.url }),
+                body: JSON.stringify({
+                  main_portfolio_image: mainPhotoResult.supabaseUrl,
+                }),
               }
             );
             if (!res.ok) {
@@ -106,6 +121,15 @@ export default function CompletionPage() {
 
         setHasUploaded(true);
         resetOnboarding();
+
+        // Invalidar cache de professionals para que se recarguen en home
+        queryClient.invalidateQueries({
+          queryKey: queryKeys.professionals.lists(),
+        });
+
+        console.log(
+          "Cache invalidado - los nuevos profesionales se cargarán en la home"
+        );
       } catch (error) {
         setUploadError(
           "Error al subir las fotos. Podés intentarlo más tarde desde tu perfil."
@@ -118,7 +142,7 @@ export default function CompletionPage() {
     };
 
     uploadPhotos();
-  }, [user?.id, uploadedPhotos.length]); // Remover hasUploaded de las dependencias
+  }, [user?.id, uploadedPhotos.length, queryClient, resetOnboarding]); // Agregar dependencias
 
   const handleGoHome = () => {
     navigate("/");

@@ -8,7 +8,15 @@ import { Card } from "@/src/shared/components/ui/card";
 import { Input } from "@/src/shared/components/ui/input";
 import { Label } from "@/src/shared/components/ui/label";
 import { Textarea } from "@/src/shared/components/ui/textarea";
-import { Save, LogOut, MapPin, Phone, Edit2, X } from "lucide-react";
+import {
+  Save,
+  LogOut,
+  MapPin,
+  Phone,
+  Edit2,
+  X,
+  MessageCircle,
+} from "lucide-react";
 import { useToast } from "@/src/shared/hooks/use-toast";
 import { EditableAvatar } from "@/src/shared/components/EditableAvatar";
 import { SharedHeader } from "@/src/shared/components/SharedHeader";
@@ -53,10 +61,15 @@ export default function PerfilPage() {
 
       const { data } = await response.json();
       if (data) {
+        // Quitar el prefijo +54 si existe para mostrarlo limpio en el input
+        const cleanWhatsapp = data.whatsapp_phone
+          ? data.whatsapp_phone.replace(/^\+54\s?/, "")
+          : "";
+
         setFormData({
           full_name: data.full_name || "",
           phone: data.phone || "",
-          whatsapp_phone: data.whatsapp_phone || "",
+          whatsapp_phone: cleanWhatsapp,
           bio: "",
           location_city: data.location_city || "",
           location_province: data.location_province || "",
@@ -80,12 +93,17 @@ export default function PerfilPage() {
 
     setSaving(true);
     try {
+      // Construir el número completo con el prefijo +54
+      const fullWhatsappNumber = formData.whatsapp_phone.trim()
+        ? `+54${formData.whatsapp_phone.replace(/\s/g, "")}`
+        : "";
+
       const response = await fetch("/api/profile", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           phone: formData.phone,
-          whatsapp_phone: formData.whatsapp_phone,
+          whatsapp_phone: fullWhatsappNumber,
           avatar_url: formData.avatar_url,
         }),
       });
@@ -208,17 +226,31 @@ export default function PerfilPage() {
 
                 <div>
                   <Label htmlFor='whatsapp_phone'>WhatsApp (contacto)</Label>
-                  <Input
-                    id='whatsapp_phone'
-                    value={formData.whatsapp_phone}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        whatsapp_phone: e.target.value,
-                      })
-                    }
-                    placeholder='Ej: +54 9 11 1234-5678'
-                  />
+                  <div className='relative'>
+                    <div className='absolute left-3 top-1/2 transform -translate-y-1/2 flex items-center gap-2 text-sm'>
+                      <MessageCircle className='w-4 h-4 text-green-500' />
+                      <span className='text-gray-600'>+54</span>
+                    </div>
+                    <Input
+                      id='whatsapp_phone'
+                      type='tel'
+                      value={formData.whatsapp_phone}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        // Solo permitir números, espacios, guiones y paréntesis
+                        const cleaned = value.replace(/[^\d\s\-()]/g, "");
+                        setFormData({
+                          ...formData,
+                          whatsapp_phone: cleaned,
+                        });
+                      }}
+                      placeholder='9 11 1234 5678'
+                      className='pl-20'
+                    />
+                  </div>
+                  <p className='text-xs text-muted-foreground mt-1'>
+                    Ingresá tu número sin el código de país. Ej: 9 11 1234 5678
+                  </p>
                 </div>
 
                 <div className='flex gap-2 pt-4'>

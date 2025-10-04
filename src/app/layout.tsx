@@ -4,7 +4,6 @@ import { ClientProviders } from "./providers";
 import { MobileNavbar } from "@/src/shared/components/MobileNavbar";
 import { MobileWrapper } from "@/src/shared/components/MobileWrapper";
 import { DynamicLayoutWrapper } from "@/src/shared/components/DynamicLayoutWrapper";
-import { PWAInstallBanner } from "@/src/shared/components/PWAInstallBanner";
 import { Toaster } from "@/src/shared/components/ui/toaster";
 import "./globals.css";
 
@@ -107,7 +106,6 @@ export default function RootLayout({
           <MobileWrapper>
             <DynamicLayoutWrapper>{children}</DynamicLayoutWrapper>
             <MobileNavbar />
-            <PWAInstallBanner />
           </MobileWrapper>
           <Toaster />
         </ClientProviders>

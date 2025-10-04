@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "@/src/shared/lib/navigation";
 import { useAuthState } from "@/src/features/auth";
 import { useProfiles, type OnboardingData } from "@/src/features/user-profile";
@@ -34,10 +34,12 @@ export default function PersonalDataPage() {
   const { setCurrentStep } = useOnboardingProgress();
   const { setLeftButton, setRightButton, reset } = useOnboardingFooterStore();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const phoneRef = useRef("");
 
   // Get data from onboarding store
   const {
     selectedSpecialty,
+    selectedSpecialtyCategory,
     selectedWorkZone,
     workDescription,
     professionalInfo,
@@ -53,16 +55,19 @@ export default function PersonalDataPage() {
     instagramProfile: "",
   });
 
-  // Load user data from Google auth
+  // Load user data from Google auth (only once on mount)
+  const [userDataLoaded, setUserDataLoaded] = useState(false);
+
   useEffect(() => {
-    if (user?.user_metadata) {
+    if (user?.user_metadata && !userDataLoaded) {
       setFormData((prev) => ({
         ...prev,
         fullName: user.user_metadata.full_name || prev.fullName,
         email: user.email || prev.email,
       }));
+      setUserDataLoaded(true);
     }
-  }, [user]);
+  }, [user, userDataLoaded]);
 
   // Set current step when component mounts
   useEffect(() => {
@@ -96,17 +101,58 @@ export default function PersonalDataPage() {
     setIsSubmitting(true);
 
     try {
+      // Log para debug
+      console.log("formData.phone antes de procesar:", formData.phone);
+      console.log("phoneRef antes de procesar:", phoneRef.current);
+
+      // Construir el número completo con el prefijo +54 - MISMA LÓGICA QUE EN PERFIL
+      const phoneSource = (phoneRef.current || formData.phone || "").trim();
+      const fullPhoneNumber = phoneSource
+        ? `+54${phoneSource.replace(/\s/g, "")}`
+        : "";
+
+      console.log("fullPhoneNumber después de procesar:", fullPhoneNumber);
+
+      // Mapear la zona de trabajo a ciudad y provincia usando los nombres exactos de la BD
+      const getLocationFromWorkZone = (workZone: string) => {
+        const zoneMap: Record<string, { city: string; province: string }> = {
+          "Ciudad Autónoma de Buenos Aires": {
+            city: "Ciudad Autónoma de Buenos Aires",
+            province: "Ciudad Autónoma de Buenos Aires",
+          },
+          "GBA Norte": { city: "Vicente López", province: "Buenos Aires" },
+          "GBA Oeste": { city: "Morón", province: "Buenos Aires" },
+          "GBA Sur": { city: "Avellaneda", province: "Buenos Aires" },
+          "La Plata y alrededores": {
+            city: "La Plata",
+            province: "Buenos Aires",
+          },
+          Córdoba: { city: "Córdoba", province: "Córdoba" },
+          Rosario: { city: "Rosario", province: "Santa Fe" },
+          Mendoza: { city: "Mendoza", province: "Mendoza" },
+        };
+        return (
+          zoneMap[workZone] || {
+            city: "Buenos Aires",
+            province: "Buenos Aires",
+          }
+        );
+      };
+
+      const location = getLocationFromWorkZone(selectedWorkZone || "");
+
       const onboardingData: OnboardingData = {
         fullName: formData.fullName,
-        phone: formData.phone,
-        whatsappPhone: formData.phone, // Use phone as WhatsApp by default
-        locationProvince: "Buenos Aires", // TODO: Get from location selector
-        locationCity: "Ciudad Autónoma de Buenos Aires", // TODO: Get from location selector
+        phone: fullPhoneNumber,
+        whatsappPhone: fullPhoneNumber, // Use phone as WhatsApp by default
+        locationProvince: location.province,
+        locationCity: location.city,
         bio: workDescription || "Descripción profesional", // From photo upload step
         skills:
           professionalInfo?.skills?.length > 0 ? professionalInfo.skills : [], // From professional info
         // Professional data from onboarding flow
         specialty: selectedSpecialty || undefined,
+        specialtyCategory: selectedSpecialtyCategory || undefined, // Category for filtering
         workZone: selectedWorkZone || undefined,
         tradeName:
           professionalInfo?.tradeName && professionalInfo.tradeName.trim()
@@ -122,6 +168,8 @@ export default function PersonalDataPage() {
             ? professionalInfo.hourlyRate
             : undefined,
       };
+
+      console.log("onboardingData a enviar:", onboardingData);
 
       const result = await saveOnboardingData(onboardingData, user.id);
 
@@ -144,37 +192,32 @@ export default function PersonalDataPage() {
     }
   };
 
-  const canProceed = !!(formData.fullName && formData.email && formData.phone);
+  const canProceed = !!(
+    formData.fullName &&
+    formData.email &&
+    (phoneRef.current || formData.phone)
+  );
 
+  // Set static left button on mount and clean up on unmount only
   useEffect(() => {
     setLeftButton({ label: "Atrás", onClick: () => handleBack() });
+    return () => reset();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Update right button reactively without resetting on each change
+  useEffect(() => {
     setRightButton({
       label: "Completar registro",
       onClick: () => handleContinue(),
       loading: isSubmitting,
       disabled: !canProceed || isSubmitting,
     });
-    return () => reset();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [canProceed, isSubmitting]);
 
   const updateFormData = (field: keyof PersonalDataForm, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
-  };
-
-  const formatPhoneInput = (value: string) => {
-    // Remove all non-digits
-    const digits = value.replace(/\D/g, "");
-
-    // Format for Argentina mobile: XX XXXX XXXX (11 3066 3794)
-    if (digits.length <= 2) return digits;
-    if (digits.length <= 6) return `${digits.slice(0, 2)} ${digits.slice(2)}`;
-    return `${digits.slice(0, 2)} ${digits.slice(2, 6)} ${digits.slice(6, 10)}`;
-  };
-
-  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const formatted = formatPhoneInput(e.target.value);
-    updateFormData("phone", formatted);
   };
 
   if (!user) {
@@ -245,26 +288,34 @@ export default function PersonalDataPage() {
 
             {/* Phone with Argentina flag */}
             <div className='space-y-2'>
-              <Label htmlFor='phone'>Teléfono *</Label>
+              <Label htmlFor='phone'>Teléfono / WhatsApp *</Label>
               <div className='relative'>
                 <div className='absolute left-3 top-1/2 transform -translate-y-1/2 flex items-center gap-2 text-sm'>
                   <MessageCircle className='w-4 h-4 text-green-500' />
-                  <span className='text-gray-600'>+54 9</span>
+                  <span className='text-gray-600'>+54</span>
                 </div>
                 <Input
                   id='phone'
                   type='tel'
                   value={formData.phone}
-                  onChange={handlePhoneChange}
-                  placeholder='11 3066 3794'
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    console.log("onChange value:", value);
+                    console.log("formData.phone antes:", formData.phone);
+                    // Solo permitir números, espacios, guiones y paréntesis
+                    const cleaned = value.replace(/[^\d\s\-()]/g, "");
+                    console.log("cleaned:", cleaned);
+                    phoneRef.current = cleaned;
+                    setFormData((prev) => ({ ...prev, phone: cleaned }));
+                  }}
+                  placeholder='9 11 1234 5678'
                   className='h-9 md:h-12 text-sm pl-20'
-                  maxLength={12}
                   required
                 />
               </div>
               <p className='text-xs text-muted-foreground'>
-                Este número será el principal medio de contacto. Asegurate que
-                sea tu WhatsApp.
+                Ingresá tu número sin el código de país. Este será tu principal
+                medio de contacto.
               </p>
             </div>
 

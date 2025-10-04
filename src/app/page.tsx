@@ -131,21 +131,33 @@ export default function HomePage() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // For now, don't filter - just show all professionals
+  // Filter by selected zone using work_zone_name when provided
+  // Home does NOT filter results; filtering happens only on explicit search click
   const displayedProfessionals = professionals;
 
   const handleServiceClick = (serviceName: string) => {
     setSelectedService(serviceName === selectedService ? "" : serviceName);
   };
 
+  // When clicking the search (lupa), navigate to /buscar with applied params
+  const handleSearch = () => {
+    const params = new URLSearchParams();
+    if (searchTerm && searchTerm.trim() !== "")
+      params.set("servicio", searchTerm.trim());
+    if (selectedZone && selectedZone !== "all")
+      params.set("zona", selectedZone);
+    navigate(`/buscar${params.toString() ? `?${params.toString()}` : ""}`);
+  };
+
   const groupProfessionalsByCategory = () => {
     const groups: { [key: string]: any[] } = {};
 
-    displayedProfessionals.forEach((prof) => {
+    displayedProfessionals.forEach((prof: any) => {
+      // Group by work zone when available; fallback to city
       const location =
-        prof.profile_location_city && prof.profile_location_province
-          ? `${prof.profile_location_city}`
-          : prof.profile_location_province || "Argentina";
+        (prof as any).work_zone_name ||
+        prof.profile_location_city ||
+        "Argentina";
 
       const categoryKey = location;
 
@@ -183,6 +195,7 @@ export default function HomePage() {
           setSelectedZone,
           popularServices,
           clearFilters,
+          onSearch: handleSearch,
         }}
       />
 

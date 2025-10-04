@@ -36,6 +36,7 @@ export interface OnboardingProfessionalInfo {
 interface OnboardingState {
   // Specialty selection step
   selectedSpecialty: string | null;
+  selectedSpecialtyCategory: string | null; // "Electricista", "Plomero", "Otros", etc.
   selectedWorkZone: string | null;
 
   // Photo upload step
@@ -55,7 +56,7 @@ interface OnboardingState {
   completedSteps: Set<number>;
 
   // Actions
-  setSpecialty: (specialty: string) => void;
+  setSpecialty: (specialty: string, category?: string) => void;
   setWorkZone: (zone: string) => void;
   setPhotos: (photos: OnboardingPhoto[]) => void;
   addPhoto: (photo: OnboardingPhoto) => void;
@@ -96,6 +97,7 @@ export const useOnboardingStore = create<OnboardingState>()(
         (set) => ({
           // Initial state
           selectedSpecialty: null,
+          selectedSpecialtyCategory: null,
           selectedWorkZone: null,
           uploadedPhotos: [],
           uploadingPhotos: new Set<string>(),
@@ -107,8 +109,11 @@ export const useOnboardingStore = create<OnboardingState>()(
           completedSteps: new Set<number>(),
 
           // Actions
-          setSpecialty: (specialty: string) =>
-            set({ selectedSpecialty: specialty }),
+          setSpecialty: (specialty: string, category?: string) =>
+            set({
+              selectedSpecialty: specialty,
+              selectedSpecialtyCategory: category || specialty,
+            }),
 
           setWorkZone: (zone: string) => set({ selectedWorkZone: zone }),
 
@@ -121,17 +126,29 @@ export const useOnboardingStore = create<OnboardingState>()(
             })),
 
           removePhoto: (photoId: string) =>
-            set((state) => ({
-              uploadedPhotos: state.uploadedPhotos.filter(
+            set((state) => {
+              const photoToRemove = state.uploadedPhotos.find(
+                (p) => p.id === photoId
+              );
+              const remainingPhotos = state.uploadedPhotos.filter(
                 (photo) => photo.id !== photoId
-              ),
-              uploadingPhotos: new Set(
-                [...state.uploadingPhotos].filter((id) => id !== photoId)
-              ),
-              deletingPhotos: new Set(
-                [...state.deletingPhotos].filter((id) => id !== photoId)
-              ),
-            })),
+              );
+
+              // Si la foto eliminada era la principal y quedan fotos, marcar la primera como principal
+              if (photoToRemove?.isMain && remainingPhotos.length > 0) {
+                remainingPhotos[0].isMain = true;
+              }
+
+              return {
+                uploadedPhotos: remainingPhotos,
+                uploadingPhotos: new Set(
+                  [...state.uploadingPhotos].filter((id) => id !== photoId)
+                ),
+                deletingPhotos: new Set(
+                  [...state.deletingPhotos].filter((id) => id !== photoId)
+                ),
+              };
+            }),
 
           updatePhotoStatus: (
             photoId: string,
@@ -196,6 +213,7 @@ export const useOnboardingStore = create<OnboardingState>()(
           resetOnboarding: () =>
             set({
               selectedSpecialty: null,
+              selectedSpecialtyCategory: null,
               selectedWorkZone: null,
               uploadedPhotos: [],
               uploadingPhotos: new Set<string>(),
@@ -212,6 +230,7 @@ export const useOnboardingStore = create<OnboardingState>()(
           // Only persist specific fields to avoid File objects in localStorage
           partialize: (state) => ({
             selectedSpecialty: state.selectedSpecialty,
+            selectedSpecialtyCategory: state.selectedSpecialtyCategory,
             selectedWorkZone: state.selectedWorkZone,
             workDescription: state.workDescription,
             personalInfo: state.personalInfo,
@@ -231,6 +250,7 @@ export const useOnboardingStore = create<OnboardingState>()(
     : (set) => ({
         // Initial state for SSR
         selectedSpecialty: null,
+        selectedSpecialtyCategory: null,
         selectedWorkZone: null,
         uploadedPhotos: [],
         uploadingPhotos: new Set<string>(),
@@ -242,8 +262,11 @@ export const useOnboardingStore = create<OnboardingState>()(
         completedSteps: new Set<number>(),
 
         // Actions (same as above)
-        setSpecialty: (specialty: string) =>
-          set({ selectedSpecialty: specialty }),
+        setSpecialty: (specialty: string, category?: string) =>
+          set({
+            selectedSpecialty: specialty,
+            selectedSpecialtyCategory: category || specialty,
+          }),
 
         setWorkZone: (zone: string) => set({ selectedWorkZone: zone }),
 
@@ -256,17 +279,29 @@ export const useOnboardingStore = create<OnboardingState>()(
           })),
 
         removePhoto: (photoId: string) =>
-          set((state) => ({
-            uploadedPhotos: state.uploadedPhotos.filter(
+          set((state) => {
+            const photoToRemove = state.uploadedPhotos.find(
+              (p) => p.id === photoId
+            );
+            const remainingPhotos = state.uploadedPhotos.filter(
               (photo) => photo.id !== photoId
-            ),
-            uploadingPhotos: new Set(
-              [...state.uploadingPhotos].filter((id) => id !== photoId)
-            ),
-            deletingPhotos: new Set(
-              [...state.deletingPhotos].filter((id) => id !== photoId)
-            ),
-          })),
+            );
+
+            // Si la foto eliminada era la principal y quedan fotos, marcar la primera como principal
+            if (photoToRemove?.isMain && remainingPhotos.length > 0) {
+              remainingPhotos[0].isMain = true;
+            }
+
+            return {
+              uploadedPhotos: remainingPhotos,
+              uploadingPhotos: new Set(
+                [...state.uploadingPhotos].filter((id) => id !== photoId)
+              ),
+              deletingPhotos: new Set(
+                [...state.deletingPhotos].filter((id) => id !== photoId)
+              ),
+            };
+          }),
 
         updatePhotoStatus: (
           photoId: string,
@@ -323,6 +358,7 @@ export const useOnboardingStore = create<OnboardingState>()(
         resetOnboarding: () =>
           set({
             selectedSpecialty: null,
+            selectedSpecialtyCategory: null,
             selectedWorkZone: null,
             uploadedPhotos: [],
             uploadingPhotos: new Set<string>(),

@@ -2,6 +2,8 @@ import { useState, useCallback } from "react";
 import { apiClient } from "@/src/shared/lib/api-client";
 import { useToast } from "@/src/shared/hooks/use-toast";
 import { useAuthState } from "@/src/features/auth";
+import { useQueryClient } from "@tanstack/react-query";
+import { queryKeys } from "@/src/shared/lib/query-keys";
 
 interface MyProfessionalProfile {
   id: string;
@@ -26,6 +28,7 @@ export function useMyProfessionalProfiles() {
   const [myProfiles, setMyProfiles] = useState<MyProfessionalProfile[]>([]);
   const { toast } = useToast();
   const { user } = useAuthState();
+  const queryClient = useQueryClient();
 
   /**
    * Load all professional profiles for the current user
@@ -62,6 +65,13 @@ export function useMyProfessionalProfiles() {
 
     try {
       await apiClient.delete(`/my-profiles?id=${profileId}`);
+
+      // Invalidar cache de professionals para que se actualice la home
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.professionals.lists(),
+      });
+
+      console.log("Publicación eliminada - cache invalidado");
       return true;
     } catch (error) {
       toast({

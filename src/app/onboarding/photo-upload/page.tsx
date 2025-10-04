@@ -158,7 +158,16 @@ export default function PhotoUploadPage() {
       ) {
         const id = Math.random().toString(36).substring(2, 9);
         const url = URL.createObjectURL(file);
-        newImages.push({ id, file, url, uploading: false, uploaded: false });
+        // Si es la primera foto y no hay ninguna foto cargada, marcarla como principal
+        const isMain = uploadedPhotos.length === 0 && newImages.length === 0;
+        newImages.push({
+          id,
+          file,
+          url,
+          uploading: false,
+          uploaded: false,
+          isMain,
+        });
       }
     });
 

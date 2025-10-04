@@ -7,14 +7,16 @@ import { z } from "zod";
 export const profileUpdateSchema = z.object({
   phone: z
     .string()
-    .regex(/^[+]?[\d\s\-()]+$/, "Invalid phone format")
+    .min(1, "Phone is required")
     .optional()
-    .nullable(),
+    .nullable()
+    .or(z.literal("")),
   whatsapp_phone: z
     .string()
-    .regex(/^[+]?[\d\s\-()]+$/, "Invalid WhatsApp format")
+    .min(1, "WhatsApp is required")
     .optional()
-    .nullable(),
+    .nullable()
+    .or(z.literal("")),
   avatar_url: z.string().url("Invalid URL").optional().nullable(),
   full_name: z
     .string()
@@ -36,16 +38,8 @@ export const professionalProfileSchema = z.object({
   specialty: z.string().min(3).max(100).optional().nullable(),
   years_experience: z.number().int().min(0).max(80),
   hourly_rate: z.number().positive().max(999999).optional().nullable(),
-  whatsapp_phone: z
-    .string()
-    .regex(/^[+]?[\d\s\-()]+$/)
-    .optional()
-    .nullable(),
-  work_phone: z
-    .string()
-    .regex(/^[+]?[\d\s\-()]+$/)
-    .optional()
-    .nullable(),
+  whatsapp_phone: z.string().min(1).optional().nullable().or(z.literal("")),
+  work_phone: z.string().min(1).optional().nullable().or(z.literal("")),
   main_portfolio_image: z.string().url().optional().nullable(),
 });
 

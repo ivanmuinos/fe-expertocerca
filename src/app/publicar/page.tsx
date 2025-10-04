@@ -65,6 +65,7 @@ export default function PublicarPage() {
         work_phone: data.workPhone || null,
         whatsapp_phone: data.whatsappPhone || null,
         specialty: "General", // Default specialty
+        specialty_category: "General", // Default category
       });
 
       if (error) throw error;

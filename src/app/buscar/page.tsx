@@ -213,17 +213,18 @@ export default function BuscarPage() {
       console.log("Filtered results:", filtered.length);
     }
 
-    // Filtro por zona
+    // Filtro por zona (por work_zone_name exacto; fallback ciudad/provincia contiene)
     if (appliedSelectedZone && appliedSelectedZone !== "all") {
-      filtered = filtered.filter(
-        (prof) =>
-          prof.profile_location_city
-            ?.toLowerCase()
-            .includes(appliedSelectedZone.toLowerCase()) ||
-          prof.profile_location_province
-            ?.toLowerCase()
-            .includes(appliedSelectedZone.toLowerCase())
-      );
+      filtered = filtered.filter((prof: any) => {
+        const zone = (prof as any).work_zone_name?.toLowerCase?.().trim() || "";
+        const city =
+          (prof as any).profile_location_city?.toLowerCase?.().trim() || "";
+        const province =
+          (prof as any).profile_location_province?.toLowerCase?.().trim() || "";
+        const needle = appliedSelectedZone.toLowerCase().trim();
+        if (zone) return zone === needle;
+        return city.includes(needle) || province.includes(needle);
+      });
     }
 
     setFilteredProfessionals(filtered);
@@ -292,16 +293,38 @@ export default function BuscarPage() {
             {professionalsLoading ? (
               <div className='grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4'>
                 {[...Array(8)].map((_, i) => (
-                  <div key={i}>
-                    <div className='flex-shrink-0 w-full'>
-                      <div className='bg-white rounded-xl border border-border overflow-hidden'>
-                        <div className='aspect-square bg-muted animate-pulse' />
-                        <div className='p-3 space-y-2'>
-                          <div className='h-4 bg-muted rounded w-3/4 animate-pulse' />
-                          <div className='h-3 bg-muted rounded w-1/2 animate-pulse' />
-                          <div className='flex gap-1 pt-1'>
-                            <div className='h-5 bg-muted rounded-full w-12 animate-pulse' />
+                  <div key={i} className='cursor-pointer'>
+                    <div className='bg-white rounded-xl hover:shadow-md transition-shadow duration-300 overflow-hidden'>
+                      {/* Image skeleton - aspect-square */}
+                      <div className='aspect-square relative bg-muted animate-pulse' />
+
+                      {/* Content skeleton */}
+                      <div className='p-3'>
+                        <div className='space-y-2'>
+                          {/* Title */}
+                          <div className='h-5 bg-muted rounded w-3/4 animate-pulse' />
+
+                          {/* Specialty */}
+                          <div className='flex items-center gap-1.5'>
+                            <div className='h-4 w-4 bg-muted rounded animate-pulse' />
+                            <div className='h-4 bg-muted rounded w-20 animate-pulse' />
+                          </div>
+
+                          {/* Location */}
+                          <div className='flex items-center gap-1'>
+                            <div className='h-4 w-4 bg-muted rounded animate-pulse' />
+                            <div className='h-3 bg-muted rounded w-2/3 animate-pulse' />
+                          </div>
+
+                          {/* Skills badges */}
+                          <div className='flex flex-wrap gap-1 pt-1'>
                             <div className='h-5 bg-muted rounded-full w-16 animate-pulse' />
+                            <div className='h-5 bg-muted rounded-full w-20 animate-pulse' />
+                          </div>
+
+                          {/* Price */}
+                          <div className='pt-1'>
+                            <div className='h-5 bg-muted rounded w-24 animate-pulse' />
                           </div>
                         </div>
                       </div>

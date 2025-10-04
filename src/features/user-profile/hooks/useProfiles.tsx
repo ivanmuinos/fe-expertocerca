@@ -16,7 +16,8 @@ export interface OnboardingData {
   bio: string;
   skills: string[];
   // Professional specialization and work area
-  specialty?: string; // The main specialty/role (e.g., "Plomero", "Electricista")
+  specialty?: string; // The actual specialty value (e.g., "Plomero", "Jardinero")
+  specialtyCategory?: string; // The category for filtering (e.g., "Electricista", "Otros")
   workZone?: string; // The work zone ID where they provide services
   // Professional service details (optional - users can offer services)
   tradeName?: string;

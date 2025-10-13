@@ -7,6 +7,7 @@ export * from "./providers";
 // Navigation
 export { SharedHeader } from "./SharedHeader";
 export { MobileNavbar } from "./MobileNavbar";
+export { GlobalMobileSearch } from "./GlobalMobileSearch";
 
 // Layout
 export { Footer } from "./Footer";

@@ -121,86 +121,76 @@ export function MobileNavbar() {
 
   useEffect(() => {
     let ticking = false;
+    let lastY = lastScrollY;
 
     const controlNavbar = () => {
-      if (!ticking) {
-        window.requestAnimationFrame(() => {
-          // En mobile el scroll está en body, en desktop en window
-          const isMobileView = window.innerWidth <= 768;
-          const currentScrollY = Math.max(
-            0,
-            isMobileView
-              ? document.body.scrollTop || document.documentElement.scrollTop
-              : window.scrollY
-          );
+      if (ticking) return;
+      
+      ticking = true;
+      window.requestAnimationFrame(() => {
+        // Don't control navbar if search modal is open
+        if (isMobileSearchOpen) {
+          ticking = false;
+          return;
+        }
 
-          // Don't control navbar if search modal is open
-          if (isMobileSearchOpen) {
-            ticking = false;
-            return;
-          }
+        const currentScrollY = Math.max(0, window.scrollY);
 
-          // Check if we're at the bottom
-          const scrollHeight = isMobileView
-            ? document.body.scrollHeight
-            : document.documentElement.scrollHeight;
-          const clientHeight = isMobileView
-            ? document.body.clientHeight
-            : window.innerHeight;
-          const isAtBottom = scrollHeight - currentScrollY - clientHeight < 100;
+        // Check if we're at the bottom
+        const scrollHeight = document.documentElement.scrollHeight;
+        const clientHeight = window.innerHeight;
+        const isAtBottom = scrollHeight - currentScrollY - clientHeight < 100;
 
-          // If at bottom, show navbar
-          if (isAtBottom) {
-            setIsVisible(true);
-            setIsMobileNavbarVisible(true);
-            setLastScrollY(currentScrollY);
-            ticking = false;
-            return;
-          }
-
-          // Calculate scroll difference
-          const scrollDiff = currentScrollY - lastScrollY;
-
-          // Require minimum scroll movement (10px threshold)
-          if (Math.abs(scrollDiff) < 10) {
-            ticking = false;
-            return;
-          }
-
-          // Only hide/show navbar on scroll if user is logged in
-          if (user) {
-            // Scrolling down & past 50px - hide navbar
-            if (scrollDiff > 0 && currentScrollY > 50) {
-              setIsVisible(false);
-              setIsMobileNavbarVisible(false);
-            }
-            // Scrolling up - show navbar
-            else if (scrollDiff < 0) {
-              setIsVisible(true);
-              setIsMobileNavbarVisible(true);
-            }
-          } else {
-            // Always show navbar for non-logged users
-            setIsVisible(true);
-            setIsMobileNavbarVisible(true);
-          }
-
+        // If at bottom, show navbar
+        if (isAtBottom) {
+          setIsVisible(true);
+          setIsMobileNavbarVisible(true);
+          lastY = currentScrollY;
           setLastScrollY(currentScrollY);
           ticking = false;
-        });
-        ticking = true;
-      }
+          return;
+        }
+
+        // Calculate scroll difference
+        const scrollDiff = currentScrollY - lastY;
+
+        // Require minimum scroll movement (15px threshold for better performance)
+        if (Math.abs(scrollDiff) < 15) {
+          ticking = false;
+          return;
+        }
+
+        // Only hide/show navbar on scroll if user is logged in
+        if (user) {
+          // Scrolling down & past 50px - hide navbar
+          if (scrollDiff > 0 && currentScrollY > 50) {
+            setIsVisible(false);
+            setIsMobileNavbarVisible(false);
+          }
+          // Scrolling up - show navbar
+          else if (scrollDiff < 0) {
+            setIsVisible(true);
+            setIsMobileNavbarVisible(true);
+          }
+        } else {
+          // Always show navbar for non-logged users
+          setIsVisible(true);
+          setIsMobileNavbarVisible(true);
+        }
+
+        lastY = currentScrollY;
+        setLastScrollY(currentScrollY);
+        ticking = false;
+      });
     };
 
-    // Listen to both window and body scroll events
+    // Only listen to window scroll
     window.addEventListener("scroll", controlNavbar, { passive: true });
-    document.body.addEventListener("scroll", controlNavbar, { passive: true });
 
     return () => {
       window.removeEventListener("scroll", controlNavbar);
-      document.body.removeEventListener("scroll", controlNavbar);
     };
-  }, [isMobileSearchOpen, lastScrollY, user]);
+  }, [isMobileSearchOpen, user]);
 
   const isActive = (path: string) => {
     if (path === "/") {
@@ -255,15 +245,8 @@ export function MobileNavbar() {
           // Special handling for search and login buttons
           const handleClick = () => {
             if (item.id === "buscar") {
-              // If already on home or search page, open modal
-              // Otherwise navigate to search page
-              if (pathname === "/" || pathname === "/buscar") {
-                setIsMobileSearchOpen(true);
-              } else {
-                setLoadingId(item.id);
-                navigate("/buscar");
-                setTimeout(() => setLoadingId(null), 600);
-              }
+              // Always open search modal
+              setIsMobileSearchOpen(true);
             } else if (item.id === "login") {
               // Open login modal by dispatching custom event
               window.dispatchEvent(new CustomEvent("openLoginModal"));

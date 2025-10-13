@@ -14,6 +14,7 @@ import { Button } from "@/src/shared/components/ui/button";
 export default function UserTypeSelectionPage() {
   const [selectedType, setSelectedType] = useState<string | null>(null);
   const [isFirstTime, setIsFirstTime] = useState<boolean>(true);
+  const [isCheckingStatus, setIsCheckingStatus] = useState<boolean>(true);
   const navigate = useNavigate();
   const { user, loading } = useAuthState();
   const { withLoading } = useLoading();
@@ -23,13 +24,16 @@ export default function UserTypeSelectionPage() {
     const checkUserStatus = async () => {
       if (!user) return;
 
+      setIsCheckingStatus(true);
       try {
         const profile = await apiClient.get("/profiles/current");
         // If user already has a user_type, they're not first time
-        setIsFirstTime(!profile?.user_type);
+        setIsFirstTime(!(profile as any)?.user_type);
       } catch (error) {
         // If error, assume first time
         setIsFirstTime(true);
+      } finally {
+        setIsCheckingStatus(false);
       }
     };
 
@@ -76,7 +80,19 @@ export default function UserTypeSelectionPage() {
           {/* Options */}
           <div className='space-y-4'>
             {/* Necesito un experto */}
-            {isFirstTime ? (
+            {isCheckingStatus ? (
+              <Card className='animate-pulse'>
+                <CardContent className='p-6'>
+                  <div className='flex items-center space-x-4'>
+                    <div className='flex-shrink-0 w-12 h-12 bg-gray-200 rounded-xl' />
+                    <div className='flex-1 space-y-2'>
+                      <div className='h-5 bg-gray-200 rounded w-3/4' />
+                      <div className='h-4 bg-gray-200 rounded w-full' />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ) : isFirstTime ? (
               <Card
                 className={`cursor-pointer transition-all duration-200 hover:shadow-elevated ${
                   selectedType === "customer"
@@ -127,30 +143,44 @@ export default function UserTypeSelectionPage() {
             )}
 
             {/* Soy un experto */}
-            <Card
-              className={`cursor-pointer transition-all duration-200 hover:shadow-elevated ${
-                selectedType === "professional"
-                  ? "ring-2 ring-primary bg-primary/5"
-                  : "hover:border-primary/50"
-              }`}
-              onClick={() => setSelectedType("professional")}
-            >
-              <CardContent className='p-6'>
-                <div className='flex items-center space-x-4'>
-                  <div className='flex-shrink-0 w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center'>
-                    <Star className='h-6 w-6 text-primary' />
+            {isCheckingStatus ? (
+              <Card className='animate-pulse'>
+                <CardContent className='p-6'>
+                  <div className='flex items-center space-x-4'>
+                    <div className='flex-shrink-0 w-12 h-12 bg-gray-200 rounded-xl' />
+                    <div className='flex-1 space-y-2'>
+                      <div className='h-5 bg-gray-200 rounded w-2/3' />
+                      <div className='h-4 bg-gray-200 rounded w-full' />
+                    </div>
                   </div>
-                  <div className='flex-1'>
-                    <h3 className='text-lg font-semibold text-foreground mb-1'>
-                      Soy un experto
-                    </h3>
-                    <p className='text-sm text-muted-foreground'>
-                      Ofrezco mis servicios profesionales
-                    </p>
+                </CardContent>
+              </Card>
+            ) : (
+              <Card
+                className={`cursor-pointer transition-all duration-200 hover:shadow-elevated ${
+                  selectedType === "professional"
+                    ? "ring-2 ring-primary bg-primary/5"
+                    : "hover:border-primary/50"
+                }`}
+                onClick={() => setSelectedType("professional")}
+              >
+                <CardContent className='p-6'>
+                  <div className='flex items-center space-x-4'>
+                    <div className='flex-shrink-0 w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center'>
+                      <Star className='h-6 w-6 text-primary' />
+                    </div>
+                    <div className='flex-1'>
+                      <h3 className='text-lg font-semibold text-foreground mb-1'>
+                        Soy un experto
+                      </h3>
+                      <p className='text-sm text-muted-foreground'>
+                        Ofrezco mis servicios profesionales
+                      </p>
+                    </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            )}
           </div>
         </div>
       </div>

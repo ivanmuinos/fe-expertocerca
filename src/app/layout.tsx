@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Poppins } from "next/font/google";
 import { ClientProviders } from "./providers";
 import { MobileNavbar } from "@/src/shared/components/MobileNavbar";
+import { GlobalMobileSearch } from "@/src/shared/components/GlobalMobileSearch";
 import { MobileWrapper } from "@/src/shared/components/MobileWrapper";
 import { DynamicLayoutWrapper } from "@/src/shared/components/DynamicLayoutWrapper";
 import { Toaster } from "@/src/shared/components/ui/toaster";
@@ -107,6 +108,7 @@ export default function RootLayout({
           <MobileWrapper>
             <DynamicLayoutWrapper>{children}</DynamicLayoutWrapper>
             <MobileNavbar />
+            <GlobalMobileSearch />
           </MobileWrapper>
           <Toaster />
           <PromoBanner />

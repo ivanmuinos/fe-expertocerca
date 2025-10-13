@@ -62,9 +62,15 @@ export default function MyPublicationsPage() {
 
   const [createLoading, setCreateLoading] = useState(false);
   const handleCreateNew = () => {
-    setCurrentStep(OnboardingStep.USER_TYPE_SELECTION);
     setCreateLoading(true);
-    navigate("/onboarding/user-type-selection");
+    // If user already has profiles, go directly to /publicar
+    // Otherwise, start onboarding flow
+    if (myProfiles.length > 0) {
+      navigate("/publicar");
+    } else {
+      setCurrentStep(OnboardingStep.USER_TYPE_SELECTION);
+      navigate("/onboarding/user-type-selection");
+    }
     setTimeout(() => setCreateLoading(false), 600);
   };
 

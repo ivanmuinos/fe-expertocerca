@@ -228,17 +228,35 @@ export function PortfolioSection({ professionalProfileId, isOwner }: PortfolioSe
 
       {/* Photos grid - Airbnb style */}
       {photos.length === 0 ? (
-        <div className="text-center py-12">
-          <div className="w-16 h-16 mx-auto mb-4 bg-muted rounded-full flex items-center justify-center">
-            <Upload className="w-8 h-8 text-muted-foreground" />
+        isOwner ? (
+          /* Empty gallery with upload slots for owner */
+          <div className='grid grid-cols-2 gap-2 rounded-xl overflow-hidden max-w-2xl'>
+            {[...Array(4)].map((_, index) => (
+              <div
+                key={index}
+                onClick={() => setShowUploadDialog(true)}
+                className='aspect-square rounded-lg border-2 border-dashed border-muted-foreground/25 flex items-center justify-center text-muted-foreground hover:border-muted-foreground/50 cursor-pointer bg-white/50 transition-colors'
+              >
+                <div className='flex flex-col items-center gap-2'>
+                  <Plus className='w-8 h-8' />
+                  <span className='text-xs font-medium'>
+                    {index === 0 ? 'Primera foto' : 'Agregar foto'}
+                  </span>
+                </div>
+              </div>
+            ))}
           </div>
-          <p className="text-muted-foreground">
-            {isOwner 
-              ? 'Aún no has subido fotos de tus trabajos. ¡Comparte tu experiencia!' 
-              : 'Este profesional aún no ha compartido fotos de sus trabajos.'
-            }
-          </p>
-        </div>
+        ) : (
+          /* Message for non-owners */
+          <div className="text-center py-12">
+            <div className="w-16 h-16 mx-auto mb-4 bg-muted rounded-full flex items-center justify-center">
+              <Upload className="w-8 h-8 text-muted-foreground" />
+            </div>
+            <p className="text-muted-foreground">
+              Este profesional aún no ha compartido fotos de sus trabajos.
+            </p>
+          </div>
+        )
       ) : (
         <div className="grid grid-cols-4 grid-rows-2 gap-2 h-96 rounded-xl overflow-hidden">
           {photos.map((photo, index) => {

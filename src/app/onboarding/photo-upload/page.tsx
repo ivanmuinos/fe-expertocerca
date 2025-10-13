@@ -61,16 +61,33 @@ export default function PhotoUploadPage() {
     files: FileList | null,
     event?: React.ChangeEvent<HTMLInputElement>
   ) => {
-    if (!files || files.length === 0) return;
+    console.log("handleFileSelect called", { 
+      filesCount: files?.length, 
+      hasFiles: !!files,
+      currentPhotos: uploadedPhotos.length 
+    });
+    
+    if (!files || files.length === 0) {
+      console.log("No files selected");
+      return;
+    }
 
     const newImages: OnboardingPhoto[] = [];
     const currentCount = uploadedPhotos.length;
     const availableSlots = 8 - currentCount;
 
+    console.log("Processing files", { availableSlots, filesLength: files.length });
+
     // Procesar solo los archivos que caben en los slots disponibles
     Array.from(files)
       .slice(0, availableSlots)
       .forEach((file, index) => {
+        console.log("Processing file", { 
+          fileName: file.name, 
+          fileType: file.type, 
+          fileSize: file.size 
+        });
+        
         if (file.type.startsWith("image/")) {
           const id = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
           const url = URL.createObjectURL(file);
@@ -84,9 +101,14 @@ export default function PhotoUploadPage() {
             uploaded: false,
             isMain,
           });
+          console.log("Image added to queue", { id, isMain });
+        } else {
+          console.log("File skipped - not an image", file.type);
         }
       });
 
+    console.log("Adding images to store", { count: newImages.length });
+    
     // Add new images to the store (local only)
     newImages.forEach((image) => {
       addPhoto(image);
@@ -96,6 +118,10 @@ export default function PhotoUploadPage() {
     if (event?.target) {
       event.target.value = "";
     }
+    
+    console.log("File selection complete", { 
+      totalPhotos: uploadedPhotos.length + newImages.length 
+    });
   };
 
   // Since photos are local only, deletion is just removing from local state
@@ -194,19 +220,31 @@ export default function PhotoUploadPage() {
                           </div>
                         </>
                       ) : (
-                        <div className='w-full h-full flex items-center justify-center'>
+                        <label 
+                          className='w-full h-full flex items-center justify-center cursor-pointer relative'
+                          htmlFor={`file-input-${index}`}
+                        >
                           {canAddMore && (
                             <>
                               <input
+                                id={`file-input-${index}`}
                                 type='file'
                                 multiple
-                                accept='image/*'
-                                className='absolute inset-0 w-full h-full opacity-0 cursor-pointer'
-                                onChange={(e) =>
-                                  handleFileSelect(e.target.files, e)
-                                }
+                                accept='image/*,image/heic,image/heif'
+                                className='sr-only'
+                                onChange={(e) => {
+                                  console.log("Input onChange triggered", {
+                                    filesCount: e.target.files?.length,
+                                    files: e.target.files ? Array.from(e.target.files).map(f => ({
+                                      name: f.name,
+                                      type: f.type,
+                                      size: f.size
+                                    })) : []
+                                  });
+                                  handleFileSelect(e.target.files, e);
+                                }}
                               />
-                              <div className='text-center'>
+                              <div className='text-center pointer-events-none'>
                                 <Plus
                                   className={`w-8 h-8 mb-2 mx-auto ${
                                     isRequired
@@ -226,7 +264,7 @@ export default function PhotoUploadPage() {
                               </div>
                             </>
                           )}
-                        </div>
+                        </label>
                       )}
                     </div>
                   );

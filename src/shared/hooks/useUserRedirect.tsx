@@ -32,10 +32,8 @@ export function useUserRedirect() {
       const isOnOnboardingPage = pathname.startsWith("/onboarding");
 
       // If user has no profile, allow them to navigate freely
-      // Only suggest onboarding, don't force it
+      // The redirect to user-type-selection only happens after OAuth callback
       if (!onboardingStatus.hasProfile) {
-        // Don't auto-redirect - let the user decide when to complete onboarding
-        // The UI can show prompts/banners to encourage completion
         setIsCheckingRedirect(false);
         return;
       }

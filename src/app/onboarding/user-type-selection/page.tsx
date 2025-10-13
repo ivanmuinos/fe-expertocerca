@@ -2,12 +2,14 @@
 
 import { useState } from "react";
 import { useNavigate } from "@/src/shared/lib/navigation";
-import { Search, Star } from "lucide-react";
+import { Search, Star, LogOut } from "lucide-react";
 import { LoadingButton } from "@/src/shared/components/ui/loading-button";
 import { Card, CardContent } from "@/src/shared/components/ui/card";
-import { useAuthState } from "@/src/features/auth";
+import { useAuthState, useAuthActions } from "@/src/features/auth";
 import { apiClient } from "@/src/shared/lib/api-client";
 import { useLoading } from "@/src/shared/stores/useLoadingStore";
+import { SharedHeader } from "@/src/shared/components/SharedHeader";
+import { Button } from "@/src/shared/components/ui/button";
 
 export default function UserTypeSelectionPage() {
   const [selectedType, setSelectedType] = useState<string | null>(null);
@@ -39,18 +41,15 @@ export default function UserTypeSelectionPage() {
   };
 
   return (
-    <div className='h-screen bg-gradient-subtle flex flex-col overflow-hidden'>
-      {/* Sin header en este paso */}
-
-      {/* Content */}
-      <div className='flex-1 flex items-center justify-center p-4'>
+    <>
+      <div className='flex-1 flex items-center justify-center p-4 pb-14'>
         <div className='w-full max-w-md space-y-6'>
           {/* Header */}
-          <div className='text-center space-y-2'>
-            <h1 className='text-2xl font-bold text-foreground'>
+          <div className='text-left space-y-2'>
+            <h1 className='text-lg md:text-xl font-normal text-foreground'>
               ¿Cómo vas a usar la app?
             </h1>
-            <p className='text-muted-foreground'>
+            <p className='text-xs md:text-sm text-muted-foreground'>
               Selecciona la opción que mejor te describa
             </p>
           </div>
@@ -109,20 +108,24 @@ export default function UserTypeSelectionPage() {
               </CardContent>
             </Card>
           </div>
+        </div>
+      </div>
 
-          {/* Continue Button */}
+      {/* Continue Button - Fixed at bottom */}
+      <div className='fixed bottom-0 left-0 right-0 z-30 w-full h-14 px-4 bg-background/95 backdrop-blur-sm flex items-center justify-center'>
+        <div className='w-full max-w-md'>
           <LoadingButton
             onClick={() =>
               selectedType &&
               handleTypeSelection(selectedType as "customer" | "professional")
             }
             disabled={!selectedType}
-            className='w-full h-12 text-base font-medium'
+            className='w-full h-9 text-sm font-medium'
           >
             Continuar
           </LoadingButton>
         </div>
       </div>
-    </div>
+    </>
   );
 }

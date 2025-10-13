@@ -70,16 +70,12 @@ export default function PhotoGuidelinesPage() {
   ];
 
   return (
-    <div className='h-screen bg-gradient-subtle flex flex-col overflow-hidden'>
-      {/* Header removido: está unificado en el layout */}
-
-      {/* Content */}
-      <div className='flex-1 w-full max-w-md md:max-w-2xl mx-auto px-4 py-4 md:px-4 md:py-6 flex flex-col min-h-0'>
+    <div className='flex-1 flex flex-col overflow-auto'>
+      <div className='w-full max-w-md md:max-w-2xl mx-auto px-4 py-4 md:px-4 md:py-6'>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className='flex-1 flex flex-col'
         >
           {/* Main Title */}
           <div className='mb-4 md:mb-6 text-left'>
@@ -91,8 +87,8 @@ export default function PhotoGuidelinesPage() {
             </p>
           </div>
 
-          {/* Content scrollable area */}
-          <div className='flex-1 overflow-auto scrollbar-hide'>
+          {/* Content */}
+          <div>
             {/* Good practices */}
             <div>
               <h2 className='text-sm md:text-base font-semibold text-foreground mb-2 md:mb-4'>
@@ -125,8 +121,6 @@ export default function PhotoGuidelinesPage() {
           </div>
         </motion.div>
       </div>
-
-      {/* Footer Buttons removed; handled by global footer */}
     </div>
   );
 }

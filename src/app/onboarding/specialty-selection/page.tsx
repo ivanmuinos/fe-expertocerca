@@ -175,15 +175,14 @@ export default function SpecialtySelectionPage() {
   }, [selectedSpecialty, selectedWorkZone, isLoading, customSpecialtyError]);
 
   return (
-    <div className='h-screen bg-gradient-subtle overflow-hidden'>
-      <div className='h-full md:pt-20 md:pb-24 overflow-y-auto'>
+    <div className='flex-1 flex flex-col overflow-auto'>
         <div className='w-full max-w-md mx-auto px-4 py-8 md:py-12'>
           {/* Title */}
-          <div className='mb-8 text-center'>
-            <h1 className='text-2xl md:text-3xl font-semibold text-foreground mb-2'>
+          <div className='mb-8 text-left'>
+            <h1 className='text-lg md:text-xl font-normal text-foreground mb-2'>
               Tu Especialidad y Zona
             </h1>
-            <p className='text-sm md:text-base text-muted-foreground'>
+            <p className='text-xs md:text-sm text-muted-foreground'>
               Seleccioná tu oficio principal y dónde trabajas
             </p>
           </div>
@@ -268,7 +267,6 @@ export default function SpecialtySelectionPage() {
             </div>
           </div>
         </div>
-      </div>
     </div>
   );
 }

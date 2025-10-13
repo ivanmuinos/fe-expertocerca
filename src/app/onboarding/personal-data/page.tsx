@@ -9,7 +9,7 @@ import { useOnboarding } from "@/src/shared/stores/useOnboardingStore";
 import { LoadingButton } from "@/src/shared/components/ui/loading-button";
 import { Input } from "@/src/shared/components/ui/input";
 import { Label } from "@/src/shared/components/ui/label";
-import { Star, MessageCircle } from "lucide-react";
+import { Star, MessageCircle, Facebook, Instagram } from "lucide-react";
 import { motion } from "framer-motion";
 import {
   useOnboardingProgress,
@@ -82,8 +82,7 @@ export default function PersonalDataPage() {
   }, [user, navigate]);
 
   const handleBack = () => {
-    // Navigate back to photo-upload but go to the description section
-    navigate("/onboarding/photo-upload?section=description");
+    navigate("/onboarding/work-description");
   };
 
   const handleExit = () => {
@@ -297,18 +296,17 @@ export default function PersonalDataPage() {
                 <Input
                   id='phone'
                   type='tel'
+                  inputMode='numeric'
+                  pattern='[0-9]*'
                   value={formData.phone}
                   onChange={(e) => {
                     const value = e.target.value;
-                    console.log("onChange value:", value);
-                    console.log("formData.phone antes:", formData.phone);
-                    // Solo permitir números, espacios, guiones y paréntesis
-                    const cleaned = value.replace(/[^\d\s\-()]/g, "");
-                    console.log("cleaned:", cleaned);
+                    // Solo permitir números
+                    const cleaned = value.replace(/[^\d]/g, "");
                     phoneRef.current = cleaned;
                     setFormData((prev) => ({ ...prev, phone: cleaned }));
                   }}
-                  placeholder='9 11 1234 5678'
+                  placeholder='Ingresá tu WhatsApp aquí'
                   className='h-9 md:h-12 text-sm pl-20'
                   required
                 />
@@ -329,7 +327,7 @@ export default function PersonalDataPage() {
                 {/* Facebook */}
                 <div className='space-y-2'>
                   <Label htmlFor='facebook' className='flex items-center gap-2'>
-                    <div className='w-4 h-4 bg-blue-600 rounded-sm'></div>
+                    <Facebook className='w-4 h-4 text-blue-600' />
                     Perfil de Facebook
                   </Label>
                   <Input
@@ -349,7 +347,7 @@ export default function PersonalDataPage() {
                     htmlFor='instagram'
                     className='flex items-center gap-2'
                   >
-                    <div className='w-4 h-4 bg-pink-600 rounded-sm'></div>
+                    <Instagram className='w-4 h-4 text-pink-600' />
                     Perfil de Instagram
                   </Label>
                   <Input

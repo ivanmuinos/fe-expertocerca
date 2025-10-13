@@ -183,7 +183,7 @@ export default function HomePage() {
   }
 
   return (
-    <div className='min-h-screen bg-background'>
+    <div className='min-h-screen bg-dots-pattern'>
       <SharedHeader
         variant='transparent'
         showSearch={true}
@@ -199,7 +199,7 @@ export default function HomePage() {
         }}
       />
 
-      <section className='px-3 sm:px-4 md:px-6 lg:px-8 pb-6 pt-2 mt-6'>
+      <section className='px-3 sm:px-4 md:px-6 lg:px-8 pb-6 mt-2 bg-transparent'>
         <div className='max-w-7xl mx-auto'>
           {loading ? (
             <HomeSkeleton />

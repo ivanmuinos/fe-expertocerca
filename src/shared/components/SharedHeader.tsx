@@ -24,6 +24,11 @@ import {
   X,
   AlertCircle,
   Menu,
+  Compass,
+  Building,
+  TreePine,
+  Waves,
+  Mountain,
 } from "lucide-react";
 import { useNavigate } from "@/src/shared/lib/navigation";
 import { usePathname } from "next/navigation";
@@ -124,7 +129,8 @@ export function SharedHeader({
           params.set("servicio", searchProps.searchTerm);
         if (searchProps.selectedZone && searchProps.selectedZone !== "all")
           params.set("zona", searchProps.selectedZone);
-        navigate(`/buscar?${params.toString()}`);
+        const queryString = params.toString();
+        navigate(queryString ? `/buscar?${queryString}` : "/buscar");
       }
     }
     // stop loading after letting navigation start
@@ -150,6 +156,8 @@ export function SharedHeader({
   const headerRef = useRef<HTMLElement>(null);
   const serviceSectionRef = useRef<HTMLDivElement>(null);
   const zoneSectionRef = useRef<HTMLDivElement>(null);
+  const [mobileSubScreen, setMobileSubScreen] = useState<'main' | 'service' | 'zone'>('main');
+  const [activeDesktopField, setActiveDesktopField] = useState<'service' | 'zone' | null>(null);
 
   // Load user profile data
   useEffect(() => {
@@ -171,10 +179,10 @@ export function SharedHeader({
     loadProfile();
   }, [user?.id]); // Only depend on user.id to avoid infinite loops
 
-  // Listen for custom event to open login modal (from MobileNavbar)
+  // Listen for custom event to toggle login modal (from MobileNavbar)
   useEffect(() => {
     const handleOpenLoginModal = () => {
-      setIsLoginModalOpen(true);
+      setIsLoginModalOpen((prev) => !prev);
     };
 
     window.addEventListener("openLoginModal", handleOpenLoginModal);
@@ -267,34 +275,35 @@ export function SharedHeader({
     return () => window.removeEventListener("scroll", handleScroll);
   }, [lastScrollY, isScrollingDown, pathname, searchCollapsed, showSearch]);
 
-  // Handle click outside to collapse search
+  // Handle click outside to collapse search and close dropdowns
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (
-        searchCollapsed &&
-        isDesktopSearchExpanded &&
-        headerRef.current &&
-        !headerRef.current.contains(event.target as Node)
-      ) {
-        // On home: only collapse if not at the very top
-        if (pathname === "/") {
-          if (typeof window !== "undefined" && window.scrollY > 20) {
+      if (headerRef.current && !headerRef.current.contains(event.target as Node)) {
+        // Close active dropdown when clicking outside
+        if (activeDesktopField) {
+          setActiveDesktopField(null);
+        }
+
+        // Collapse entire search if expanded
+        if (searchCollapsed && isDesktopSearchExpanded) {
+          // On home: only collapse if not at the very top
+          if (pathname === "/") {
+            if (typeof window !== "undefined" && window.scrollY > 20) {
+              setIsDesktopSearchExpanded(false);
+              setActiveDesktopField(null);
+            }
+          } else {
+            // On other pages: always collapse on outside click
             setIsDesktopSearchExpanded(false);
-            setIsServiceSelectorOpen(false);
-            setIsZoneSelectorOpen(false);
+            setActiveDesktopField(null);
           }
-        } else {
-          // On other pages: always collapse on outside click
-          setIsDesktopSearchExpanded(false);
-          setIsServiceSelectorOpen(false);
-          setIsZoneSelectorOpen(false);
         }
       }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [searchCollapsed, isDesktopSearchExpanded, pathname]);
+  }, [searchCollapsed, isDesktopSearchExpanded, pathname, activeDesktopField]);
 
   // Close service dropdown when clicking outside its own section
   useEffect(() => {
@@ -354,32 +363,40 @@ export function SharedHeader({
 
   const handleMobileSearchClose = () => {
     setIsMobileSearchOpen(false);
+    setMobileSubScreen('main');
   };
 
   return (
     <>
       {/* Overlay when desktop search is expanded - Only on non-home pages */}
-      <AnimatePresence>
-        {searchCollapsed && isDesktopSearchExpanded && pathname !== "/" && (
-          <motion.div
-            className='fixed inset-0 bg-black/30 backdrop-blur-[2px] z-30'
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
-          />
-        )}
-      </AnimatePresence>
+      {pathname !== "/" && (
+        <AnimatePresence>
+          {searchCollapsed && isDesktopSearchExpanded && (
+            <motion.div
+              className='fixed inset-0 bg-black/30 backdrop-blur-[2px] z-30'
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
+              onClick={() => {
+                setIsDesktopSearchExpanded(false);
+                setActiveDesktopField(null);
+              }}
+            />
+          )}
+        </AnimatePresence>
+      )}
 
       {/* Mobile-first Airbnb-style header */}
       <header
         ref={headerRef}
-        className='sticky top-0 z-40 transition-all duration-300 ease-out bg-white'
+        className='sticky top-0 z-40 transition-all duration-300 ease-out'
+        style={{ backgroundColor: '#f7f7f7' }}
       >
         <div className='w-full px-3 md:px-6 sm:px-8 lg:px-10 pt-2'>
           {/* Mobile: ONLY search bar */}
-          <div className='md:hidden h-16 flex items-center'>
-            {showSearch && searchProps ? (
+          {showSearch && searchProps ? (
+            <div className='md:hidden h-16 flex items-center'>
               <div className='w-full'>
                 <Button
                   variant='ghost'
@@ -401,24 +418,24 @@ export function SharedHeader({
                   </div>
                 </Button>
               </div>
-            ) : (
-              <div className='flex items-center justify-center w-full relative'>
-                {showBackButton && (
-                  <Button
-                    variant='ghost'
-                    size='sm'
-                    onClick={() => navigate(-1)}
-                    className='absolute left-0 p-2 h-8 w-8 hover:bg-muted/50'
-                  >
-                    <ArrowLeft className='h-4 w-4' />
-                  </Button>
-                )}
-                {rightAction && (
-                  <div className='absolute right-0'>{rightAction}</div>
-                )}
-              </div>
-            )}
-          </div>
+            </div>
+          ) : (
+            <div className='md:hidden flex items-center justify-center w-full relative h-16'>
+              {showBackButton && (
+                <Button
+                  variant='ghost'
+                  size='sm'
+                  onClick={() => navigate(-1)}
+                  className='absolute left-0 p-2 h-8 w-8 hover:bg-muted/50'
+                >
+                  <ArrowLeft className='h-4 w-4' />
+                </Button>
+              )}
+              {rightAction && (
+                <div className='absolute right-0'>{rightAction}</div>
+              )}
+            </div>
+          )}
 
           {/* Desktop: Full header */}
           <div className='hidden md:flex items-center justify-between h-16 sm:h-18 w-full'>
@@ -438,46 +455,41 @@ export function SharedHeader({
               searchCollapsed &&
               !isDesktopSearchExpanded && (
                 <div className='hidden md:flex flex-1 justify-center'>
-                  <div
+                  <button
                     onClick={() => setIsDesktopSearchExpanded(true)}
-                    className='bg-white border border-border/50 rounded-full shadow-sm hover:shadow-md transition-all duration-300 ease-out cursor-pointer max-w-sm w-full'
+                    className='bg-white border border-gray-300 rounded-full shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer min-w-[420px]'
                   >
-                    <div className='flex items-center divide-x divide-gray-200'>
-                      {/* Service section */}
-                      <div className='flex items-center gap-2 px-4 py-3 flex-1 min-w-0'>
-                        <Search className='h-4 w-4 text-muted-foreground flex-shrink-0' />
-                        <div className='text-sm truncate'>
-                          {searchProps.searchTerm &&
-                          searchProps.searchTerm.trim() !== "" ? (
-                            <span className='font-medium text-foreground'>
-                              {searchProps.searchTerm}
-                            </span>
-                          ) : (
-                            <span className='font-semibold text-foreground'>
-                              Empezá tu búsqueda
-                            </span>
-                          )}
+                    <div className='flex items-center justify-between w-full'>
+                      <div className='flex items-center divide-x divide-gray-300 flex-1'>
+                        {/* Service section */}
+                        <div className='flex items-center gap-2 px-3 py-2 flex-1'>
+                          <span className='text-sm font-semibold text-foreground truncate'>
+                            {searchProps.searchTerm && searchProps.searchTerm.trim() !== ""
+                              ? searchProps.searchTerm
+                              : "Cualquier lugar"}
+                          </span>
                         </div>
-                      </div>
 
-                      {/* Zone section */}
-                      <div className='flex items-center gap-2 px-4 py-3 flex-1 min-w-0'>
-                        <div className='text-sm text-muted-foreground truncate'>
-                          {searchProps.selectedZone &&
-                          searchProps.selectedZone !== "all"
-                            ? searchProps.selectedZone
-                            : "Cualquier zona"}
+                        {/* Zone section */}
+                        <div className='flex items-center gap-2 px-3 py-2 flex-1'>
+                          <span className='text-sm text-muted-foreground truncate'>
+                            {searchProps.selectedZone === "all"
+                              ? "Todas las zonas"
+                              : searchProps.selectedZone && searchProps.selectedZone !== "all"
+                              ? searchProps.selectedZone
+                              : "Cualquier zona"}
+                          </span>
                         </div>
                       </div>
 
                       {/* Search button */}
-                      <div className='flex items-center px-3'>
-                        <div className='bg-primary text-primary-foreground rounded-full p-2'>
+                      <div className='flex items-center pr-1 py-1'>
+                        <div className='bg-primary text-primary-foreground rounded-full p-2 hover:bg-primary/90 transition-colors'>
                           <Search className='h-4 w-4' />
                         </div>
                       </div>
                     </div>
-                  </div>
+                  </button>
                 </div>
               )}
 
@@ -610,209 +622,184 @@ export function SharedHeader({
             </div>
           </div>
 
-          {/* Desktop: Full search section - Airbnb style */}
+          {/* Desktop: Expanded search section - Airbnb style */}
           <div className='hidden md:block'>
             {showSearch &&
               searchProps &&
               (!searchCollapsed || isDesktopSearchExpanded) && (
-                <div className='hidden md:block pb-6 relative'>
+                <div className='hidden md:block pb-4 relative'>
                   <motion.div
-                    className='bg-white rounded-full shadow-lg border border-gray-200 max-w-2xl mx-auto overflow-visible relative'
+                    className='bg-white rounded-full shadow-lg border border-gray-300 max-w-3xl mx-auto relative'
                     initial={
                       searchCollapsed
-                        ? { opacity: 0, y: 12, scale: 0.95 }
+                        ? { opacity: 0, y: -10, scale: 0.98 }
                         : ({} as any)
                     }
                     animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: 12, scale: 0.95 }}
-                    transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
-                    layout
+                    exit={{ opacity: 0, y: -10, scale: 0.98 }}
+                    transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
                   >
-                    <div className='flex items-center'>
-                      {/* Servicio section */}
-                      <div
-                        ref={serviceSectionRef}
-                        className='flex-1 px-6 py-4 border-r border-gray-200 hover:bg-gray-50 transition-colors cursor-pointer rounded-l-full relative'
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          console.log(
-                            "Service clicked, current state:",
-                            isServiceSelectorOpen
-                          );
-                          setIsServiceSelectorOpen(!isServiceSelectorOpen);
-                          setIsZoneSelectorOpen(false);
-                        }}
+                    <div className='flex items-stretch'>
+                      {/* Servicio button */}
+                      <button
+                        onClick={() => setActiveDesktopField(activeDesktopField === 'service' ? null : 'service')}
+                        className={`flex-1 px-8 py-3 text-left rounded-l-full transition-all ${
+                          activeDesktopField === 'service' ? 'bg-white shadow-xl scale-105 z-10' : 'hover:bg-gray-100'
+                        }`}
                       >
                         <div className='text-xs font-semibold text-gray-900 mb-1'>
                           Servicio
                         </div>
-                        <div className='text-sm text-gray-600'>
-                          {searchProps.searchTerm &&
-                          searchProps.searchTerm.trim() !== ""
+                        <div className={`text-sm ${
+                          searchProps.searchTerm && searchProps.searchTerm.trim() !== ""
+                            ? 'text-gray-900 font-medium'
+                            : 'text-gray-500'
+                        }`}>
+                          {searchProps.searchTerm && searchProps.searchTerm.trim() !== ""
                             ? searchProps.searchTerm
                             : "Buscar servicios"}
                         </div>
+                      </button>
 
-                        {/* Service Selector Dropdown */}
-                        <AnimatePresence>
-                          {isServiceSelectorOpen && (
-                            <motion.div
-                              className='absolute top-full left-0 right-0 mt-2 z-50 bg-white border border-gray-200 rounded-lg shadow-lg max-h-56 overflow-y-auto scrollbar-visible'
-                              initial={{ opacity: 0, y: 12 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              exit={{ opacity: 0, y: 12 }}
-                              transition={{
-                                duration: 0.3,
-                                ease: [0.23, 1, 0.32, 1],
-                              }}
-                            >
-                              <div className='p-2'>
-                                {searchProps.popularServices?.map((service) => (
-                                  <div
-                                    key={service.name}
-                                    className='flex items-center gap-3 p-3 hover:bg-gray-50 cursor-pointer rounded-lg transition-colors'
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      searchProps.setSearchTerm(service.name);
-                                      setIsServiceSelectorOpen(false);
-                                    }}
-                                  >
-                                    <service.icon className='h-5 w-5 text-primary' />
-                                    <div>
-                                      <div className='font-medium text-sm text-gray-900'>
-                                        {service.name}
-                                      </div>
-                                      <div className='text-xs text-gray-500'>
-                                        {"Servicio profesional"}
-                                      </div>
-                                    </div>
-                                  </div>
-                                )) || (
-                                  <div className='p-3 text-center text-gray-500'>
-                                    No hay servicios disponibles
-                                  </div>
-                                )}
-                              </div>
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
-                      </div>
+                      {/* Divider */}
+                      <div className='w-px bg-gray-300 my-3' />
 
-                      {/* Zona section */}
-                      <div
-                        ref={zoneSectionRef}
-                        className='flex-1 px-6 py-4 hover:bg-gray-50 transition-colors cursor-pointer relative'
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          console.log(
-                            "Zone clicked, current state:",
-                            isZoneSelectorOpen
-                          );
-                          setIsZoneSelectorOpen(!isZoneSelectorOpen);
-                          setIsServiceSelectorOpen(false);
-                        }}
+                      {/* Zona button */}
+                      <button
+                        onClick={() => setActiveDesktopField(activeDesktopField === 'zone' ? null : 'zone')}
+                        className={`flex-1 px-8 py-3 text-left transition-all ${
+                          activeDesktopField === 'zone' ? 'bg-white shadow-xl scale-105 z-10' : 'hover:bg-gray-100'
+                        }`}
                       >
                         <div className='text-xs font-semibold text-gray-900 mb-1'>
                           Zona
                         </div>
-                        <div className='text-sm text-gray-600'>
-                          {searchProps.selectedZone &&
-                          searchProps.selectedZone !== "all"
-                            ? searchProps.selectedZone === "CABA"
-                              ? "CABA"
-                              : searchProps.selectedZone === "GBA Norte"
-                              ? "GBA Norte"
-                              : searchProps.selectedZone === "GBA Sur"
-                              ? "GBA Sur"
-                              : searchProps.selectedZone === "GBA Oeste"
-                              ? "GBA Oeste"
-                              : searchProps.selectedZone
+                        <div className={`text-sm ${
+                          searchProps.selectedZone && searchProps.selectedZone !== "all"
+                            ? 'text-gray-900 font-medium'
+                            : searchProps.selectedZone === "all"
+                            ? 'text-gray-900 font-medium'
+                            : 'text-gray-500'
+                        }`}>
+                          {searchProps.selectedZone === "all"
+                            ? "Todas las zonas"
+                            : searchProps.selectedZone && searchProps.selectedZone !== "all"
+                            ? searchProps.selectedZone
                             : "Agregar zona"}
                         </div>
-
-                        {/* Zone Selector Dropdown */}
-                        <AnimatePresence>
-                          {isZoneSelectorOpen && (
-                            <motion.div
-                              className='absolute top-full left-0 right-0 mt-2 z-50 bg-white border border-gray-200 rounded-lg shadow-lg'
-                              initial={{ opacity: 0, y: 12 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              exit={{ opacity: 0, y: 12 }}
-                              transition={{
-                                duration: 0.3,
-                                ease: [0.23, 1, 0.32, 1],
-                              }}
-                            >
-                              <div className='p-2'>
-                                {[
-                                  {
-                                    name: "all",
-                                    label: "Todas las zonas",
-                                    description:
-                                      "Buscar en toda el área metropolitana",
-                                  },
-                                  {
-                                    name: "CABA",
-                                    label: "CABA",
-                                    description:
-                                      "Ciudad Autónoma de Buenos Aires",
-                                  },
-                                  {
-                                    name: "GBA Norte",
-                                    label: "GBA Norte",
-                                    description:
-                                      "San Isidro, Vicente López, Tigre",
-                                  },
-                                  {
-                                    name: "GBA Sur",
-                                    label: "GBA Sur",
-                                    description:
-                                      "Quilmes, Avellaneda, Berazategui",
-                                  },
-                                  {
-                                    name: "GBA Oeste",
-                                    label: "GBA Oeste",
-                                    description:
-                                      "Morón, La Matanza, zona oeste",
-                                  },
-                                ].map((zone) => (
-                                  <div
-                                    key={zone.name}
-                                    className='flex items-center gap-3 p-3 hover:bg-gray-50 cursor-pointer rounded-lg transition-colors'
-                                    onClick={() => {
-                                      searchProps.setSelectedZone(zone.name);
-                                      setIsZoneSelectorOpen(false);
-                                    }}
-                                  >
-                                    <div className='h-5 w-5 bg-primary/10 rounded-full flex items-center justify-center'>
-                                      <div className='h-2 w-2 bg-primary rounded-full'></div>
-                                    </div>
-                                    <div>
-                                      <div className='font-medium text-sm text-gray-900'>
-                                        {zone.label}
-                                      </div>
-                                      <div className='text-xs text-gray-500'>
-                                        {zone.description}
-                                      </div>
-                                    </div>
-                                  </div>
-                                ))}
-                              </div>
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
-                      </div>
+                      </button>
 
                       {/* Search button */}
-                      <div className='px-2 py-4'>
+                      <div className='flex items-center pr-2 pl-4'>
                         <Button
-                          onClick={handleSearch}
-                          className='h-12 w-12 rounded-full bg-primary hover:bg-primary/80 flex-shrink-0 p-0 shadow-md transition-all hover:scale-105'
+                          onClick={() => {
+                            handleSearch();
+                            setIsDesktopSearchExpanded(false);
+                            setActiveDesktopField(null);
+                          }}
+                          className='h-12 px-6 rounded-full bg-primary hover:bg-primary/90 flex items-center gap-2 shadow-md transition-all hover:scale-105'
                         >
                           <Search className='h-4 w-4 text-white' />
+                          <span className='text-white font-semibold text-sm'>Buscar</span>
                         </Button>
                       </div>
                     </div>
+
+                    {/* Service Dropdown */}
+                    <AnimatePresence>
+                      {activeDesktopField === 'service' && (
+                        <motion.div
+                          className='absolute top-full left-0 mt-2 bg-white rounded-3xl shadow-2xl border border-gray-200 p-6 w-full max-w-md z-50'
+                          initial={{ opacity: 0, y: -10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -10 }}
+                          transition={{ duration: 0.2 }}
+                        >
+                          <div className='space-y-1 max-h-96 overflow-y-auto'>
+                            {searchProps.popularServices?.map((service) => (
+                              <button
+                                key={service.name}
+                                onClick={() => {
+                                  searchProps.setSearchTerm(service.name);
+                                  // Transición automática a zona
+                                  setTimeout(() => {
+                                    setActiveDesktopField('zone');
+                                  }, 150);
+                                }}
+                                className='flex items-center gap-4 p-3 w-full hover:bg-gray-50 rounded-xl transition-colors text-left'
+                              >
+                                <div className='flex-shrink-0 w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center'>
+                                  <service.icon className='h-5 w-5 text-gray-600' />
+                                </div>
+                                <div className='flex-1 min-w-0'>
+                                  <div className='font-medium text-sm text-gray-900'>
+                                    {service.name}
+                                  </div>
+                                </div>
+                                {searchProps.searchTerm === service.name && (
+                                  <div className='flex-shrink-0 w-5 h-5 rounded-full bg-primary flex items-center justify-center'>
+                                    <svg className='w-3 h-3 text-white' fill='currentColor' viewBox='0 0 20 20'>
+                                      <path fillRule='evenodd' d='M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z' clipRule='evenodd' />
+                                    </svg>
+                                  </div>
+                                )}
+                              </button>
+                            ))}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+
+                    {/* Zone Dropdown */}
+                    <AnimatePresence>
+                      {activeDesktopField === 'zone' && (
+                        <motion.div
+                          className='absolute top-full right-0 mt-2 bg-white rounded-3xl shadow-2xl border border-gray-200 p-6 w-full max-w-sm z-50'
+                          initial={{ opacity: 0, y: -10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -10 }}
+                          transition={{ duration: 0.2 }}
+                        >
+                          <div className='space-y-1'>
+                            {[
+                              { name: "all", label: "Todas las zonas", icon: Compass },
+                              { name: "Ciudad Autónoma de Buenos Aires", label: "CABA", icon: Building },
+                              { name: "GBA Norte", label: "GBA Norte", icon: TreePine },
+                              { name: "GBA Sur", label: "GBA Sur", icon: Waves },
+                              { name: "GBA Oeste", label: "GBA Oeste", icon: Mountain },
+                            ].map((zone) => {
+                              const IconComponent = zone.icon;
+                              return (
+                                <button
+                                  key={zone.name}
+                                  onClick={() => {
+                                    searchProps.setSelectedZone(zone.name);
+                                    setActiveDesktopField(null);
+                                  }}
+                                  className='flex items-center gap-4 p-3 w-full hover:bg-gray-50 rounded-xl transition-colors text-left'
+                                >
+                                  <div className='flex-shrink-0 w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center'>
+                                    <IconComponent className='h-5 w-5 text-gray-600' />
+                                  </div>
+                                  <div className='flex-1 min-w-0'>
+                                    <div className='font-medium text-sm text-gray-900'>
+                                      {zone.label}
+                                    </div>
+                                  </div>
+                                  {searchProps.selectedZone === zone.name && (
+                                    <div className='flex-shrink-0 w-5 h-5 rounded-full bg-primary flex items-center justify-center'>
+                                      <svg className='w-3 h-3 text-white' fill='currentColor' viewBox='0 0 20 20'>
+                                        <path fillRule='evenodd' d='M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z' clipRule='evenodd' />
+                                      </svg>
+                                    </div>
+                                  )}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </motion.div>
                 </div>
               )}
@@ -834,112 +821,222 @@ export function SharedHeader({
               onClick={handleMobileSearchClose}
             />
 
-            {/* Search modal - Full Screen */}
+            {/* Search modal - Bottom Drawer */}
             <motion.div
-              className='fixed inset-0 z-50 bg-background md:hidden shadow-2xl flex flex-col'
-              initial={{ opacity: 0, y: "-100%" }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: "-100%" }}
-              transition={{ duration: 0.6, ease: [0.23, 1, 0.32, 1] }}
+              className='fixed inset-x-0 bottom-0 z-50 bg-background md:hidden shadow-2xl flex flex-col rounded-t-3xl'
+              style={{ maxHeight: '90vh' }}
+              initial={{ y: "100%" }}
+              animate={{ y: 0 }}
+              exit={{ y: "100%" }}
+              transition={{ type: "spring", damping: 30, stiffness: 300 }}
             >
-              {/* Mobile search header */}
-              <div className='flex items-center justify-between p-4 bg-white/95 backdrop-blur-sm flex-shrink-0'>
-                <Button
-                  variant='ghost'
-                  onClick={handleMobileSearchClose}
-                  className='p-2 h-10 w-10 rounded-full hover:bg-gray-100'
-                >
-                  <X className='h-5 w-5' />
-                </Button>
-                <h2 className='text-lg font-normal'>Encuentra tu experto</h2>
-                <div className='w-10' /> {/* Spacer */}
-              </div>
-
-              {/* Mobile search content - Scrollable area */}
-              <div className='flex-1 p-6 overflow-y-auto scrollbar-hide'>
-                <div className='max-w-sm mx-auto space-y-8'>
-                  {/* Combined selectors card */}
+              {/* Main Screen */}
+              <AnimatePresence mode="wait">
+                {mobileSubScreen === 'main' && (
                   <motion.div
-                    className='bg-white rounded-3xl border border-border/20 p-6 shadow-xl mx-auto'
-                    initial={{ opacity: 0, y: 30 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{
-                      duration: 0.6,
-                      delay: 0.2,
-                      ease: [0.4, 0, 0.2, 1],
-                    }}
+                    key="main"
+                    className='flex flex-col h-full'
+                    initial={{ opacity: 1, x: 0 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -50 }}
+                    transition={{ duration: 0.2 }}
                   >
-                    {/* Service selector */}
-                    <div className='space-y-4 mb-6'>
-                      <h3 className='text-base font-semibold text-foreground'>
-                        ¿Qué servicio necesitas?
-                      </h3>
-                      <div className='scale-90 origin-center'>
-                        <ServiceSelector
-                          value={searchProps?.searchTerm || ""}
-                          onValueChange={
-                            searchProps?.setSearchTerm || (() => {})
-                          }
-                          popularServices={searchProps?.popularServices || []}
-                          isOtherSelectorOpen={isZoneSelectorOpen}
-                          onOpenChange={setIsServiceSelectorOpen}
-                        />
-                      </div>
+                    {/* Handle */}
+                    <div className='w-full flex justify-center pt-3 pb-2'>
+                      <div className='w-10 h-1 bg-gray-300 rounded-full' />
                     </div>
 
-                    {/* Divider */}
-                    <div className='border-t border-border/20 my-6'></div>
+                    {/* Header */}
+                    <div className='flex items-center justify-between px-4 py-3 border-b border-gray-200'>
+                      <h2 className='text-lg font-semibold'>Encuentra tu experto</h2>
+                      <Button
+                        variant='ghost'
+                        onClick={handleMobileSearchClose}
+                        className='p-2 h-9 w-9 rounded-full hover:bg-gray-100'
+                      >
+                        <X className='h-5 w-5' />
+                      </Button>
+                    </div>
 
-                    {/* Zone selector */}
-                    <div className='space-y-4'>
-                      <h3 className='text-base font-semibold text-foreground'>
-                        ¿En qué zona?
-                      </h3>
-                      <div className='scale-90 origin-center'>
-                        <ZoneSelector
-                          value={searchProps?.selectedZone || ""}
-                          onValueChange={
-                            searchProps?.setSelectedZone || (() => {})
-                          }
-                          isOtherSelectorOpen={isServiceSelectorOpen}
-                          onOpenChange={setIsZoneSelectorOpen}
-                        />
+                    {/* Content */}
+                    <div className='flex-1 overflow-y-auto p-4 space-y-3'>
+                      {/* Service selector button */}
+                      <button
+                        onClick={() => setMobileSubScreen('service')}
+                        className='w-full p-4 border border-gray-300 rounded-xl text-left hover:border-gray-400 transition-colors'
+                      >
+                        <div className='text-xs font-semibold text-gray-500 mb-1'>Servicio</div>
+                        <div className='text-sm font-medium text-gray-900'>
+                          {searchProps?.searchTerm && searchProps.searchTerm.trim() !== ""
+                            ? searchProps.searchTerm
+                            : "¿Qué servicio necesitas?"}
+                        </div>
+                      </button>
+
+                      {/* Zone selector button */}
+                      <button
+                        onClick={() => setMobileSubScreen('zone')}
+                        className='w-full p-4 border border-gray-300 rounded-xl text-left hover:border-gray-400 transition-colors'
+                      >
+                        <div className='text-xs font-semibold text-gray-500 mb-1'>Zona</div>
+                        <div className='text-sm font-medium text-gray-900'>
+                          {searchProps?.selectedZone && searchProps.selectedZone !== "all"
+                            ? searchProps.selectedZone
+                            : "¿En qué zona?"}
+                        </div>
+                      </button>
+                    </div>
+
+                    {/* Footer */}
+                    <div className='p-4 border-t border-gray-200 bg-white'>
+                      <div className='flex justify-between items-center gap-3'>
+                        <Button
+                          variant='ghost'
+                          onClick={searchProps?.clearFilters || (() => {})}
+                          className='text-sm font-normal underline text-black hover:text-black hover:bg-white px-0 focus:bg-white focus-visible:bg-white active:bg-white'
+                        >
+                          Limpiar todo
+                        </Button>
+                        <Button
+                          onClick={() => {
+                            handleSearch();
+                            handleMobileSearchClose();
+                          }}
+                          className='h-12 px-8 text-base font-medium rounded-xl bg-primary hover:bg-primary-dark shadow-lg'
+                        >
+                          Buscar
+                        </Button>
                       </div>
                     </div>
                   </motion.div>
-                </div>
-              </div>
+                )}
 
-              {/* Mobile search footer - Fixed at bottom */}
-              <motion.div
-                className='p-4 border-t border-border/10 bg-white/95 backdrop-blur-sm flex-shrink-0'
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{
-                  duration: 0.6,
-                  delay: 0.4,
-                  ease: [0.4, 0, 0.2, 1],
-                }}
-              >
-                <div className='flex justify-between items-center w-full max-w-sm mx-auto'>
-                  {/* Clear filters button */}
-                  <Button
-                    variant='ghost'
-                    onClick={searchProps?.clearFilters || (() => {})}
-                    className='text-sm font-normal underline text-black hover:text-black px-0'
+                {/* Service Sub-Screen */}
+                {mobileSubScreen === 'service' && (
+                  <motion.div
+                    key="service"
+                    className='flex flex-col h-full'
+                    initial={{ opacity: 0, x: 50 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: 50 }}
+                    transition={{ duration: 0.2 }}
                   >
-                    Limpiar todo
-                  </Button>
+                    {/* Header with Back */}
+                    <div className='flex items-center gap-3 px-4 py-4 border-b border-gray-200'>
+                      <Button
+                        variant='ghost'
+                        onClick={() => setMobileSubScreen('main')}
+                        className='p-2 h-9 w-9 rounded-full hover:bg-gray-100'
+                      >
+                        <ArrowLeft className='h-5 w-5' />
+                      </Button>
+                      <h2 className='text-lg font-semibold'>Seleccionar servicio</h2>
+                    </div>
 
-                  {/* Search button */}
-                  <Button
-                    onClick={handleSearch}
-                    className='h-10 px-6 text-sm font-normal rounded-2xl bg-primary hover:bg-primary-dark shadow-lg hover:shadow-xl transition-all duration-200'
+                    {/* Service List */}
+                    <div className='flex-1 overflow-y-auto p-4'>
+                      <div className='space-y-2'>
+                        {searchProps?.popularServices
+                          ?.filter((service) => service?.name && service.name.trim().length > 0)
+                          .map((service) => (
+                            <button
+                              key={service.name}
+                              onClick={() => {
+                                searchProps?.setSearchTerm(service.name);
+                                // Transición automática a zona en mobile
+                                setTimeout(() => {
+                                  setMobileSubScreen('zone');
+                                }, 150);
+                              }}
+                              className='flex items-center w-full p-3 rounded-xl hover:bg-gray-50 active:bg-gray-100 transition-colors'
+                            >
+                              <div className='flex-shrink-0 w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mr-3'>
+                                <service.icon className='h-6 w-6 text-primary' />
+                              </div>
+                              <div className='flex-1 text-left min-w-0'>
+                                <div className='font-medium text-foreground text-base'>
+                                  {service.name}
+                                </div>
+                              </div>
+                              {searchProps?.searchTerm === service.name && (
+                                <div className='flex-shrink-0 w-5 h-5 rounded-full bg-primary flex items-center justify-center ml-2'>
+                                  <svg className='w-3 h-3 text-white' fill='currentColor' viewBox='0 0 20 20'>
+                                    <path fillRule='evenodd' d='M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z' clipRule='evenodd' />
+                                  </svg>
+                                </div>
+                              )}
+                            </button>
+                          ))}
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* Zone Sub-Screen */}
+                {mobileSubScreen === 'zone' && (
+                  <motion.div
+                    key="zone"
+                    className='flex flex-col h-full'
+                    initial={{ opacity: 0, x: 50 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: 50 }}
+                    transition={{ duration: 0.2 }}
                   >
-                    Buscar
-                  </Button>
-                </div>
-              </motion.div>
+                    {/* Header with Back */}
+                    <div className='flex items-center gap-3 px-4 py-4 border-b border-gray-200'>
+                      <Button
+                        variant='ghost'
+                        onClick={() => setMobileSubScreen('main')}
+                        className='p-2 h-9 w-9 rounded-full hover:bg-gray-100'
+                      >
+                        <ArrowLeft className='h-5 w-5' />
+                      </Button>
+                      <h2 className='text-lg font-semibold'>Seleccionar zona</h2>
+                    </div>
+
+                    {/* Zone List */}
+                    <div className='flex-1 overflow-y-auto p-4'>
+                      <div className='space-y-2'>
+                        {[
+                          { name: "all", label: "Todas las zonas", icon: Compass },
+                          { name: "Ciudad Autónoma de Buenos Aires", label: "CABA", icon: Building },
+                          { name: "GBA Norte", label: "GBA Norte", icon: TreePine },
+                          { name: "GBA Sur", label: "GBA Sur", icon: Waves },
+                          { name: "GBA Oeste", label: "GBA Oeste", icon: Mountain },
+                        ].map((zone) => {
+                          const IconComponent = zone.icon;
+                          return (
+                            <button
+                              key={zone.name}
+                              onClick={() => {
+                                searchProps?.setSelectedZone(zone.name);
+                                setMobileSubScreen('main');
+                              }}
+                              className='flex items-center w-full p-3 rounded-xl hover:bg-gray-50 active:bg-gray-100 transition-colors'
+                            >
+                              <div className='flex-shrink-0 w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mr-3'>
+                                <IconComponent className='h-6 w-6 text-primary' />
+                              </div>
+                              <div className='flex-1 text-left min-w-0'>
+                                <div className='font-medium text-foreground text-base'>
+                                  {zone.label}
+                                </div>
+                              </div>
+                              {searchProps?.selectedZone === zone.name && (
+                                <div className='flex-shrink-0 w-5 h-5 rounded-full bg-primary flex items-center justify-center ml-2'>
+                                  <svg className='w-3 h-3 text-white' fill='currentColor' viewBox='0 0 20 20'>
+                                    <path fillRule='evenodd' d='M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z' clipRule='evenodd' />
+                                  </svg>
+                                </div>
+                              )}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </motion.div>
           </>
         )}

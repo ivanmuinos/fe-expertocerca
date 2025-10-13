@@ -280,13 +280,17 @@ export default function BuscarPage() {
       <div className='min-h-screen flex flex-col lg:flex-row'>
         {/* Grid de profesionales - 70% width on desktop */}
         <div className='flex-1 lg:w-[70%] overflow-y-auto scrollbar-hide bg-background'>
-          <div className='p-6'>
-            <div className='flex items-center justify-between mb-6'>
-              <h2 className='text-2xl font-semibold'>
-                {filteredProfessionals.length} profesionales
+          <div className='p-3 sm:p-6'>
+            <div className='flex items-center justify-between mb-4 sm:mb-6'>
+              <h2 className='text-sm sm:text-lg font-normal text-muted-foreground'>
+                {professionalsLoading ? (
+                  <span className='inline-block w-24 sm:w-32 h-4 sm:h-5 bg-muted animate-pulse rounded' />
+                ) : (
+                  `${filteredProfessionals.length} profesionales`
+                )}
               </h2>
               {appliedSearchTerm && appliedSearchTerm.trim() !== "" && (
-                <Badge variant='secondary'>Servicio: {appliedSearchTerm}</Badge>
+                <Badge variant='secondary' className='text-xs'>Servicio: {appliedSearchTerm}</Badge>
               )}
             </div>
 
@@ -344,15 +348,15 @@ export default function BuscarPage() {
                 ))}
               </div>
             ) : (
-              <div className='text-center py-12 space-y-4'>
-                <div className='w-16 h-16 mx-auto bg-muted rounded-full flex items-center justify-center'>
-                  <Search className='h-8 w-8 text-muted-foreground' />
+              <div className='text-center py-8 sm:py-12 space-y-3 sm:space-y-4'>
+                <div className='w-12 h-12 sm:w-16 sm:h-16 mx-auto bg-muted rounded-full flex items-center justify-center'>
+                  <Search className='h-6 w-6 sm:h-8 sm:w-8 text-muted-foreground' />
                 </div>
                 <div>
-                  <h3 className='text-lg font-semibold mb-2'>
+                  <h3 className='text-base sm:text-lg font-semibold mb-1 sm:mb-2'>
                     No se encontraron profesionales
                   </h3>
-                  <p className='text-muted-foreground'>
+                  <p className='text-sm sm:text-base text-muted-foreground px-4'>
                     Intenta modificar tus filtros de búsqueda o explora otras
                     zonas.
                   </p>
@@ -362,6 +366,7 @@ export default function BuscarPage() {
                   onClick={clearFilters}
                   loading={professionalsLoading}
                   loadingText='Limpiando'
+                  className='text-sm'
                 >
                   Limpiar filtros
                 </LoadingButton>

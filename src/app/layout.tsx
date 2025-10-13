@@ -1,13 +1,14 @@
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
+import { Poppins } from "next/font/google";
 import { ClientProviders } from "./providers";
 import { MobileNavbar } from "@/src/shared/components/MobileNavbar";
 import { MobileWrapper } from "@/src/shared/components/MobileWrapper";
 import { DynamicLayoutWrapper } from "@/src/shared/components/DynamicLayoutWrapper";
 import { Toaster } from "@/src/shared/components/ui/toaster";
+import { PromoBanner } from "@/src/shared/components/PromoBanner";
 import "./globals.css";
 
-const inter = Inter({
+const poppins = Poppins({
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
   display: "swap",
@@ -101,13 +102,14 @@ export default function RootLayout({
         <link rel='mask-icon' href='/safari-pinned-tab.svg' color='#3B82F6' />
         <meta name='msapplication-TileColor' content='#ffffff' />
       </head>
-      <body className={inter.className}>
+      <body className={poppins.className}>
         <ClientProviders>
           <MobileWrapper>
             <DynamicLayoutWrapper>{children}</DynamicLayoutWrapper>
             <MobileNavbar />
           </MobileWrapper>
           <Toaster />
+          <PromoBanner />
         </ClientProviders>
       </body>
     </html>

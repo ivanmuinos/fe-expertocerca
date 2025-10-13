@@ -69,9 +69,10 @@ export default function PhotoUploadPage() {
         needsCompression: file.size > MAX_SIZE
       });
 
-      // If file is small enough and valid type, return as-is
-      if (file.size <= MAX_SIZE && (file.type === 'image/jpeg' || file.type === 'image/png')) {
-        console.log("File is valid, no processing needed");
+      // Always compress images from gallery to avoid payload size issues
+      // Only skip compression for very small files (< 500KB)
+      if (file.size < 500 * 1024 && (file.type === 'image/jpeg' || file.type === 'image/png')) {
+        console.log("File is small enough, no compression needed");
         resolve(file);
         return;
       }

@@ -57,8 +57,9 @@ export default function MyPublicationsPage() {
 
   const [createLoading, setCreateLoading] = useState(false);
   const handleCreateNew = () => {
+    setCurrentStep(OnboardingStep.USER_TYPE_SELECTION);
     setCreateLoading(true);
-    navigate("/publicar");
+    navigate("/onboarding/user-type-selection");
     setTimeout(() => setCreateLoading(false), 600);
   };
 

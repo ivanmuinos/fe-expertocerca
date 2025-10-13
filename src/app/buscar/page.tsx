@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import {
   Search,
   Wrench,
@@ -44,7 +45,7 @@ interface Professional {
   main_portfolio_image?: string;
 }
 
-export default function BuscarPage() {
+function BuscarPageContent() {
   const [professionals, setProfessionals] = useState<Professional[]>([]);
   const [filteredProfessionals, setFilteredProfessionals] = useState<
     Professional[]
@@ -58,9 +59,7 @@ export default function BuscarPage() {
   const [appliedSelectedZone, setAppliedSelectedZone] = useState("all");
   const [selectedProfessional, setSelectedProfessional] =
     useState<Professional | null>(null);
-  const [searchParams, setSearchParams] = useState<URLSearchParams | null>(
-    null
-  );
+  const searchParams = useSearchParams();
   const {
     loading: professionalsLoading,
     discoverProfessionals,
@@ -99,27 +98,30 @@ export default function BuscarPage() {
     setAppliedSelectedZone(selectedZone);
   };
 
-  // Initialize search params client-side
+  // Read and apply URL parameters whenever they change
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const params = new URLSearchParams(window.location.search);
-      setSearchParams(params);
-    }
-  }, []);
-
-  // Obtener parámetros de la URL
-  useEffect(() => {
-    if (!searchParams) return;
     const servicio = searchParams.get("servicio") || "";
     const zona = searchParams.get("zona") || "all";
+    
+    console.log("URL params changed:", { 
+      servicio, 
+      zona, 
+      allParams: searchParams.toString(),
+      timestamp: new Date().toISOString()
+    });
+    
     setSearchTerm(servicio);
     setSelectedZone(zona);
-    // Si vienen de URL, aplicar inmediatamente
+    // Apply filters immediately when coming from URL
     setAppliedSearchTerm(servicio);
     setAppliedSelectedZone(zona);
+    
+    console.log("Applied filters from URL:", { servicio, zona });
   }, [searchParams]);
 
   const loadProfessionals = useCallback(async () => {
+    console.log("Loading professionals...", { isAuthenticated: !!user });
+    
     const { data, error } = user
       ? await browseProfessionals()
       : await discoverProfessionals();
@@ -140,27 +142,29 @@ export default function BuscarPage() {
     // Log all unique specialties and trade names to see what's available
     if (data && data.length > 0) {
       const specialties = [
-        ...new Set(data.map((p) => p.specialty).filter(Boolean)),
+        ...new Set(data.map((p: any) => p.specialty).filter(Boolean)),
       ];
       const tradeNames = [
         ...new Set(data.map((p) => p.trade_name).filter(Boolean)),
       ];
       const skills = [...new Set(data.flatMap((p) => p.profile_skills || []))];
 
+      console.log("=== AVAILABLE DATA IN DATABASE ===");
       console.log("Available specialties:", specialties);
       console.log("Available trade names:", tradeNames);
       console.log("Available skills:", skills);
+      console.log("==================================");
 
-      // Check specifically for "Carpintero" related terms
-      const carpinteroRelated = data.filter(
-        (p) =>
-          p.specialty?.toLowerCase().includes("carpint") ||
-          p.trade_name?.toLowerCase().includes("carpint") ||
-          p.profile_skills?.some((skill) =>
-            skill.toLowerCase().includes("carpint")
-          )
-      );
-      console.log("Carpintero-related professionals:", carpinteroRelated);
+      // Log each professional's searchable fields
+      console.log("All professionals with searchable fields:");
+      data.forEach((p: any, index: number) => {
+        console.log(`Professional ${index + 1}:`, {
+          trade_name: p.trade_name,
+          specialty: p.specialty,
+          skills: p.profile_skills,
+          full_name: p.profile_full_name
+        });
+      });
     }
 
     setProfessionals((data || []) as Professional[]);
@@ -179,38 +183,39 @@ export default function BuscarPage() {
     // Filtro por término de búsqueda (servicio)
     if (appliedSearchTerm && appliedSearchTerm.trim() !== "") {
       console.log("Filtering by search term:", appliedSearchTerm);
+      const searchLower = appliedSearchTerm.toLowerCase();
+      
       filtered = filtered.filter((prof) => {
-        const matchesName = prof.trade_name
-          .toLowerCase()
-          .includes(appliedSearchTerm.toLowerCase());
-        const matchesFullName = prof.profile_full_name
-          .toLowerCase()
-          .includes(appliedSearchTerm.toLowerCase());
-        const matchesSkills = prof.profile_skills?.some((skill: string) =>
-          skill.toLowerCase().includes(appliedSearchTerm.toLowerCase())
+        const tradeName = prof.trade_name?.toLowerCase() || "";
+        const fullName = prof.profile_full_name?.toLowerCase() || "";
+        const specialty = (prof as any).specialty?.toLowerCase() || "";
+        const skills = prof.profile_skills || [];
+        
+        const matchesName = tradeName.includes(searchLower);
+        const matchesFullName = fullName.includes(searchLower);
+        const matchesSkills = skills.some((skill: string) =>
+          skill.toLowerCase().includes(searchLower)
         );
-        const matchesSpecialty = prof.specialty
-          ?.toLowerCase()
-          .includes(appliedSearchTerm.toLowerCase());
+        const matchesSpecialty = specialty.includes(searchLower);
 
         const matches =
           matchesName || matchesFullName || matchesSkills || matchesSpecialty;
 
-        if (matches) {
-          console.log("Match found:", {
-            trade_name: prof.trade_name,
-            specialty: prof.specialty,
-            profile_skills: prof.profile_skills,
-            matchesName,
-            matchesFullName,
-            matchesSkills,
-            matchesSpecialty,
-          });
-        }
+        console.log("Checking professional:", {
+          trade_name: prof.trade_name,
+          specialty: (prof as any).specialty,
+          profile_skills: prof.profile_skills,
+          searchTerm: appliedSearchTerm,
+          matchesName,
+          matchesFullName,
+          matchesSkills,
+          matchesSpecialty,
+          finalMatch: matches
+        });
 
         return matches;
       });
-      console.log("Filtered results:", filtered.length);
+      console.log("Filtered results:", filtered.length, "out of", professionals.length);
     }
 
     // Filtro por zona (por work_zone_name exacto; fallback ciudad/provincia contiene)
@@ -446,5 +451,22 @@ export default function BuscarPage() {
 
       <Footer />
     </div>
+  );
+}
+
+export default function BuscarPage() {
+  return (
+    <Suspense fallback={
+      <div className='bg-background min-h-screen flex items-center justify-center'>
+        <div className='text-center'>
+          <div className='w-16 h-16 mx-auto mb-4 bg-muted rounded-full flex items-center justify-center animate-pulse'>
+            <Search className='w-8 h-8 text-muted-foreground' />
+          </div>
+          <p className='text-muted-foreground'>Cargando profesionales...</p>
+        </div>
+      </div>
+    }>
+      <BuscarPageContent />
+    </Suspense>
   );
 }

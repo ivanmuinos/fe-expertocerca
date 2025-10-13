@@ -19,38 +19,34 @@ export type PhotoSectionType = 'photos' | 'description';
 interface OnboardingProgressState {
   currentStep: OnboardingStep;
   previousProgress: number;
-  // Sub-section tracking
-  specialtySection: SpecialtySectionType;
-  photoSection: PhotoSectionType;
 
   // Actions
   setCurrentStep: (step: OnboardingStep) => void;
-  setSpecialtySection: (section: SpecialtySectionType) => void;
-  setPhotoSection: (section: PhotoSectionType) => void;
   getProgressPercentage: () => number;
   getPreviousProgress: () => number;
   resetProgress: () => void;
 }
 
-// Progress mapping with sub-steps - More balanced distribution
-const BASE_STEP_PROGRESS: Record<OnboardingStep, number> = {
-  [OnboardingStep.PROFESSIONAL_INTRO]: 10,        // 10% (step 1/6)
-  [OnboardingStep.SPECIALTY_SELECTION]: 25,       // 25% base (step 2/6)
-  [OnboardingStep.PHOTO_GUIDELINES]: 40,          // 40% (step 3/6)
-  [OnboardingStep.PHOTO_UPLOAD]: 55,              // 55% base (step 4/6)
-  [OnboardingStep.PERSONAL_DATA]: 90,             // 90% (step 5/6) - Almost complete
-  [OnboardingStep.COMPLETION]: 100                // 100% (step 6/6)
-};
+// Simple progress mapping - Each step is equal
+const STEP_ORDER = [
+  OnboardingStep.PROFESSIONAL_INTRO,
+  OnboardingStep.SPECIALTY_SELECTION,
+  OnboardingStep.PHOTO_GUIDELINES,
+  OnboardingStep.PHOTO_UPLOAD,
+  OnboardingStep.PERSONAL_DATA,
+  OnboardingStep.COMPLETION
+];
 
-// Sub-section progress increments - Smaller, more proportional
-const SPECIALTY_SUB_PROGRESS: Record<SpecialtySectionType, number> = {
-  'specialty': 0,  // Base section (25%)
-  'zone': 7        // +7% when in zone section (32%)
-};
+const TOTAL_STEPS = STEP_ORDER.length;
 
-const PHOTO_SUB_PROGRESS: Record<PhotoSectionType, number> = {
-  'photos': 0,        // Base section (55%)
-  'description': 8    // +8% when in description section (63%)
+// Calculate progress based on step position
+const calculateStepProgress = (step: OnboardingStep): number => {
+  const stepIndex = STEP_ORDER.indexOf(step);
+  if (stepIndex === -1) return 0;
+  
+  // Each step represents equal progress
+  const progressPerStep = 100 / TOTAL_STEPS;
+  return Math.round((stepIndex + 1) * progressPerStep);
 };
 
 export const useOnboardingProgressStore = create<OnboardingProgressState>()(
@@ -58,8 +54,6 @@ export const useOnboardingProgressStore = create<OnboardingProgressState>()(
     (set, get) => ({
       currentStep: OnboardingStep.PROFESSIONAL_INTRO,
       previousProgress: 0,
-      specialtySection: 'specialty',
-      photoSection: 'photos',
 
       setCurrentStep: (step: OnboardingStep) => {
         const currentProgress = get().getProgressPercentage();
@@ -69,39 +63,9 @@ export const useOnboardingProgressStore = create<OnboardingProgressState>()(
         });
       },
 
-      setSpecialtySection: (section: SpecialtySectionType) => {
-        const state = get();
-        const currentProgress = state.getProgressPercentage();
-        set({
-          previousProgress: currentProgress,
-          specialtySection: section
-        });
-      },
-
-      setPhotoSection: (section: PhotoSectionType) => {
-        const state = get();
-        const currentProgress = state.getProgressPercentage();
-        set({
-          previousProgress: currentProgress,
-          photoSection: section
-        });
-      },
-
       getProgressPercentage: () => {
         const state = get();
-        let progress = BASE_STEP_PROGRESS[state.currentStep] || 0;
-
-        // Add sub-section progress for specialty selection
-        if (state.currentStep === OnboardingStep.SPECIALTY_SELECTION) {
-          progress += SPECIALTY_SUB_PROGRESS[state.specialtySection];
-        }
-
-        // Add sub-section progress for photo upload
-        if (state.currentStep === OnboardingStep.PHOTO_UPLOAD) {
-          progress += PHOTO_SUB_PROGRESS[state.photoSection];
-        }
-
-        return Math.min(progress, 100); // Cap at 100%
+        return calculateStepProgress(state.currentStep);
       },
 
       getPreviousProgress: () => {
@@ -112,18 +76,14 @@ export const useOnboardingProgressStore = create<OnboardingProgressState>()(
       resetProgress: () =>
         set({
           currentStep: OnboardingStep.PROFESSIONAL_INTRO,
-          previousProgress: 0,
-          specialtySection: 'specialty',
-          photoSection: 'photos'
+          previousProgress: 0
         })
     }),
     {
       name: 'onboarding-progress-storage',
       partialize: (state) => ({
         currentStep: state.currentStep,
-        previousProgress: state.previousProgress,
-        specialtySection: state.specialtySection,
-        photoSection: state.photoSection
+        previousProgress: state.previousProgress
       }),
       // Skip hydration to prevent SSR mismatches
       skipHydration: true,

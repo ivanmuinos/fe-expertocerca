@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Star, Send, Edit2, Trash2 } from "lucide-react";
+import { Star, Send } from "lucide-react";
 import { Button } from "@/src/shared/components/ui/button";
 import {
   Card,
@@ -28,8 +28,6 @@ export function ReviewsSection({
   const {
     getReviews,
     createReview,
-    updateReview,
-    deleteReview,
     getAverageRating,
     loading,
   } = useReviews();
@@ -37,7 +35,6 @@ export function ReviewsSection({
   const [averageRating, setAverageRating] = useState(0);
   const [reviewCount, setReviewCount] = useState(0);
   const [showForm, setShowForm] = useState(false);
-  const [editingReview, setEditingReview] = useState<Review | null>(null);
   const [formData, setFormData] = useState({
     rating: 5,
     comment: "",
@@ -64,50 +61,20 @@ export function ReviewsSection({
   const handleSubmit = async () => {
     if (!user) return;
 
-    if (editingReview) {
-      const { success } = await updateReview(
-        editingReview.id,
-        formData.rating,
-        formData.comment
-      );
-      if (success) {
-        setEditingReview(null);
-        loadReviews();
-        loadAverageRating();
-      }
-    } else {
-      const { success } = await createReview(
-        {
-          professional_profile_id: professionalProfileId,
-          rating: formData.rating,
-          comment: formData.comment,
-        },
-        user.id
-      );
-      if (success) {
-        setShowForm(false);
-        loadReviews();
-        loadAverageRating();
-      }
-    }
-
-    setFormData({ rating: 5, comment: "" });
-  };
-
-  const handleEdit = (review: Review) => {
-    setEditingReview(review);
-    setFormData({
-      rating: review.rating,
-      comment: review.comment || "",
-    });
-    setShowForm(true);
-  };
-
-  const handleDelete = async (reviewId: string) => {
-    const { success } = await deleteReview(reviewId);
+    const { success } = await createReview(
+      {
+        professional_profile_id: professionalProfileId,
+        rating: formData.rating,
+        comment: formData.comment,
+      },
+      user.id
+    );
+    
     if (success) {
+      setShowForm(false);
       loadReviews();
       loadAverageRating();
+      setFormData({ rating: 5, comment: "" });
     }
   };
 
@@ -179,9 +146,7 @@ export function ReviewsSection({
           {/* Review form */}
           {user && showForm && (
             <div className='bg-gray-50 rounded-lg p-6 space-y-4'>
-              <h4 className='text-lg font-semibold'>
-                {editingReview ? "Editar reseña" : "Escribe tu reseña"}
-              </h4>
+              <h4 className='text-lg font-semibold'>Escribe tu reseña</h4>
 
               <div className='space-y-2'>
                 <label className='text-sm font-medium'>Calificación</label>
@@ -227,13 +192,12 @@ export function ReviewsSection({
                   disabled={loading || !formData.comment.trim()}
                 >
                   <Send className='w-4 h-4 mr-2' />
-                  {editingReview ? "Actualizar" : "Enviar reseña"}
+                  Enviar reseña
                 </Button>
                 <Button
                   variant='outline'
                   onClick={() => {
                     setShowForm(false);
-                    setEditingReview(null);
                     setFormData({ rating: 5, comment: "" });
                   }}
                 >
@@ -274,26 +238,6 @@ export function ReviewsSection({
                         </p>
                       )}
                     </div>
-
-                    {/* Edit/Delete buttons for review owner */}
-                    {user?.id === review.reviewer_user_id && (
-                      <div className='flex gap-2 ml-4'>
-                        <Button
-                          size='sm'
-                          variant='ghost'
-                          onClick={() => handleEdit(review)}
-                        >
-                          <Edit2 className='w-4 h-4' />
-                        </Button>
-                        <Button
-                          size='sm'
-                          variant='ghost'
-                          onClick={() => handleDelete(review.id)}
-                        >
-                          <Trash2 className='w-4 h-4' />
-                        </Button>
-                      </div>
-                    )}
                   </div>
                 </div>
               ))}

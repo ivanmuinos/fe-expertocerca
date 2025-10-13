@@ -400,7 +400,8 @@ export function SharedHeader({
                 <Button
                   variant='ghost'
                   onClick={handleMobileSearchOpen}
-                  className='w-full bg-white border border-border/50 rounded-full shadow-sm px-6 py-4 h-14 flex items-center gap-3 hover:shadow-md hover:bg-white transition-all focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none focus:outline-none active:scale-[0.98] active:bg-white'
+                  className='w-full bg-white border border-gray-300 rounded-full px-6 py-4 h-14 flex items-center gap-3 hover:bg-white transition-all focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none focus:outline-none active:scale-[0.98] active:bg-white'
+                  style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.08)' }}
                 >
                   <Search className='h-5 w-5 text-muted-foreground flex-shrink-0' />
                   <div className='text-sm truncate'>
@@ -803,8 +804,8 @@ export function SharedHeader({
 
             {/* Search modal - Bottom Drawer */}
             <motion.div
-              className='fixed inset-x-0 bottom-0 z-50 bg-background md:hidden shadow-2xl flex flex-col rounded-t-3xl'
-              style={{ maxHeight: '90vh' }}
+              className='fixed inset-x-0 bottom-0 z-50 bg-background md:hidden shadow-2xl flex flex-col rounded-t-3xl overflow-hidden'
+              style={{ maxHeight: '90vh', height: '90vh' }}
               initial={{ y: "100%" }}
               animate={{ y: 0 }}
               exit={{ y: "100%" }}

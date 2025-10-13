@@ -181,11 +181,8 @@ export default function CompletionPage() {
 
             <div className='space-y-4'>
               <h1 className='text-2xl text-foreground text-center'>
-                Finalizando tu perfil...
+                Publicando...
               </h1>
-              <p className='text-muted-foreground text-center leading-relaxed'>
-                Configurando tu perfil profesional
-              </p>
             </div>
           </div>
         </motion.div>

@@ -4,6 +4,14 @@
 
 /* Design system for OficiosConnect - Professional trades marketplace */
 
+/* Prevent overscroll bounce on mobile */
+html,
+body {
+  overscroll-behavior: none;
+  overscroll-behavior-y: none;
+  -webkit-overflow-scrolling: touch;
+}
+
 /* PWA Animations */
 @keyframes slide-up {
   from {
@@ -186,13 +194,22 @@
   }
 
   /* Prevent bounce/rubber band scrolling */
+  html,
   body {
+    overscroll-behavior: none;
     overscroll-behavior-y: none;
     -webkit-overflow-scrolling: touch;
   }
 }
 
 @layer utilities {
+  /* Prevent overscroll bounce */
+  .overscroll-none {
+    overscroll-behavior: none;
+    overscroll-behavior-y: none;
+  }
+
+
   /* Hide scrollbar for webkit browsers (Chrome, Safari, Edge) */
   .scrollbar-hide::-webkit-scrollbar {
     display: none;

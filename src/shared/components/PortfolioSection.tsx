@@ -580,12 +580,12 @@ export function PortfolioSection({
       {/* Photo Modal/Drawer - Drawer for mobile, Dialog for desktop */}
       {isMobile ? (
         <Drawer open={showPhotoModal} onOpenChange={setShowPhotoModal} modal={true}>
-          <DrawerContent className='h-screen p-0 overflow-hidden bg-black border-none fixed inset-0 rounded-none'>
+          <DrawerContent className='h-screen w-screen p-0 overflow-hidden bg-black border-none fixed inset-0 rounded-none max-h-screen'>
             <VisuallyHidden>
               <DrawerTitle>Galería de fotos</DrawerTitle>
             </VisuallyHidden>
             {selectedPhoto && (
-              <div className='flex flex-col h-full relative'>
+              <div className='flex flex-col h-screen w-screen relative'>
                 {/* Close button - top left */}
                 <button
                   onClick={() => {
@@ -613,8 +613,8 @@ export function PortfolioSection({
 
                 {/* Grid View - All photos in 2 columns */}
                 {showGridView ? (
-                  <div className='absolute inset-0 bg-black overflow-y-auto'>
-                    <div className='grid grid-cols-2 gap-2 p-4 pb-20'>
+                  <div className='absolute inset-0 bg-black overflow-y-auto overscroll-contain' style={{ WebkitOverflowScrolling: 'touch' }}>
+                    <div className='grid grid-cols-2 gap-2 p-4 pt-20 pb-20 min-h-full'>
                       {photos.map((photo, index) => (
                         <div
                           key={photo.id}
@@ -630,6 +630,7 @@ export function PortfolioSection({
                             alt={photo.title}
                             fill
                             className='object-cover rounded-lg'
+                            sizes='50vw'
                           />
                         </div>
                       ))}

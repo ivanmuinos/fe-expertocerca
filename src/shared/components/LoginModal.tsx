@@ -68,14 +68,14 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
   return (
     <AnimatePresence>
       <motion.div
-        className='fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4'
+        className='fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 pb-20 md:pb-4'
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         onClick={handleClose}
       >
         <motion.div
-          className='bg-white rounded-3xl shadow-2xl w-full max-w-sm md:max-w-2xl h-[75vh] md:h-[80vh] mx-auto overflow-hidden flex flex-col'
+          className='bg-white rounded-3xl shadow-2xl w-full max-w-sm md:max-w-2xl h-[70vh] md:h-[80vh] mx-auto overflow-hidden flex flex-col'
           initial={{ opacity: 0, y: "100%" }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: "100%" }}

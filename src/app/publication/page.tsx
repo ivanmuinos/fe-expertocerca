@@ -18,6 +18,7 @@ import {
   Zap as ZapIcon,
   Triangle,
   Share2,
+  MessageCircle,
 } from "lucide-react";
 import { Button } from "@/src/shared/components/ui/button";
 import { LoadingButton } from "@/src/shared/components/ui/loading-button";
@@ -186,9 +187,8 @@ export default function PublicationPage() {
 
   const handleShare = async () => {
     const shareUrl = window.location.href;
-    const shareText = `Mira el perfil de ${professional.profile_full_name} - ${
-      professional.specialty || professional.trade_name
-    } en Experto Cerca`;
+    const shareText = `Mira el perfil de ${professional.profile_full_name} - ${professional.specialty || professional.trade_name
+      } en Experto Cerca`;
 
     // Check if mobile device has native share API
     if (
@@ -233,6 +233,11 @@ export default function PublicationPage() {
   if (loading) {
     return (
       <div className='min-h-screen bg-background'>
+        <SharedHeader
+          showBackButton={true}
+          showSearch={false}
+          variant='default'
+        />
         <PublicationSkeleton />
       </div>
     );
@@ -255,31 +260,61 @@ export default function PublicationPage() {
 
   return (
     <div className='min-h-screen'>
-      <SharedHeader
-        showBackButton={true}
-        showSearch={false}
-        searchCollapsed={true}
-        variant='default'
-        rightAction={
+      {/* Custom header for publication page - Mobile only */}
+      <header className='lg:hidden sticky top-0 z-40 bg-white'>
+        <div className='flex items-center justify-between h-10 px-4'>
+          <button
+            onClick={() => navigate(-1)}
+            className='p-2 -ml-2 hover:bg-gray-100 rounded-full transition-colors'
+          >
+            <svg className='w-5 h-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+              <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M15 19l-7-7 7-7' />
+            </svg>
+          </button>
+
+          <img
+            src='/logo-color-experto-cerca.svg'
+            alt='Experto Cerca'
+            className='h-8'
+          />
+
           <button
             onClick={handleShare}
-            className='p-2 h-8 w-8 hover:bg-muted/50 rounded-full transition-colors flex items-center justify-center'
-            aria-label='Compartir publicación'
+            className='p-2 -mr-2 hover:bg-gray-100 rounded-full transition-colors'
           >
-            <Share2 className='h-4 w-4' />
+            <Share2 className='h-5 w-5' />
           </button>
-        }
-        searchProps={{
-          searchTerm,
-          setSearchTerm,
-          selectedZone,
-          setSelectedZone,
-          popularServices,
-          clearFilters,
-        }}
-      />
+        </div>
+      </header>
 
-      <div className='max-w-[1600px] mx-auto px-3 sm:px-6 lg:px-12 pb-8 lg:pb-8'>
+      {/* Desktop header */}
+      <div className='hidden lg:block'>
+        <SharedHeader
+          showBackButton={true}
+          showSearch={false}
+          searchCollapsed={true}
+          variant='default'
+          rightAction={
+            <button
+              onClick={handleShare}
+              className='p-2 h-8 w-8 hover:bg-muted/50 rounded-full transition-colors flex items-center justify-center'
+              aria-label='Compartir publicación'
+            >
+              <Share2 className='h-4 w-4' />
+            </button>
+          }
+          searchProps={{
+            searchTerm,
+            setSearchTerm,
+            selectedZone,
+            setSelectedZone,
+            popularServices,
+            clearFilters,
+          }}
+        />
+      </div>
+
+      <div className='max-w-6xl mx-auto px-3 sm:px-6 lg:px-8 pb-24 lg:pb-8'>
         {/* Mobile Gallery - Show first */}
         <div className='lg:hidden mb-6'>
           <PortfolioSection
@@ -366,9 +401,9 @@ export default function PublicationPage() {
           </div>
         </div>
 
-        <div className='grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8'>
+        <div className='grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-4'>
           {/* Main Content - Gallery and Description */}
-          <div className='lg:col-span-7 xl:col-span-8 space-y-6 lg:space-y-8 lg:order-1'>
+          <div className='lg:col-span-7 space-y-6 lg:order-1'>
             {/* Desktop Gallery - Hidden on mobile */}
             <div className='hidden lg:block'>
               <PortfolioSection
@@ -497,18 +532,20 @@ export default function PublicationPage() {
         </div>
       </div>
 
-      <div className='fixed bottom-0 left-0 right-0 lg:hidden z-50 p-3 bg-gradient-to-t from-white via-white to-transparent pb-6'>
-        <LoadingButton
-          onClick={handleContact}
-          className='w-full bg-primary hover:bg-primary-dark text-primary-foreground font-semibold py-3.5 px-6 rounded-xl transition-all duration-200 flex items-center justify-center gap-2 shadow-lg'
-          loading={contactLoading}
-          loadingText={user ? "Abriendo WhatsApp" : "Inicia sesión"}
-        >
-          <Phone className='w-4 h-4' />
-          <span className='text-sm'>
-            {user ? "Contactar por WhatsApp" : "Inicia sesión para contactar"}
-          </span>
-        </LoadingButton>
+      <div className='fixed bottom-0 left-0 right-0 lg:hidden z-50 bg-white border-t border-gray-200 shadow-lg' style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
+        <div className='max-w-6xl mx-auto px-3 sm:px-6 py-3'>
+          <LoadingButton
+            onClick={handleContact}
+            className='w-full bg-primary hover:bg-primary/90 text-white font-semibold py-3.5 px-6 rounded-xl transition-all duration-200 flex items-center justify-center gap-2 shadow-md'
+            loading={contactLoading}
+            loadingText={user ? "Abriendo WhatsApp" : "Inicia sesión"}
+          >
+            <MessageCircle className='w-5 h-5' />
+            <span className='text-sm'>
+              {user ? "Contactar por WhatsApp" : "Inicia sesión para contactar"}
+            </span>
+          </LoadingButton>
+        </div>
       </div>
 
       <Footer />

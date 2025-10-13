@@ -77,24 +77,23 @@ export default function ProfessionalIntroPage() {
   ];
 
   return (
-    <div className='h-screen bg-gradient-subtle flex flex-col overflow-hidden'>
-      {/* Content */}
-      <div className='flex-1 w-full max-w-md md:max-w-2xl mx-auto px-4 py-4 md:px-4 md:py-6 flex flex-col min-h-0'>
+    <div className='flex-1 flex flex-col overflow-auto'>
+      <div className='w-full max-w-md md:max-w-2xl mx-auto px-4 py-4 md:px-4 md:py-6'>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className='flex-1 flex flex-col'
         >
+          {/* Title */}
+          <div className='mb-4 md:mb-6'>
+            <h1 className='text-lg md:text-xl text-foreground text-left'>
+              Comenzar como experto es fácil
+            </h1>
+          </div>
+
           {/* Steps */}
-          <div className='flex-1 overflow-auto scrollbar-hide'>
+          <div>
             <div className='space-y-4 md:space-y-6'>
-              {/* Title inside scrollable area */}
-              <div className='mb-4 md:mb-6'>
-                <h1 className='text-lg md:text-xl text-foreground text-left'>
-                  Comenzar como experto es fácil
-                </h1>
-              </div>
               {steps.map((step, index) => (
                 <motion.div
                   key={step.number}
@@ -132,8 +131,6 @@ export default function ProfessionalIntroPage() {
           </div>
         </motion.div>
       </div>
-
-      {/* Footer Buttons removed; handled by global footer */}
     </div>
   );
 }

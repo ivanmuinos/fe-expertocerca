@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useNavigate } from "@/src/shared/lib/navigation";
 import {
   Clock,
@@ -9,6 +10,7 @@ import {
   ExternalLink,
   MessageCircle,
 } from "lucide-react";
+import { LoadingButton } from "@/src/shared/components/ui/loading-button";
 import { Button } from "@/src/shared/components/ui/button";
 import { Card } from "@/src/shared/components/ui/card";
 import {
@@ -45,6 +47,7 @@ export default function ProfessionalMiniDetail({
   professional,
 }: ProfessionalMiniDetailProps) {
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
 
   if (!professional) {
     return (
@@ -68,7 +71,16 @@ export default function ProfessionalMiniDetail({
   }
 
   const handleViewFullProfile = () => {
-    navigate(`/publication?id=${professional.id}`);
+    setIsLoading(true);
+    // En desktop, abrir en nueva pestaña
+    if (window.innerWidth >= 1024) {
+      window.open(`/publication?id=${professional.id}`, '_blank');
+      // Reset loading después de un momento
+      setTimeout(() => setIsLoading(false), 500);
+    } else {
+      // En mobile, navegar normalmente
+      navigate(`/publication?id=${professional.id}`);
+    }
   };
 
   const handleContactWhatsApp = () => {
@@ -164,10 +176,16 @@ export default function ProfessionalMiniDetail({
 
         {/* Action Buttons */}
         <div className='space-y-3'>
-          <Button onClick={handleViewFullProfile} className='w-full' size='lg'>
+          <LoadingButton 
+            onClick={handleViewFullProfile} 
+            className='w-full' 
+            size='lg'
+            loading={isLoading}
+            loadingText="Ver perfil"
+          >
             <ExternalLink className='mr-2 h-4 w-4' />
-            Ver perfil completo
-          </Button>
+            Ver perfil
+          </LoadingButton>
 
           {professional.has_contact_info && professional.whatsapp_phone && (
             <Button

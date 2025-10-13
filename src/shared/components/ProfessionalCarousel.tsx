@@ -84,7 +84,7 @@ export function ProfessionalCarousel({
           {professionals.map((professional) => (
             <div
               key={professional.id}
-              className='flex-shrink-0 w-[160px] sm:w-[180px]'
+              className='flex-shrink-0 w-[160px] sm:w-[200px]'
             >
               <PublicationCard
                 professional={professional}

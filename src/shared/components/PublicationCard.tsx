@@ -84,7 +84,7 @@ export function PublicationCard({
   return (
     <div
       className={`group cursor-pointer transition-all duration-200 ${
-        isSelected ? "ring-2 ring-gray-200" : ""
+        isSelected ? "scale-105" : "scale-100"
       } ${className}`}
       onClick={handleClick}
       style={{
@@ -94,20 +94,18 @@ export function PublicationCard({
       onFocus={(e) => e.preventDefault()}
       onMouseDown={(e) => e.preventDefault()}
     >
-      {/* Card container with Airbnb-style shadow */}
+      {/* Card container */}
       <div
-        className='bg-white rounded-xl hover:shadow-md transition-shadow duration-300 overflow-hidden'
+        className='bg-white rounded-xl overflow-hidden'
         style={{ outline: "none" }}
       >
         {/* Image section - cuadrado como Airbnb */}
-        <div className='aspect-square relative bg-gray-200 overflow-hidden'>
+        <div className='aspect-square relative bg-gray-200 overflow-hidden rounded-xl'>
           {professional.main_portfolio_image ? (
             <img
               src={professional.main_portfolio_image}
               alt={professional.profile_full_name || "Publication"}
-              className={`w-full h-full object-cover transition-all duration-300 ${
-                isLoading ? "brightness-110 scale-105" : ""
-              }`}
+              className='w-full h-full object-cover'
               loading='lazy'
               onError={(e) => {
                 console.log(
@@ -121,21 +119,21 @@ export function PublicationCard({
         </div>
 
         {/* Content section */}
-        <div className='p-3'>
-          <div className='space-y-2'>
+        <div className='p-2 sm:p-3'>
+          <div className='space-y-1.5 sm:space-y-2'>
             {/* Title and specialty */}
             <div>
-              <h3 className='font-semibold text-foreground line-clamp-1 text-base'>
+              <h3 className='font-semibold text-foreground line-clamp-1 text-xs sm:text-sm'>
                 {professional.trade_name}
               </h3>
               {professional.specialty && (
-                <div className='flex items-center gap-1.5 text-sm text-muted-foreground'>
+                <div className='flex items-center gap-1 text-[11px] sm:text-xs text-muted-foreground'>
                   {(() => {
                     const SpecialtyIcon = getSpecialtyIcon(
                       professional.specialty
                     );
                     return SpecialtyIcon ? (
-                      <SpecialtyIcon className='h-4 w-4' />
+                      <SpecialtyIcon className='h-3 w-3 sm:h-3.5 sm:w-3.5' />
                     ) : null;
                   })()}
                   <span>{professional.specialty}</span>
@@ -144,8 +142,8 @@ export function PublicationCard({
             </div>
 
             {/* Location */}
-            <div className='flex items-center gap-1 text-[13px] text-muted-foreground font-normal'>
-              <MapPin className='h-4 w-4 flex-shrink-0' />
+            <div className='flex items-center gap-1 text-[11px] sm:text-xs text-muted-foreground font-normal'>
+              <MapPin className='h-3 w-3 sm:h-3.5 sm:w-3.5 flex-shrink-0' />
               <span className='line-clamp-1'>
                 {professional.profile_location_city &&
                 professional.profile_location_province
@@ -156,12 +154,12 @@ export function PublicationCard({
 
             {/* Skills */}
             {skillsToShow.length > 0 && (
-              <div className='flex flex-wrap gap-1 pt-1'>
+              <div className='flex flex-wrap gap-1 pt-0.5'>
                 {skillsToShow.map((skill, index) => (
                   <Badge
                     key={index}
                     variant='secondary'
-                    className='text-xs px-2 py-0.5'
+                    className='text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5'
                   >
                     {skill}
                   </Badge>
@@ -171,8 +169,8 @@ export function PublicationCard({
 
             {/* Price */}
             {professional.hourly_rate && (
-              <div className='pt-1'>
-                <p className='font-semibold text-foreground'>
+              <div className='pt-0.5 sm:pt-1'>
+                <p className='font-semibold text-foreground text-xs sm:text-sm'>
                   ${professional.hourly_rate.toLocaleString()}/hora
                 </p>
               </div>

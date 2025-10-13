@@ -38,7 +38,7 @@ const loggedInNavItems = [
     id: "publicar",
     label: "Publicar",
     icon: Plus,
-    path: "/onboarding/specialty-selection",
+    path: "/onboarding/user-type-selection",
   },
   {
     id: "publicaciones",
@@ -70,7 +70,7 @@ const loggedOutNavItems = [
   {
     id: "login",
     label: "Iniciar sesión",
-    icon: LogIn,
+    icon: User,
     path: null, // Special handling - opens modal
   },
 ];
@@ -292,7 +292,7 @@ export function MobileNavbar() {
                 </div>
               )}
               <span
-                className={`text-xs font-medium leading-none ${
+                className={`text-[10px] font-medium leading-none ${
                   active ? "text-primary" : "text-gray-500"
                 }`}
               >

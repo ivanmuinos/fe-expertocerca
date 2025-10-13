@@ -9,6 +9,7 @@ import {
   Star,
   ChevronLeft,
   ChevronRight,
+  Grid3x3,
 } from "lucide-react";
 import Image from "next/image";
 import { Button } from "@/src/shared/components/ui/button";
@@ -199,6 +200,7 @@ export function PortfolioSection({
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState<number>(0);
   const [isMobile, setIsMobile] = useState(false);
   const [loadingPhotos, setLoadingPhotos] = useState(true);
+  const [showGridView, setShowGridView] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Detect mobile
@@ -493,7 +495,7 @@ export function PortfolioSection({
 
       {/* Photos grid with loading skeleton */}
       {loadingPhotos ? (
-        <div className='grid grid-cols-2 gap-2 rounded-xl overflow-hidden'>
+        <div className='grid grid-cols-2 gap-2 rounded-xl overflow-hidden max-w-2xl'>
           {[...Array(4)].map((_, i) => (
             <div
               key={i}
@@ -523,7 +525,7 @@ export function PortfolioSection({
             strategy={rectSortingStrategy}
             disabled={!isOwner}
           >
-            <div className='grid grid-cols-2 gap-2 rounded-xl overflow-hidden'>
+            <div className='grid grid-cols-2 gap-2 rounded-xl overflow-hidden max-w-2xl'>
               {photos
                 .slice(0, photos.length > 4 ? 3 : 4)
                 .map((photo, index) => {
@@ -577,64 +579,172 @@ export function PortfolioSection({
 
       {/* Photo Modal/Drawer - Drawer for mobile, Dialog for desktop */}
       {isMobile ? (
-        <Drawer open={showPhotoModal} onOpenChange={setShowPhotoModal}>
-          <DrawerContent className='h-[96vh] p-0 overflow-hidden'>
+        <Drawer open={showPhotoModal} onOpenChange={setShowPhotoModal} modal={true}>
+          <DrawerContent className='h-screen p-0 overflow-hidden bg-black border-none fixed inset-0 rounded-none'>
             <VisuallyHidden>
               <DrawerTitle>Galería de fotos</DrawerTitle>
             </VisuallyHidden>
             {selectedPhoto && (
-              <div className='flex flex-col h-full'>
-                {/* Image Section - Full width in mobile */}
-                <div className='relative bg-gray-100 h-[50vh] overflow-hidden flex-shrink-0 rounded-t-[10px]'>
-                  <Image
-                    src={selectedPhoto.image_url}
-                    alt={selectedPhoto.title}
-                    fill
-                    className='object-cover'
-                  />
+              <div className='flex flex-col h-full relative'>
+                {/* Close button - top left */}
+                <button
+                  onClick={() => {
+                    setShowPhotoModal(false);
+                    setShowGridView(false);
+                  }}
+                  className='absolute top-4 left-4 z-30 w-10 h-10 bg-black/60 hover:bg-black/80 text-white rounded-full flex items-center justify-center transition-colors'
+                  style={{ backdropFilter: 'blur(8px)' }}
+                >
+                  <svg className='w-6 h-6' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                    <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M6 18L18 6M6 6l12 12' />
+                  </svg>
+                </button>
 
-                  {/* Navigation buttons */}
-                  {photos.length > 1 && (
-                    <>
-                      <Button
-                        variant='ghost'
-                        size='icon'
-                        className='absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white/90 rounded-full h-10 w-10'
-                        onClick={handlePreviousPhoto}
-                      >
-                        <ChevronLeft className='h-6 w-6' />
-                      </Button>
-                      <Button
-                        variant='ghost'
-                        size='icon'
-                        className='absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white/90 rounded-full h-10 w-10'
-                        onClick={handleNextPhoto}
-                      >
-                        <ChevronRight className='h-6 w-6' />
-                      </Button>
-                    </>
-                  )}
+                {/* Grid view button - top right */}
+                {photos.length > 1 && !showGridView && (
+                  <button
+                    onClick={() => setShowGridView(true)}
+                    className='absolute top-4 right-4 z-30 w-10 h-10 bg-black/60 hover:bg-black/80 text-white rounded-full flex items-center justify-center transition-colors'
+                    style={{ backdropFilter: 'blur(8px)' }}
+                  >
+                    <Grid3x3 className='w-5 h-5' />
+                  </button>
+                )}
 
-                  {/* Photo counter */}
-                  {photos.length > 1 && (
-                    <div className='absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/60 text-white px-3 py-1 rounded-full text-sm'>
-                      {selectedPhotoIndex + 1} / {photos.length}
+                {/* Grid View - All photos in 2 columns */}
+                {showGridView ? (
+                  <div className='absolute inset-0 bg-black overflow-y-auto'>
+                    <div className='grid grid-cols-2 gap-2 p-4 pb-20'>
+                      {photos.map((photo, index) => (
+                        <div
+                          key={photo.id}
+                          className='aspect-square relative cursor-pointer'
+                          onClick={() => {
+                            setSelectedPhoto(photo);
+                            setSelectedPhotoIndex(index);
+                            setShowGridView(false);
+                          }}
+                        >
+                          <Image
+                            src={photo.image_url}
+                            alt={photo.title}
+                            fill
+                            className='object-cover rounded-lg'
+                          />
+                        </div>
+                      ))}
                     </div>
-                  )}
-                </div>
+                  </div>
+                ) : (
+                  /* Single Photo View */
+                  <div
+                    className='absolute inset-0 bg-black overflow-hidden flex items-center justify-center'
+                    onTouchStart={(e) => {
+                      const touchStartX = e.touches[0].clientX;
+                      const touchStartY = e.touches[0].clientY;
 
-                {/* Content Section - Full width in mobile, scrollable */}
-                <div className='flex flex-col bg-white overflow-y-auto flex-1'>
-                  {/* Title at the top */}
-                  {!isOwner && (
-                    <div className='px-4 pt-4 pb-3 bg-white sticky top-0 z-10 border-b border-gray-100'>
-                      <h3 className='text-2xl font-bold text-foreground'>
-                        {selectedPhoto.title}
-                      </h3>
-                    </div>
-                  )}
+                      const handleTouchMove = (moveEvent: TouchEvent) => {
+                        const touchEndX = moveEvent.touches[0].clientX;
+                        const touchEndY = moveEvent.touches[0].clientY;
+                        const diffX = touchStartX - touchEndX;
+                        const diffY = touchStartY - touchEndY;
 
-                  <div className='p-4 flex flex-col flex-1'>
+                        // Only trigger swipe if horizontal movement is greater than vertical
+                        if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
+                          if (diffX > 0) {
+                            // Swipe left - next photo
+                            handleNextPhoto();
+                          } else {
+                            // Swipe right - previous photo
+                            handlePreviousPhoto();
+                          }
+                          document.removeEventListener('touchmove', handleTouchMove);
+                          document.removeEventListener('touchend', handleTouchEnd);
+                        }
+                      };
+
+                      const handleTouchEnd = () => {
+                        document.removeEventListener('touchmove', handleTouchMove);
+                        document.removeEventListener('touchend', handleTouchEnd);
+                      };
+
+                      document.addEventListener('touchmove', handleTouchMove, { passive: true });
+                      document.addEventListener('touchend', handleTouchEnd);
+                    }}
+                  >
+                    <Image
+                      src={selectedPhoto.image_url}
+                      alt={selectedPhoto.title}
+                      fill
+                      className='object-contain'
+                      priority
+                    />
+
+                    {/* Photo counter - top center */}
+                    {photos.length > 1 && (
+                      <div className='absolute top-4 left-1/2 -translate-x-1/2 bg-black/60 text-white px-4 py-2 rounded-full text-sm font-medium z-20' style={{ backdropFilter: 'blur(8px)' }}>
+                        {selectedPhotoIndex + 1} / {photos.length}
+                      </div>
+                    )}
+
+                    {/* Details button - floating at bottom */}
+                    {(selectedPhoto.title || selectedPhoto.description || isOwner) && (
+                      <div className='absolute bottom-0 left-0 right-0 p-4 z-20'>
+                        <button
+                          onClick={() => {
+                            const detailsSheet = document.getElementById('photo-details-sheet');
+                            if (detailsSheet) {
+                              detailsSheet.classList.remove('translate-y-full');
+                              detailsSheet.classList.add('translate-y-0');
+                            }
+                          }}
+                          className='w-full bg-white/90 backdrop-blur-sm hover:bg-white text-gray-900 font-medium py-3 px-4 rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg'
+                        >
+                          <span>Ver detalles</span>
+                          <svg className='w-4 h-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                            <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M5 15l7-7 7 7' />
+                          </svg>
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Details Bottom Sheet */}
+                <div
+                  id='photo-details-sheet'
+                  className='absolute inset-x-0 bottom-0 bg-white rounded-t-3xl shadow-2xl transform translate-y-full transition-transform duration-300 z-30 max-h-[70vh] flex flex-col'
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {/* Handle */}
+                  <div className='w-full flex justify-center pt-3 pb-2'>
+                    <div className='w-10 h-1 bg-gray-300 rounded-full' />
+                  </div>
+
+                  {/* Close button */}
+                  <button
+                    onClick={() => {
+                      const detailsSheet = document.getElementById('photo-details-sheet');
+                      if (detailsSheet) {
+                        detailsSheet.classList.remove('translate-y-0');
+                        detailsSheet.classList.add('translate-y-full');
+                      }
+                    }}
+                    className='absolute top-4 right-4 p-2 hover:bg-gray-100 rounded-full transition-colors'
+                  >
+                    <X className='w-5 h-5' />
+                  </button>
+
+                  {/* Content */}
+                  <div className='flex-1 overflow-y-auto px-6 pb-6'>
+                    {/* Title and Description: owner can edit; others see if present */}
+                    {!isOwner && selectedPhoto.title && (
+                      <div className='mb-4'>
+                        <h3 className='text-2xl font-bold text-foreground'>
+                          {selectedPhoto.title}
+                        </h3>
+                      </div>
+                    )}
                     {/* Title and Description: owner can edit; others see if present */}
                     {isOwner ? (
                       <div className='flex-1 flex flex-col space-y-3'>

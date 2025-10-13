@@ -4,7 +4,7 @@ import { useNavigate } from "@/src/shared/lib/navigation";
 import { useEffect, useState, useRef } from "react";
 import { useAuthState } from "@/src/features/auth";
 import { apiClient } from "@/src/shared/lib/api-client";
-import { Star, CheckCircle, Home, Loader2 } from "lucide-react";
+import { CheckCircle, Home, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 import {
   useOnboardingProgress,
@@ -24,6 +24,7 @@ export default function CompletionPage() {
   const [isUploading, setIsUploading] = useState(true);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [hasUploaded, setHasUploaded] = useState(false);
+  const [countdown, setCountdown] = useState(5);
 
   // Usar useRef para controlar si ya se ejecutó el upload
   const uploadExecutedRef = useRef(false);
@@ -116,7 +117,7 @@ export default function CompletionPage() {
                 "No se pudo actualizar la imagen principal al finalizar el onboarding"
               );
             }
-          } catch {}
+          } catch { }
         }
 
         setHasUploaded(true);
@@ -144,6 +145,18 @@ export default function CompletionPage() {
     uploadPhotos();
   }, [user?.id, uploadedPhotos.length, queryClient, resetOnboarding]); // Agregar dependencias
 
+  // Cuenta regresiva cuando termina la carga
+  useEffect(() => {
+    if (!isUploading && countdown > 0) {
+      const timer = setTimeout(() => {
+        setCountdown(countdown - 1);
+      }, 1000);
+      return () => clearTimeout(timer);
+    } else if (!isUploading && countdown === 0) {
+      navigate("/");
+    }
+  }, [isUploading, countdown, navigate]);
+
   const handleGoHome = () => {
     navigate("/");
   };
@@ -151,93 +164,90 @@ export default function CompletionPage() {
   const userName = user?.user_metadata?.full_name?.split(" ")[0] || "usuario";
 
   return (
-    <div className='h-screen bg-gradient-subtle overflow-hidden flex flex-col'>
-      <div className='flex-1 flex flex-col justify-center'>
-        {isUploading ? (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className='w-full max-w-md md:max-w-2xl mx-auto px-4 flex flex-col justify-center items-center'
-          >
-            <div className='mb-8 text-center'>
-              <div className='flex justify-center mb-6'>
-                <div className='w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center'>
-                  <Loader2 className='w-12 h-12 text-primary animate-spin' />
-                </div>
-              </div>
-
-              <div className='space-y-4'>
-                <h1 className='text-2xl text-foreground text-center'>
-                  Finalizando tu perfil...
-                </h1>
-                <p className='text-muted-foreground text-center leading-relaxed'>
-                  {uploadedPhotos.length > 0
-                    ? `Subiendo ${uploadedPhotos.length} foto${
-                        uploadedPhotos.length > 1 ? "s" : ""
-                      } de tu trabajo`
-                    : "Configurando tu perfil profesional"}
-                </p>
+    <div className='min-h-[calc(100vh-5rem)] flex items-center justify-center overflow-auto py-8'>
+      {isUploading ? (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className='w-full max-w-md md:max-w-2xl mx-auto px-4'
+        >
+          <div className='mb-8 text-center'>
+            <div className='flex justify-center mb-6'>
+              <div className='w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center'>
+                <Loader2 className='w-12 h-12 text-primary animate-spin' />
               </div>
             </div>
-          </motion.div>
-        ) : (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className='w-full max-w-md md:max-w-2xl mx-auto px-4 flex flex-col justify-center items-center'
-          >
-            <div className='mb-8 text-center'>
-              <div className='flex justify-center mb-6'>
-                <motion.div
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ duration: 0.5, delay: 0.2 }}
-                  className='w-20 h-20 bg-green-100 rounded-full flex items-center justify-center'
-                >
-                  <CheckCircle className='w-12 h-12 text-green-600' />
-                </motion.div>
-              </div>
 
+            <div className='space-y-4'>
+              <h1 className='text-2xl text-foreground text-center'>
+                Finalizando tu perfil...
+              </h1>
+              <p className='text-muted-foreground text-center leading-relaxed'>
+                Configurando tu perfil profesional
+              </p>
+            </div>
+          </div>
+        </motion.div>
+      ) : (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className='w-full max-w-md md:max-w-2xl mx-auto px-4'
+        >
+          <div className='mb-8 text-center'>
+            <div className='flex justify-center mb-6'>
               <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.4 }}
-                className='space-y-4'
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                className='w-20 h-20 bg-green-100 rounded-full flex items-center justify-center'
               >
-                <h1 className='text-2xl text-foreground text-center'>
-                  ¡Perfecto, {userName}! 🎉
-                </h1>
-                <p className='text-muted-foreground text-center leading-relaxed'>
-                  Tu perfil profesional está configurado. Ahora podés empezar a
-                  recibir solicitudes de clientes.
-                </p>
-                {uploadError && (
-                  <p className='text-orange-600 text-sm text-center'>
-                    {uploadError}
-                  </p>
-                )}
+                <CheckCircle className='w-12 h-12 text-green-600' />
               </motion.div>
             </div>
 
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.6 }}
-              className='flex justify-center'
+              transition={{ duration: 0.6, delay: 0.4 }}
+              className='space-y-4'
             >
-              <button
-                onClick={handleGoHome}
-                className='flex items-center gap-2 text-sm text-black hover:text-gray-700 underline font-medium'
-              >
-                <Home className='w-4 h-4' />
-                Ir al inicio
-              </button>
+              <h1 className='text-2xl text-foreground text-center'>
+                ¡Perfecto, {userName}! 🎉
+              </h1>
+              <p className='text-muted-foreground text-center leading-relaxed'>
+                Tu perfil profesional está configurado. Ahora podés empezar a
+                recibir solicitudes de clientes.
+              </p>
+              <p className='text-sm text-muted-foreground text-center'>
+                Redirigiendo al inicio en {countdown} segundo{countdown !== 1 ? 's' : ''}...
+              </p>
+              {uploadError && (
+                <p className='text-orange-600 text-sm text-center'>
+                  {uploadError}
+                </p>
+              )}
             </motion.div>
+          </div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.6 }}
+            className='flex justify-center'
+          >
+            <button
+              onClick={handleGoHome}
+              className='flex items-center gap-2 text-sm text-black hover:text-gray-700 underline font-medium'
+            >
+              <Home className='w-4 h-4' />
+              Ir al inicio
+            </button>
           </motion.div>
-        )}
-      </div>
+        </motion.div>
+      )}
     </div>
   );
 }

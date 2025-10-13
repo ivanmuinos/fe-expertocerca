@@ -31,16 +31,16 @@
     --popover: 0 0% 100%;
     --popover-foreground: 215 25% 27%;
 
-    /* Professional blue theme */
-    --primary: 214 84% 56%;
+    /* Professional blue theme - #0166cb */
+    --primary: 210 99% 40%;
     --primary-foreground: 0 0% 100%;
-    --primary-light: 214 84% 70%;
-    --primary-dark: 214 84% 42%;
+    --primary-light: 210 99% 60%;
+    --primary-dark: 210 99% 30%;
 
     /* Blue accent consistent with primary */
-    --accent: 214 84% 56%;
+    --accent: 210 99% 40%;
     --accent-foreground: 0 0% 100%;
-    --accent-light: 214 84% 70%;
+    --accent-light: 210 99% 60%;
 
     --secondary: 214 32% 91%;
     --secondary-foreground: 215 25% 27%;
@@ -53,18 +53,18 @@
 
     --border: 214 32% 91%;
     --input: 214 32% 91%;
-    --ring: 214 84% 56%;
+    --ring: 210 99% 40%;
 
     /* Custom gradients */
     --gradient-hero: linear-gradient(
       135deg,
-      hsl(214 84% 56%),
-      hsl(214 84% 42%)
+      hsl(210 99% 40%),
+      hsl(210 99% 30%)
     );
     --gradient-accent: linear-gradient(
       135deg,
-      hsl(214 84% 56%),
-      hsl(214 84% 70%)
+      hsl(210 99% 40%),
+      hsl(210 99% 60%)
     );
     --gradient-subtle: linear-gradient(
       180deg,
@@ -73,11 +73,11 @@
     );
 
     /* Shadows */
-    --shadow-card: 0 4px 6px -1px hsl(214 84% 56% / 0.1),
-      0 2px 4px -1px hsl(214 84% 56% / 0.06);
-    --shadow-elevated: 0 10px 15px -3px hsl(214 84% 56% / 0.1),
-      0 4px 6px -2px hsl(214 84% 56% / 0.05);
-    --shadow-glow: 0 0 20px hsl(214 84% 56% / 0.15);
+    --shadow-card: 0 4px 6px -1px hsl(210 99% 40% / 0.1),
+      0 2px 4px -1px hsl(210 99% 40% / 0.06);
+    --shadow-elevated: 0 10px 15px -3px hsl(210 99% 40% / 0.1),
+      0 4px 6px -2px hsl(210 99% 40% / 0.05);
+    --shadow-glow: 0 0 20px hsl(210 99% 40% / 0.15);
 
     /* Professional spacing and sizing */
 
@@ -110,14 +110,14 @@
     --popover: 215 28% 17%;
     --popover-foreground: 0 0% 95%;
 
-    --primary: 214 84% 56%;
+    --primary: 210 99% 40%;
     --primary-foreground: 0 0% 100%;
-    --primary-light: 214 84% 70%;
-    --primary-dark: 214 84% 42%;
+    --primary-light: 210 99% 60%;
+    --primary-dark: 210 99% 30%;
 
-    --accent: 214 84% 56%;
+    --accent: 210 99% 40%;
     --accent-foreground: 0 0% 100%;
-    --accent-light: 214 84% 70%;
+    --accent-light: 210 99% 60%;
 
     --secondary: 215 28% 25%;
     --secondary-foreground: 0 0% 95%;
@@ -130,17 +130,17 @@
 
     --border: 215 28% 25%;
     --input: 215 28% 25%;
-    --ring: 214 84% 56%;
+    --ring: 210 99% 40%;
 
     --gradient-hero: linear-gradient(
       135deg,
-      hsl(214 84% 56%),
-      hsl(214 84% 42%)
+      hsl(210 99% 40%),
+      hsl(210 99% 30%)
     );
     --gradient-accent: linear-gradient(
       135deg,
-      hsl(214 84% 56%),
-      hsl(214 84% 70%)
+      hsl(210 99% 40%),
+      hsl(210 99% 60%)
     );
     --gradient-subtle: linear-gradient(
       180deg,
@@ -152,7 +152,7 @@
       0 2px 4px -1px hsl(0 0% 0% / 0.1);
     --shadow-elevated: 0 10px 15px -3px hsl(0 0% 0% / 0.3),
       0 4px 6px -2px hsl(0 0% 0% / 0.2);
-    --shadow-glow: 0 0 20px hsl(214 84% 56% / 0.3);
+    --shadow-glow: 0 0 20px hsl(210 99% 40% / 0.3);
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
@@ -185,20 +185,10 @@
     min-height: -webkit-fill-available;
   }
 
-  /* Prevent bounce/rubber band scrolling - SOLO EN MOBILE */
-  @media (max-width: 768px) {
-    html {
-      overflow: hidden;
-      height: 100%;
-    }
-
-    body {
-      overflow-y: auto;
-      overflow-x: hidden;
-      height: 100%;
-      overscroll-behavior-y: none;
-      -webkit-overflow-scrolling: touch;
-    }
+  /* Prevent bounce/rubber band scrolling */
+  body {
+    overscroll-behavior-y: none;
+    -webkit-overflow-scrolling: touch;
   }
 }
 
@@ -235,6 +225,13 @@
     background-color: hsl(var(--muted-foreground));
     border-radius: 8px;
     border: 2px solid transparent;
+  }
+
+  /* Subtle dot pattern background */
+  .bg-dots-pattern {
+    background-color: #ffffff;
+    background-image: radial-gradient(#f5f5f5 0.6px, transparent 0.6px);
+    background-size: 12px 12px;
   }
 }
 

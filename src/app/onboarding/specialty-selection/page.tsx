@@ -65,7 +65,7 @@ const workZones = [
   { value: "GBA Sur", label: "GBA Sur (Avellaneda, Quilmes, Berazategui)" },
   { value: "La Plata y alrededores", label: "La Plata y alrededores" },
   { value: "Córdoba", label: "Córdoba Capital" },
-  { value: "Rosario", label: "Rosario, Santa Fe" },
+  { value: "Rosario", label: "Rosario" },
   { value: "Mendoza", label: "Mendoza Capital" },
 ];
 

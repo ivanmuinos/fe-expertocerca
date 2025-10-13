@@ -42,6 +42,10 @@ const zoneData: Record<string, { icon: any; description: string }> = {
     description: "Quilmes, Avellaneda, Berazategui y zona sur",
   },
   "GBA Oeste": { icon: Mountain, description: "Morón, La Matanza, zona oeste" },
+  "La Plata y alrededores": { icon: Building, description: "La Plata y zona de influencia" },
+  "Córdoba": { icon: Building, description: "Córdoba Capital" },
+  "Rosario": { icon: Building, description: "Rosario, Santa Fe" },
+  "Mendoza": { icon: Mountain, description: "Mendoza Capital" },
 };
 
 export function ZoneSelector({

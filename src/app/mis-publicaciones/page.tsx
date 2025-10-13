@@ -21,10 +21,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/src/shared/components/ui/alert-dialog";
-import {
-  useOnboardingProgress,
-  OnboardingStep,
-} from "@/src/shared/stores/useOnboardingProgressStore";
 
 export default function MyPublicationsPage() {
   const { user, loading } = useAuthState();
@@ -36,7 +32,6 @@ export default function MyPublicationsPage() {
     loadMyProfiles,
     deleteProfessionalProfile,
   } = useMyProfessionalProfiles();
-  const { setCurrentStep } = useOnboardingProgress();
 
   const [hasLoadedProfiles, setHasLoadedProfiles] = useState(false);
 
@@ -62,9 +57,8 @@ export default function MyPublicationsPage() {
 
   const [createLoading, setCreateLoading] = useState(false);
   const handleCreateNew = () => {
-    setCurrentStep(OnboardingStep.USER_TYPE_SELECTION);
     setCreateLoading(true);
-    navigate("/onboarding/user-type-selection");
+    navigate("/publicar");
     setTimeout(() => setCreateLoading(false), 600);
   };
 

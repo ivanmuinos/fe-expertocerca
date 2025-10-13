@@ -34,7 +34,25 @@ export async function POST(request: NextRequest) {
     const isFirstPublication = !existingProfilesCount || existingProfilesCount === 0;
 
     // Only update profiles table on first publication (onboarding)
+    // CRITICAL: This endpoint should ONLY be used during initial onboarding
+    // For additional publications, use the /publicar page which doesn't touch profiles
     if (isFirstPublication) {
+      // Double-check that onboarding is not already completed
+      const { data: existingProfile } = await supabase
+        .from("profiles")
+        .select("onboarding_completed")
+        .eq("user_id", session.user.id)
+        .single();
+
+      if (existingProfile?.onboarding_completed) {
+        return NextResponse.json(
+          {
+            error: "Onboarding already completed. Use /publicar to create additional publications."
+          },
+          { status: 400 }
+        );
+      }
+
       const { error: profileError } = await supabase.from("profiles").upsert(
         {
           user_id: session.user.id,

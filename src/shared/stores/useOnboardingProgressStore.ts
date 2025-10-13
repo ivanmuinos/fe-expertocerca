@@ -4,6 +4,7 @@ import { persist } from 'zustand/middleware';
 
 // Simple step enumeration matching actual pages
 export enum OnboardingStep {
+  USER_TYPE_SELECTION = 'user-type-selection',
   PROFESSIONAL_INTRO = 'professional-intro',
   SPECIALTY_SELECTION = 'specialty-selection',
   PHOTO_GUIDELINES = 'photo-guidelines',
@@ -29,6 +30,7 @@ interface OnboardingProgressState {
 
 // Simple progress mapping - Each step is equal
 const STEP_ORDER = [
+  OnboardingStep.USER_TYPE_SELECTION,
   OnboardingStep.PROFESSIONAL_INTRO,
   OnboardingStep.SPECIALTY_SELECTION,
   OnboardingStep.PHOTO_GUIDELINES,
@@ -52,7 +54,7 @@ const calculateStepProgress = (step: OnboardingStep): number => {
 export const useOnboardingProgressStore = create<OnboardingProgressState>()(
   persist(
     (set, get) => ({
-      currentStep: OnboardingStep.PROFESSIONAL_INTRO,
+      currentStep: OnboardingStep.USER_TYPE_SELECTION,
       previousProgress: 0,
 
       setCurrentStep: (step: OnboardingStep) => {
@@ -75,7 +77,7 @@ export const useOnboardingProgressStore = create<OnboardingProgressState>()(
 
       resetProgress: () =>
         set({
-          currentStep: OnboardingStep.PROFESSIONAL_INTRO,
+          currentStep: OnboardingStep.USER_TYPE_SELECTION,
           previousProgress: 0
         })
     }),

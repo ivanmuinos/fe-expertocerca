@@ -14,7 +14,7 @@ export async function GET() {
     const { data, error } = await supabase
       .from("profiles")
       .select(
-        "full_name, phone, whatsapp_phone, avatar_url, location_city, location_province"
+        "full_name, phone, whatsapp_phone, avatar_url, location_city, location_province, facebook_url, instagram_url, linkedin_url, twitter_url, website_url"
       )
       .eq("user_id", user.id)
       .maybeSingle();
@@ -53,7 +53,7 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    const { phone, whatsapp_phone, avatar_url } = validation.data;
+    const { phone, whatsapp_phone, avatar_url, facebook_url, instagram_url, linkedin_url, twitter_url, website_url } = validation.data;
 
     const updates: Record<string, any> = {
       updated_at: new Date().toISOString(),
@@ -61,6 +61,11 @@ export async function PUT(request: NextRequest) {
     if (phone !== undefined) updates.phone = phone;
     if (whatsapp_phone !== undefined) updates.whatsapp_phone = whatsapp_phone;
     if (avatar_url !== undefined) updates.avatar_url = avatar_url;
+    if (facebook_url !== undefined) updates.facebook_url = facebook_url || null;
+    if (instagram_url !== undefined) updates.instagram_url = instagram_url || null;
+    if (linkedin_url !== undefined) updates.linkedin_url = linkedin_url || null;
+    if (twitter_url !== undefined) updates.twitter_url = twitter_url || null;
+    if (website_url !== undefined) updates.website_url = website_url || null;
 
     if (Object.keys(updates).length === 1) {
       return NextResponse.json({ data: { updated: false } });

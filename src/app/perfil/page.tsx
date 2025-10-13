@@ -16,6 +16,11 @@ import {
   Edit2,
   X,
   MessageCircle,
+  Facebook,
+  Instagram,
+  Linkedin,
+  Twitter,
+  Globe,
 } from "lucide-react";
 import { useToast } from "@/src/shared/hooks/use-toast";
 import { EditableAvatar } from "@/src/shared/components/EditableAvatar";
@@ -38,6 +43,11 @@ export default function PerfilPage() {
     location_city: "",
     location_province: "",
     avatar_url: "",
+    facebook_url: "",
+    instagram_url: "",
+    linkedin_url: "",
+    twitter_url: "",
+    website_url: "",
   });
 
   // No client-side redirect; handled by middleware
@@ -74,6 +84,11 @@ export default function PerfilPage() {
           location_city: data.location_city || "",
           location_province: data.location_province || "",
           avatar_url: data.avatar_url || "",
+          facebook_url: data.facebook_url || "",
+          instagram_url: data.instagram_url || "",
+          linkedin_url: data.linkedin_url || "",
+          twitter_url: data.twitter_url || "",
+          website_url: data.website_url || "",
         });
       }
     } catch (error: any) {
@@ -105,6 +120,11 @@ export default function PerfilPage() {
           phone: formData.phone,
           whatsapp_phone: fullWhatsappNumber,
           avatar_url: formData.avatar_url,
+          facebook_url: formData.facebook_url,
+          instagram_url: formData.instagram_url,
+          linkedin_url: formData.linkedin_url,
+          twitter_url: formData.twitter_url,
+          website_url: formData.website_url,
         }),
       });
 
@@ -138,7 +158,33 @@ export default function PerfilPage() {
   if (authLoading || loading) {
     return (
       <div className='min-h-screen bg-background'>
-        <SharedHeader variant='transparent' showBackButton={true} />
+        {/* Custom header for perfil - Mobile only */}
+        <header className='lg:hidden sticky top-0 z-40 bg-primary'>
+          <div className='flex items-center justify-between h-10 px-4'>
+            <button
+              onClick={() => navigate(-1)}
+              className='p-2 -ml-2 hover:bg-white/10 rounded-full transition-colors'
+            >
+              <svg className='w-5 h-5 text-white' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M15 19l-7-7 7-7' />
+              </svg>
+            </button>
+
+            <img
+              src='/logo-bco-experto-cerca.svg'
+              alt='Experto Cerca'
+              className='h-6'
+            />
+
+            <div className='w-9' />
+          </div>
+        </header>
+
+        {/* Desktop header */}
+        <div className='hidden lg:block'>
+          <SharedHeader variant='transparent' showBackButton={true} />
+        </div>
+
         <div className='max-w-4xl mx-auto px-4 py-8'>
           <div className='animate-pulse space-y-6'>
             <div className='h-8 bg-muted rounded w-48' />
@@ -161,14 +207,35 @@ export default function PerfilPage() {
   if (!user) return null;
 
   return (
-    <div className='min-h-screen bg-background'>
-      <SharedHeader variant='transparent' showBackButton={true} />
+    <>
+      {/* Custom header for perfil - Mobile only */}
+      <header className='lg:hidden sticky top-0 z-40 bg-primary'>
+        <div className='flex items-center justify-between h-10 px-4'>
+          <button
+            onClick={() => navigate(-1)}
+            className='p-2 -ml-2 hover:bg-white/10 rounded-full transition-colors'
+          >
+            <svg className='w-5 h-5 text-white' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+              <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M15 19l-7-7 7-7' />
+            </svg>
+          </button>
 
-      <div className='max-w-4xl mx-auto px-4 py-8'>
-        {/* Header */}
-        <div className='flex items-center justify-between mb-6'>
-          <h1 className='text-3xl font-bold'>Mi Perfil</h1>
+          <img
+            src='/logo-bco-experto-cerca.svg'
+            alt='Experto Cerca'
+            className='h-6'
+          />
+
+          <div className='w-9' />
         </div>
+      </header>
+
+      {/* Desktop header */}
+      <div className='hidden lg:block'>
+        <SharedHeader variant='transparent' showBackButton={true} />
+      </div>
+
+      <div className='max-w-4xl mx-auto px-4 py-4 md:py-8 pb-24 md:pb-8'>
 
         {/* Profile Card */}
         <Card className='p-6 mb-6'>
@@ -249,8 +316,126 @@ export default function PerfilPage() {
                     />
                   </div>
                   <p className='text-xs text-muted-foreground mt-1'>
-                    Ingresá tu número sin el código de país. Ej: 9 11 1234 5678
+                    Ingresá tu número sin el código de país. Ej: 11 1234 5678
                   </p>
+                </div>
+
+                {/* Social Media Section */}
+                <div className='pt-4 border-t border-border'>
+                  <h3 className='text-sm font-medium text-foreground mb-4'>
+                    Redes sociales (opcional)
+                  </h3>
+                  <div className='space-y-4'>
+                    {/* Facebook */}
+                    <div>
+                      <Label
+                        htmlFor='facebook_url'
+                        className='flex items-center gap-2'
+                      >
+                        <Facebook className='w-4 h-4 text-blue-600' />
+                        Facebook
+                      </Label>
+                      <Input
+                        id='facebook_url'
+                        value={formData.facebook_url}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            facebook_url: e.target.value,
+                          })
+                        }
+                        placeholder='https://facebook.com/tu-perfil'
+                      />
+                    </div>
+
+                    {/* Instagram */}
+                    <div>
+                      <Label
+                        htmlFor='instagram_url'
+                        className='flex items-center gap-2'
+                      >
+                        <Instagram className='w-4 h-4 text-pink-600' />
+                        Instagram
+                      </Label>
+                      <Input
+                        id='instagram_url'
+                        value={formData.instagram_url}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            instagram_url: e.target.value,
+                          })
+                        }
+                        placeholder='https://instagram.com/tu-perfil'
+                      />
+                    </div>
+
+                    {/* LinkedIn */}
+                    <div>
+                      <Label
+                        htmlFor='linkedin_url'
+                        className='flex items-center gap-2'
+                      >
+                        <Linkedin className='w-4 h-4 text-blue-700' />
+                        LinkedIn
+                      </Label>
+                      <Input
+                        id='linkedin_url'
+                        value={formData.linkedin_url}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            linkedin_url: e.target.value,
+                          })
+                        }
+                        placeholder='https://linkedin.com/in/tu-perfil'
+                      />
+                    </div>
+
+                    {/* Twitter */}
+                    <div>
+                      <Label
+                        htmlFor='twitter_url'
+                        className='flex items-center gap-2'
+                      >
+                        <Twitter className='w-4 h-4 text-sky-500' />
+                        Twitter/X
+                      </Label>
+                      <Input
+                        id='twitter_url'
+                        value={formData.twitter_url}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            twitter_url: e.target.value,
+                          })
+                        }
+                        placeholder='https://twitter.com/tu-perfil'
+                      />
+                    </div>
+
+                    {/* Website */}
+                    <div>
+                      <Label
+                        htmlFor='website_url'
+                        className='flex items-center gap-2'
+                      >
+                        <Globe className='w-4 h-4 text-gray-600' />
+                        Sitio web
+                      </Label>
+                      <Input
+                        id='website_url'
+                        value={formData.website_url}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            website_url: e.target.value,
+                          })
+                        }
+                        placeholder='https://tu-sitio.com'
+                      />
+                    </div>
+                  </div>
                 </div>
 
                 <div className='flex gap-2 pt-4'>
@@ -280,6 +465,6 @@ export default function PerfilPage() {
           </Button>
         </div>
       </div>
-    </div>
+    </>
   );
 }

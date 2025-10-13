@@ -35,7 +35,7 @@ export async function GET(request: NextRequest, { params }: Context) {
     // Fetch profile row
     const { data: profileRow, error: profileError } = await adminClient
       .from("profiles")
-      .select("full_name, avatar_url, location_city, location_province, whatsapp_phone, phone")
+      .select("full_name, avatar_url, location_city, location_province, whatsapp_phone, phone, facebook_url, instagram_url, linkedin_url, twitter_url, website_url")
       .eq("user_id", prof.user_id)
       .single();
 
@@ -76,6 +76,11 @@ export async function GET(request: NextRequest, { params }: Context) {
       has_contact_info: profileRow?.whatsapp_phone ? true : false,
       whatsapp_phone: profileRow?.whatsapp_phone || null,
       phone: profileRow?.phone || null,
+      facebook_url: profileRow?.facebook_url || null,
+      instagram_url: profileRow?.instagram_url || null,
+      linkedin_url: profileRow?.linkedin_url || null,
+      twitter_url: profileRow?.twitter_url || null,
+      website_url: profileRow?.website_url || null,
       user_metadata: userMetadata,
     };
 

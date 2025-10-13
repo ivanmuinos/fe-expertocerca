@@ -19,6 +19,11 @@ import {
   Triangle,
   Share2,
   MessageCircle,
+  Facebook,
+  Instagram,
+  Linkedin,
+  Twitter,
+  Globe,
 } from "lucide-react";
 import { Button } from "@/src/shared/components/ui/button";
 import { LoadingButton } from "@/src/shared/components/ui/loading-button";
@@ -248,11 +253,42 @@ export default function PublicationPage() {
   if (loading) {
     return (
       <div className='min-h-screen bg-background'>
-        <SharedHeader
-          showBackButton={true}
-          showSearch={false}
-          variant='default'
-        />
+        {/* Custom header for publication page - Mobile only */}
+        <header className='lg:hidden sticky top-0 z-40 bg-primary'>
+          <div className='flex items-center justify-between h-10 px-4'>
+            <button
+              onClick={() => navigate(-1)}
+              className='p-2 -ml-2 hover:bg-white/10 rounded-full transition-colors'
+            >
+              <svg className='w-5 h-5 text-white' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M15 19l-7-7 7-7' />
+              </svg>
+            </button>
+
+            <img
+              src='/logo-bco-experto-cerca.svg'
+              alt='Experto Cerca'
+              className='h-6'
+            />
+
+            <button
+              disabled
+              className='p-2 -mr-2 rounded-full transition-colors opacity-50 cursor-not-allowed'
+            >
+              <Share2 className='h-5 w-5 text-white' />
+            </button>
+          </div>
+        </header>
+
+        {/* Desktop header */}
+        <div className='hidden lg:block'>
+          <SharedHeader
+            showBackButton={true}
+            showSearch={false}
+            variant='default'
+          />
+        </div>
+
         <PublicationSkeleton />
       </div>
     );
@@ -272,6 +308,33 @@ export default function PublicationPage() {
   }
 
   const isOwner = user && professional && professional.user_id === user?.id;
+
+  // Helper function to get social media icon and label
+  const getSocialMediaInfo = (platform: string) => {
+    switch (platform) {
+      case 'facebook':
+        return { icon: Facebook, label: 'Facebook', color: 'text-blue-600', bgColor: 'bg-blue-50', hoverColor: 'hover:bg-blue-100' };
+      case 'instagram':
+        return { icon: Instagram, label: 'Instagram', color: 'text-pink-600', bgColor: 'bg-pink-50', hoverColor: 'hover:bg-pink-100' };
+      case 'linkedin':
+        return { icon: Linkedin, label: 'LinkedIn', color: 'text-blue-700', bgColor: 'bg-blue-50', hoverColor: 'hover:bg-blue-100' };
+      case 'twitter':
+        return { icon: Twitter, label: 'Twitter', color: 'text-sky-500', bgColor: 'bg-sky-50', hoverColor: 'hover:bg-sky-100' };
+      case 'website':
+        return { icon: Globe, label: 'Sitio web', color: 'text-gray-700', bgColor: 'bg-gray-50', hoverColor: 'hover:bg-gray-100' };
+      default:
+        return null;
+    }
+  };
+
+  // Get available social media links
+  const socialMediaLinks = [
+    { platform: 'facebook', url: professional?.facebook_url },
+    { platform: 'instagram', url: professional?.instagram_url },
+    { platform: 'linkedin', url: professional?.linkedin_url },
+    { platform: 'twitter', url: professional?.twitter_url },
+    { platform: 'website', url: professional?.website_url },
+  ].filter(link => link.url);
 
   return (
     <div className='min-h-screen'>
@@ -413,6 +476,32 @@ export default function PublicationPage() {
                 </p>
               </div>
             )}
+
+            {/* Mobile Social Media Links - Only for logged in users */}
+            {socialMediaLinks.length > 0 && user && (
+              <div className='pt-3 border-t border-gray-200'>
+                <h4 className='text-xs font-semibold text-gray-700 mb-2'>Redes sociales</h4>
+                <div className='flex flex-wrap gap-2'>
+                  {socialMediaLinks.map(({ platform, url }) => {
+                    const info = getSocialMediaInfo(platform);
+                    if (!info) return null;
+                    const Icon = info.icon;
+                    return (
+                      <a
+                        key={platform}
+                        href={url!}
+                        target='_blank'
+                        rel='noopener noreferrer'
+                        className={`flex items-center gap-1.5 px-2.5 py-1.5 ${info.bgColor} ${info.hoverColor} rounded-lg transition-colors`}
+                      >
+                        <Icon className={`w-3.5 h-3.5 ${info.color}`} />
+                        <span className={`text-xs font-medium ${info.color}`}>{info.label}</span>
+                      </a>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
@@ -433,7 +522,7 @@ export default function PublicationPage() {
                 Sobre mi trabajo
               </h2>
               <div className='bg-white rounded-xl lg:rounded-2xl p-4 lg:p-8'>
-                <p className='text-gray-700 leading-relaxed text-base lg:text-lg'>
+                <p className='text-gray-700 leading-relaxed text-base lg:text-lg break-words overflow-wrap-anywhere'>
                   {professional.description ||
                     "Profesional comprometido con la excelencia y la satisfacción del cliente. Brindo servicios de alta calidad con atención al detalle y dedicación en cada proyecto."}
                 </p>
@@ -532,6 +621,33 @@ export default function PublicationPage() {
                       </p>
                     </div>
                   )}
+
+                  {/* Desktop Social Media Links - Only for logged in users */}
+                  {socialMediaLinks.length > 0 && user && (
+                    <div className='mb-4'>
+                      <h4 className='font-semibold text-gray-900 mb-3'>Redes sociales</h4>
+                      <div className='flex flex-wrap gap-2'>
+                        {socialMediaLinks.map(({ platform, url }) => {
+                          const info = getSocialMediaInfo(platform);
+                          if (!info) return null;
+                          const Icon = info.icon;
+                          return (
+                            <a
+                              key={platform}
+                              href={url!}
+                              target='_blank'
+                              rel='noopener noreferrer'
+                              className={`flex items-center gap-2 px-3 py-2 ${info.bgColor} ${info.hoverColor} rounded-lg transition-colors`}
+                            >
+                              <Icon className={`w-4 h-4 ${info.color}`} />
+                              <span className={`text-sm font-medium ${info.color}`}>{info.label}</span>
+                            </a>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
                   <button
                     onClick={handleContact}
                     className='w-full bg-primary hover:bg-primary-dark text-primary-foreground font-semibold py-3.5 px-6 rounded-xl transition-all duration-200'

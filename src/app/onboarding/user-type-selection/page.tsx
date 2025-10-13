@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "@/src/shared/lib/navigation";
 import { Search, Star, LogOut } from "lucide-react";
 import { LoadingButton } from "@/src/shared/components/ui/loading-button";
@@ -13,9 +13,28 @@ import { Button } from "@/src/shared/components/ui/button";
 
 export default function UserTypeSelectionPage() {
   const [selectedType, setSelectedType] = useState<string | null>(null);
+  const [isFirstTime, setIsFirstTime] = useState<boolean>(true);
   const navigate = useNavigate();
   const { user, loading } = useAuthState();
   const { withLoading } = useLoading();
+
+  // Check if user is first time (no user_type set yet)
+  useEffect(() => {
+    const checkUserStatus = async () => {
+      if (!user) return;
+
+      try {
+        const profile = await apiClient.get("/profiles/current");
+        // If user already has a user_type, they're not first time
+        setIsFirstTime(!profile?.user_type);
+      } catch (error) {
+        // If error, assume first time
+        setIsFirstTime(true);
+      }
+    };
+
+    checkUserStatus();
+  }, [user]);
 
   const handleTypeSelection = async (userType: "customer" | "professional") => {
     if (!user) return;
@@ -57,30 +76,55 @@ export default function UserTypeSelectionPage() {
           {/* Options */}
           <div className='space-y-4'>
             {/* Necesito un experto */}
-            <Card
-              className={`cursor-pointer transition-all duration-200 hover:shadow-elevated ${
-                selectedType === "customer"
-                  ? "ring-2 ring-primary bg-primary/5"
-                  : "hover:border-primary/50"
-              }`}
-              onClick={() => setSelectedType("customer")}
-            >
-              <CardContent className='p-6'>
-                <div className='flex items-center space-x-4'>
-                  <div className='flex-shrink-0 w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center'>
-                    <Search className='h-6 w-6 text-primary' />
+            {isFirstTime ? (
+              <Card
+                className={`cursor-pointer transition-all duration-200 hover:shadow-elevated ${
+                  selectedType === "customer"
+                    ? "ring-2 ring-primary bg-primary/5"
+                    : "hover:border-primary/50"
+                }`}
+                onClick={() => setSelectedType("customer")}
+              >
+                <CardContent className='p-6'>
+                  <div className='flex items-center space-x-4'>
+                    <div className='flex-shrink-0 w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center'>
+                      <Search className='h-6 w-6 text-primary' />
+                    </div>
+                    <div className='flex-1'>
+                      <h3 className='text-lg font-semibold text-foreground mb-1'>
+                        Necesito un experto
+                      </h3>
+                      <p className='text-sm text-muted-foreground'>
+                        Busco profesionales para mis proyectos
+                      </p>
+                    </div>
                   </div>
-                  <div className='flex-1'>
-                    <h3 className='text-lg font-semibold text-foreground mb-1'>
-                      Necesito un experto
-                    </h3>
-                    <p className='text-sm text-muted-foreground'>
-                      Busco profesionales para mis proyectos
-                    </p>
+                </CardContent>
+              </Card>
+            ) : (
+              <Card className='cursor-not-allowed transition-all duration-200 opacity-60 relative'>
+                <CardContent className='p-6'>
+                  <div className='flex items-center space-x-4'>
+                    <div className='flex-shrink-0 w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center'>
+                      <Search className='h-6 w-6 text-gray-400' />
+                    </div>
+                    <div className='flex-1'>
+                      <div className='flex items-center gap-2 mb-1'>
+                        <h3 className='text-lg font-semibold text-gray-600'>
+                          Necesito un experto
+                        </h3>
+                        <span className='px-2 py-0.5 bg-amber-100 text-amber-700 text-xs font-medium rounded-full'>
+                          Próximamente
+                        </span>
+                      </div>
+                      <p className='text-sm text-gray-400'>
+                        Busco profesionales para mis proyectos
+                      </p>
+                    </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            )}
 
             {/* Soy un experto */}
             <Card

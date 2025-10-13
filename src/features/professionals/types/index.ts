@@ -25,6 +25,7 @@ export interface MyProfessionalProfile extends ProfessionalProfile {
   profile_location_province: string;
   profile_skills: string[];
   profile_avatar_url?: string;
+  main_portfolio_image?: string;
 }
 
 export interface SecureProfessional {

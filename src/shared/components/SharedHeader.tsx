@@ -390,10 +390,9 @@ export function SharedHeader({
       {/* Mobile-first Airbnb-style header */}
       <header
         ref={headerRef}
-        className='sticky top-0 z-40 transition-all duration-300 ease-out'
-        style={{ backgroundColor: '#f7f7f7' }}
+        className='sticky top-0 z-40 transition-all duration-300 ease-out bg-white md:bg-primary'
       >
-        <div className='w-full px-3 md:px-6 sm:px-8 lg:px-10 pt-2'>
+        <div className='w-full px-3 md:px-6 sm:px-8 lg:px-10 pt-2 pb-3'>
           {/* Mobile: ONLY search bar */}
           {showSearch && searchProps ? (
             <div className='md:hidden h-16 flex items-center'>
@@ -426,7 +425,7 @@ export function SharedHeader({
                   variant='ghost'
                   size='sm'
                   onClick={() => navigate(-1)}
-                  className='absolute left-0 p-2 h-8 w-8 hover:bg-muted/50'
+                  className='absolute left-0 p-2 h-8 w-8 hover:bg-white/10 text-white'
                 >
                   <ArrowLeft className='h-4 w-4' />
                 </Button>
@@ -442,9 +441,9 @@ export function SharedHeader({
             {/* Logo a la izquierda */}
             <div className='flex-shrink-0'>
               <img
-                src='/logo-color-experto-cerca.svg'
+                src='/logo-bco-experto-cerca.svg'
                 alt='Experto Cerca'
-                className='h-12 md:h-14 cursor-pointer'
+                className='h-8 md:h-9 cursor-pointer'
                 onClick={() => navigate("/")}
               />
             </div>
@@ -484,7 +483,7 @@ export function SharedHeader({
 
                       {/* Search button */}
                       <div className='flex items-center pr-1 py-1'>
-                        <div className='bg-primary text-primary-foreground rounded-full p-2 hover:bg-primary/90 transition-colors'>
+                        <div className='bg-secondary text-secondary-foreground rounded-full p-2 hover:bg-secondary/90 transition-colors'>
                           <Search className='h-4 w-4' />
                         </div>
                       </div>
@@ -512,11 +511,6 @@ export function SharedHeader({
                           "U"}
                       </AvatarFallback>
                     </Avatar>
-                    {onboardingStatus.needsOnboarding && (
-                      <div className='absolute -top-1 -right-1 h-3 w-3 bg-orange-500 border-2 border-white rounded-full flex items-center justify-center'>
-                        <div className='h-1.5 w-1.5 bg-white rounded-full animate-pulse' />
-                      </div>
-                    )}
                   </Button>
 
                   {/* Menú hamburguesa - Solo desktop */}
@@ -525,9 +519,14 @@ export function SharedHeader({
                       <DropdownMenuTrigger asChild>
                         <Button
                           variant='ghost'
-                          className='h-10 w-10 rounded-full p-0 hover:bg-gray-100 hover:shadow-sm border border-gray-300 transition-all duration-200 focus:ring-0 focus:outline-none focus:border-gray-300 focus-visible:ring-0 focus-visible:outline-none focus-visible:border-gray-300 active:border-gray-300 data-[state=open]:border-gray-300'
+                          className='relative h-10 w-10 rounded-full p-0 hover:bg-white/10 transition-all duration-200 focus:ring-0 focus:outline-none focus-visible:ring-0 focus-visible:outline-none'
                         >
-                          <Menu className='h-4 w-4 text-foreground' />
+                          <Menu className='h-4 w-4 text-white' />
+                          {onboardingStatus.needsOnboarding && (
+                            <div className='absolute -top-1 -right-1 h-3 w-3 bg-orange-500 border-2 border-primary rounded-full flex items-center justify-center'>
+                              <div className='h-1.5 w-1.5 bg-white rounded-full animate-pulse' />
+                            </div>
+                          )}
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent
@@ -587,36 +586,18 @@ export function SharedHeader({
                   <Button
                     onClick={() => setIsLoginModalOpen(true)}
                     variant='ghost'
-                    className='hidden sm:flex text-sm font-medium text-foreground hover:text-foreground hover:bg-gray-100 hover:shadow-sm rounded-full px-4 py-2 h-10 transition-all duration-200'
+                    className='hidden sm:flex text-sm font-medium text-white hover:text-white hover:bg-white/10 rounded-full px-4 py-2 h-10 transition-all duration-200'
                   >
                     Convertite en experto
                   </Button>
 
-                  {/* Menú hamburguesa - Solo desktop */}
-                  <div className='hidden md:block'>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button
-                          variant='ghost'
-                          className='h-10 w-10 rounded-full p-0 hover:bg-gray-100 hover:shadow-sm border border-gray-300 transition-all duration-200 focus:ring-0 focus:outline-none focus:border-gray-300 focus-visible:ring-0 focus-visible:outline-none focus-visible:border-gray-300 active:border-gray-300 data-[state=open]:border-gray-300'
-                        >
-                          <Menu className='h-4 w-4 text-foreground' />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent
-                        className='w-48 bg-white border-0 shadow-xl rounded-2xl p-2 z-50'
-                        align='end'
-                      >
-                        <DropdownMenuItem
-                          onClick={() => setIsLoginModalOpen(true)}
-                          className='text-sm rounded-xl px-4 py-3 hover:bg-gray-50 transition-colors'
-                        >
-                          <User className='mr-3 h-4 w-4' />
-                          Iniciar sesión
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
+                  {/* Botón "Iniciar sesión" - Solo desktop */}
+                  <Button
+                    onClick={() => setIsLoginModalOpen(true)}
+                    className='hidden md:flex text-sm font-semibold bg-secondary hover:bg-secondary/90 text-secondary-foreground rounded-full px-6 py-2 h-10 transition-all duration-200'
+                  >
+                    Iniciar sesión
+                  </Button>
                 </>
               )}
             </div>
@@ -697,7 +678,7 @@ export function SharedHeader({
                             setIsDesktopSearchExpanded(false);
                             setActiveDesktopField(null);
                           }}
-                          className='h-12 px-6 rounded-full bg-primary hover:bg-primary/90 flex items-center gap-2 shadow-md transition-all hover:scale-105'
+                          className='h-12 px-6 rounded-full bg-secondary hover:bg-secondary/90 flex items-center gap-2 shadow-md transition-all hover:scale-105'
                         >
                           <Search className='h-4 w-4 text-white' />
                           <span className='text-white font-semibold text-sm'>Buscar</span>

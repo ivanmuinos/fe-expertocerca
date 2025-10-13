@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import {
   Avatar,
   AvatarFallback,
@@ -433,11 +434,14 @@ export function SharedHeader({
               ) : (
                 <div className='w-8' />
               )}
-              <img
+              <Image
                 src='/logo-bco-experto-cerca.svg'
                 alt='Experto Cerca'
-                className='h-7 cursor-pointer'
+                width={120}
+                height={28}
+                className='h-7 w-auto cursor-pointer'
                 onClick={() => navigate("/")}
+                priority
               />
               {rightAction ? (
                 <div>{rightAction}</div>
@@ -451,11 +455,14 @@ export function SharedHeader({
           <div className='hidden md:flex items-center h-16 sm:h-18 w-full relative'>
             {/* Logo a la izquierda */}
             <div className='flex items-center justify-start absolute left-0'>
-              <img
+              <Image
                 src='/logo-bco-experto-cerca.svg'
                 alt='Experto Cerca'
-                className='h-8 md:h-9 cursor-pointer'
+                width={140}
+                height={36}
+                className='h-8 md:h-9 w-auto cursor-pointer'
                 onClick={() => navigate("/")}
+                priority
               />
             </div>
 

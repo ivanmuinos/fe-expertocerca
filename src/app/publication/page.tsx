@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import { useNavigate } from "@/src/shared/lib/navigation";
 import {
   MapPin,
@@ -265,10 +266,13 @@ export default function PublicationPage() {
               </svg>
             </button>
 
-            <img
+            <Image
               src='/logo-bco-experto-cerca.svg'
               alt='Experto Cerca'
-              className='h-6'
+              width={120}
+              height={24}
+              className='h-6 w-auto'
+              priority
             />
 
             <button
@@ -350,10 +354,13 @@ export default function PublicationPage() {
             </svg>
           </button>
 
-          <img
+          <Image
             src='/logo-bco-experto-cerca.svg'
             alt='Experto Cerca'
-            className='h-6'
+            width={120}
+            height={24}
+            className='h-6 w-auto'
+            priority
           />
 
           <button

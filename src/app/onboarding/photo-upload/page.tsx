@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import NextImage from "next/image";
 import { useNavigate } from "@/src/shared/lib/navigation";
 import { LoadingButton } from "@/src/shared/components/ui/loading-button";
 import { Textarea } from "@/src/shared/components/ui/textarea";
@@ -330,10 +331,13 @@ export default function PhotoUploadPage() {
                     >
                       {hasImage && image ? (
                         <>
-                          <img
+                          <NextImage
                             src={image.url}
                             alt={`Uploaded ${index + 1}`}
-                            className='w-full h-full object-cover rounded-2xl transition-all duration-200'
+                            fill
+                            sizes="(max-width: 640px) 50vw, 33vw"
+                            className='object-cover rounded-2xl transition-all duration-200'
+                            quality={85}
                           />
 
                           {/* Hover overlay for delete */}

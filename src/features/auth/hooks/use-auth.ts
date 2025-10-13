@@ -13,7 +13,7 @@ export function useAuth() {
     }
 
     // Set up auth state listener FIRST
-    const { data: { subscription } } = onAuthStateChange((event, session) => {
+    const subscription = onAuthStateChange((event, session) => {
       useAuthStore.setState({
         session,
         user: session?.user ?? null,

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, memo } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import { Button } from "@/src/shared/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -30,10 +30,10 @@ interface ProfessionalCarouselProps {
   professionals: Professional[];
 }
 
-export function ProfessionalCarousel({
+const ProfessionalCarouselComponent = ({
   categoryName,
   professionals,
-}: ProfessionalCarouselProps) {
+}: ProfessionalCarouselProps) => {
   const navigate = useNavigate();
   const [emblaRef, emblaApi] = useEmblaCarousel({
     align: "start",
@@ -123,4 +123,7 @@ export function ProfessionalCarousel({
       </div>
     </div>
   );
-}
+};
+
+// Memoize to prevent re-renders when parent re-renders
+export const ProfessionalCarousel = memo(ProfessionalCarouselComponent);

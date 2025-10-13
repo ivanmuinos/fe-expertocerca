@@ -352,12 +352,6 @@ export function PortfolioSection({
   };
 
   const handleSetAsMain = async (photo: PortfolioPhoto) => {
-    console.log(
-      "Setting as main image:",
-      photo.image_url,
-      "for profile:",
-      professionalProfileId
-    );
     try {
       setIsSettingMain(true);
       const { success } = await setAsMainImage(

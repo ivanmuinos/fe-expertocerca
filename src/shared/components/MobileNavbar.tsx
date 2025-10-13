@@ -84,7 +84,7 @@ export function MobileNavbar() {
     setIsMobileSearchOpen,
     setIsMobileNavbarVisible,
   } = useMobile();
-  const { user } = useAuthState();
+  const { user, loading: authLoading } = useAuthState();
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
   const [userProfile, setUserProfile] = useState<any>(null);
@@ -229,6 +229,28 @@ export function MobileNavbar() {
 
   // Hide navbar on specific routes (onboarding, professional profile, etc)
   if (isHiddenNavbarRoute) return null;
+
+  // Show skeleton while auth is loading
+  if (authLoading) {
+    return (
+      <div
+        className='fixed bottom-0 left-0 right-0 z-50 bg-primary shadow-lg'
+        style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+      >
+        <div className='flex items-center justify-around py-1'>
+          {[1, 2, 3].map((i) => (
+            <div
+              key={i}
+              className='flex flex-col items-center justify-center py-2 px-3 min-w-0 flex-1'
+            >
+              <div className='w-6 h-6 bg-white/20 rounded-full mb-1 animate-pulse' />
+              <div className='w-12 h-2 bg-white/20 rounded animate-pulse' />
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div

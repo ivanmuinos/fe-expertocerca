@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useNavigate } from "@/src/shared/lib/navigation";
-import { Plus, Trash2, Eye, Copy, Briefcase } from "lucide-react";
+import { Plus, Trash2, Copy, Briefcase } from "lucide-react";
 import { LoadingButton } from "@/src/shared/components/ui/loading-button";
 import MisPublicationsSkeleton from "@/src/shared/components/MisPublicationsSkeleton";
 import { useToast } from "@/src/shared/hooks/use-toast";
@@ -57,7 +57,6 @@ export default function MyPublicationsPage() {
 
   const [createLoading, setCreateLoading] = useState(false);
   const handleCreateNew = () => {
-    setCurrentStep(OnboardingStep.USER_TYPE_SELECTION);
     setCreateLoading(true);
     navigate("/onboarding/user-type-selection");
     setTimeout(() => setCreateLoading(false), 600);
@@ -170,7 +169,8 @@ export default function MyPublicationsPage() {
                 {myProfiles.map((profile) => (
                   <div
                     key={profile.id}
-                    className='bg-white rounded-2xl overflow-hidden hover:shadow-lg transition-all duration-200 border border-gray-200'
+                    className='bg-white rounded-2xl overflow-hidden hover:shadow-lg transition-all duration-200 border border-gray-200 cursor-pointer group'
+                    onClick={() => handleViewProfile(profile.id)}
                   >
                     {/* Main image preview */}
                     <div className='aspect-video bg-gray-100 overflow-hidden relative'>
@@ -178,7 +178,7 @@ export default function MyPublicationsPage() {
                         <img
                           src={profile.main_portfolio_image}
                           alt={profile.trade_name || "Publicación"}
-                          className='w-full h-full object-cover'
+                          className='w-full h-full object-cover group-hover:scale-105 transition-transform duration-200'
                           loading='lazy'
                         />
                       ) : (
@@ -236,14 +236,8 @@ export default function MyPublicationsPage() {
                       {/* Actions */}
                       <div className='flex items-center gap-2 pt-2'>
                         <button
-                          onClick={() => handleViewProfile(profile.id)}
-                          className='flex-1 bg-gray-100 hover:bg-gray-200 text-gray-900 font-medium py-2 px-3 rounded-lg transition-colors flex items-center justify-center gap-2 text-sm'
-                        >
-                          <Eye className='w-4 h-4' />
-                          Ver
-                        </button>
-                        <button
-                          onClick={async () => {
+                          onClick={async (e) => {
+                            e.stopPropagation();
                             try {
                               await navigator.clipboard.writeText(
                                 `${window.location.origin}/publication/?id=${profile.id}`
@@ -261,14 +255,18 @@ export default function MyPublicationsPage() {
                               });
                             }
                           }}
-                          className='p-2 border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-600 rounded-lg transition-colors'
+                          className='flex-1 p-2 border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-600 rounded-lg transition-colors flex items-center justify-center gap-2'
                           title='Copiar enlace'
                         >
                           <Copy className='w-4 h-4' />
+                          <span className='text-sm font-medium'>Compartir</span>
                         </button>
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
-                            <button className='p-2 border border-red-200 hover:border-red-300 hover:bg-red-50 text-red-600 rounded-lg transition-colors'>
+                            <button
+                              onClick={(e) => e.stopPropagation()}
+                              className='p-2 border border-red-200 hover:border-red-300 hover:bg-red-50 text-red-600 rounded-lg transition-colors'
+                            >
                               <Trash2 className='w-4 h-4' />
                             </button>
                           </AlertDialogTrigger>

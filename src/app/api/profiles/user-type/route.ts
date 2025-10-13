@@ -24,11 +24,14 @@ export async function POST(request: NextRequest) {
 
     if (existingProfile) {
       // Update existing profile
+      // CRITICAL: Never set onboarding_completed to false if it's already true
+      const shouldCompleteOnboarding = existingProfile.onboarding_completed || userType === 'customer'
+
       const { data, error } = await supabase
         .from('profiles')
         .update({
           user_type: userType,
-          onboarding_completed: userType === 'customer' // Solo customers completan aquí
+          onboarding_completed: shouldCompleteOnboarding
         })
         .eq('user_id', session.user.id)
         .select()

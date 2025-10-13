@@ -60,19 +60,19 @@ export default function OnboardingChrome({
     <div className='min-h-screen bg-gradient-subtle flex flex-col overflow-hidden'>
       {/* Fixed Header */}
       {!hideAllChrome && (
-        <div className='fixed top-0 left-0 right-0 z-40' style={{ backgroundColor: '#f7f7f7' }}>
+        <div className='fixed top-0 left-0 right-0 z-40 bg-primary'>
           <div className='mx-2 px-4 h-10 flex items-center justify-between'>
             <Link href='/' className='flex items-center gap-2'>
               <img
-                src='/logo-color-experto-cerca.svg'
+                src='/logo-bco-experto-cerca.svg'
                 alt='Experto Cerca'
-                className='h-8'
+                className='h-6'
               />
             </Link>
             {!hideExitButton && (
               <Link
                 href='/'
-                className='px-3 py-1.5 text-xs bg-white border border-gray-300 rounded-full hover:bg-gray-100 hover:border-gray-400 text-gray-700 hover:text-gray-900 font-medium transition-all duration-200'
+                className='px-3 py-1.5 text-xs bg-white/10 rounded-full hover:bg-white/20 text-white font-medium transition-all duration-200'
               >
                 Salir
               </Link>

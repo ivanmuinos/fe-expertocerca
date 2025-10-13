@@ -261,28 +261,28 @@ export default function PublicationPage() {
   return (
     <div className='min-h-screen'>
       {/* Custom header for publication page - Mobile only */}
-      <header className='lg:hidden sticky top-0 z-40 bg-white'>
+      <header className='lg:hidden sticky top-0 z-40 bg-primary'>
         <div className='flex items-center justify-between h-10 px-4'>
           <button
             onClick={() => navigate(-1)}
-            className='p-2 -ml-2 hover:bg-gray-100 rounded-full transition-colors'
+            className='p-2 -ml-2 hover:bg-white/10 rounded-full transition-colors'
           >
-            <svg className='w-5 h-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+            <svg className='w-5 h-5 text-white' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
               <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M15 19l-7-7 7-7' />
             </svg>
           </button>
 
           <img
-            src='/logo-color-experto-cerca.svg'
+            src='/logo-bco-experto-cerca.svg'
             alt='Experto Cerca'
-            className='h-8'
+            className='h-6'
           />
 
           <button
             onClick={handleShare}
-            className='p-2 -mr-2 hover:bg-gray-100 rounded-full transition-colors'
+            className='p-2 -mr-2 hover:bg-white/10 rounded-full transition-colors'
           >
-            <Share2 className='h-5 w-5' />
+            <Share2 className='h-5 w-5 text-white' />
           </button>
         </div>
       </header>
@@ -297,10 +297,10 @@ export default function PublicationPage() {
           rightAction={
             <button
               onClick={handleShare}
-              className='p-2 h-8 w-8 hover:bg-muted/50 rounded-full transition-colors flex items-center justify-center'
+              className='p-2 h-8 w-8 hover:bg-white/10 rounded-full transition-colors flex items-center justify-center'
               aria-label='Compartir publicación'
             >
-              <Share2 className='h-4 w-4' />
+              <Share2 className='h-4 w-4 text-white' />
             </button>
           }
           searchProps={{

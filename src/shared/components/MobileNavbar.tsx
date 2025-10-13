@@ -235,7 +235,7 @@ export function MobileNavbar() {
 
   return (
     <div
-      className={`fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 shadow-lg transition-transform duration-300 ${
+      className={`fixed bottom-0 left-0 right-0 z-50 bg-primary shadow-lg transition-transform duration-300 ${
         isVisible ? "translate-y-0" : "translate-y-full"
       }`}
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
@@ -264,16 +264,20 @@ export function MobileNavbar() {
             <button
               key={item.id}
               onClick={handleClick}
-              className={`flex flex-col items-center justify-center py-2 px-3 min-w-0 flex-1 transition-colors duration-200 ${
-                active ? "text-primary" : "text-gray-500 hover:text-gray-700"
+              className={`flex flex-col items-center justify-center py-2 px-3 min-w-0 flex-1 transition-all duration-200 ${
+                item.id === "login"
+                  ? "bg-secondary rounded-lg mx-1 scale-105 shadow-md"
+                  : ""
+              } ${
+                active ? "text-white" : "text-white/70 hover:text-white"
               }`}
             >
               {/* Show avatar for profile button if user is logged in */}
               {item.id === "perfil" && user && userProfile ? (
                 <div className='mb-1'>
-                  <Avatar className='w-6 h-6'>
+                  <Avatar className='w-6 h-6 ring-2 ring-white/30'>
                     <AvatarImage src={userProfile.avatar_url || undefined} />
-                    <AvatarFallback className='text-[10px] bg-primary/10 text-primary'>
+                    <AvatarFallback className='text-[10px] bg-white/20 text-white'>
                       {userProfile.full_name?.charAt(0).toUpperCase() || "U"}
                     </AvatarFallback>
                   </Avatar>
@@ -281,8 +285,10 @@ export function MobileNavbar() {
               ) : (
                 <div className='relative mb-1'>
                   <Icon
-                    className={`w-6 h-6 ${active ? "fill-current" : ""}`}
-                    strokeWidth={active ? 2.5 : 2}
+                    className={`w-6 h-6 ${active ? "fill-current" : ""} ${
+                      item.id === "login" ? "text-white" : ""
+                    }`}
+                    strokeWidth={item.id === "login" ? 2.5 : active ? 2.5 : 2}
                   />
                   {loadingId === item.id && (
                     <div className='absolute inset-0 flex items-center justify-center'>
@@ -293,7 +299,11 @@ export function MobileNavbar() {
               )}
               <span
                 className={`text-[10px] font-medium leading-none ${
-                  active ? "text-primary" : "text-gray-500"
+                  item.id === "login"
+                    ? "text-white"
+                    : active
+                    ? "text-white"
+                    : "text-white/70"
                 }`}
               >
                 {item.label}

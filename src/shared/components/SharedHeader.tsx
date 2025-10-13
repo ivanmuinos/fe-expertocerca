@@ -437,9 +437,9 @@ export function SharedHeader({
           )}
 
           {/* Desktop: Full header */}
-          <div className='hidden md:flex items-center justify-between h-16 sm:h-18 w-full'>
+          <div className='hidden md:flex items-center h-16 sm:h-18 w-full relative'>
             {/* Logo a la izquierda */}
-            <div className='flex-shrink-0'>
+            <div className='flex items-center justify-start absolute left-0'>
               <img
                 src='/logo-bco-experto-cerca.svg'
                 alt='Experto Cerca'
@@ -453,7 +453,7 @@ export function SharedHeader({
               searchProps &&
               searchCollapsed &&
               !isDesktopSearchExpanded && (
-                <div className='hidden md:flex flex-1 justify-center'>
+                <div className='flex justify-center w-full'>
                   <button
                     onClick={() => setIsDesktopSearchExpanded(true)}
                     className='bg-white border border-gray-300 rounded-full shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer min-w-[420px]'
@@ -492,8 +492,8 @@ export function SharedHeader({
                 </div>
               )}
 
-            {/* Right section - Airbnb style */}
-            <div className='flex items-center gap-2 flex-shrink-0'>
+            {/* Right section - ALWAYS VISIBLE - Airbnb style */}
+            <div className='flex items-center gap-2 absolute right-0'>
               {rightAction && <div>{rightAction}</div>}
               {user ? (
                 <>
@@ -604,22 +604,22 @@ export function SharedHeader({
           </div>
 
           {/* Desktop: Expanded search section - Airbnb style */}
-          <div className='hidden md:block'>
-            {showSearch &&
-              searchProps &&
-              (!searchCollapsed || isDesktopSearchExpanded) && (
-                <div className='hidden md:block pb-4 relative'>
-                  <motion.div
-                    className='bg-white rounded-full shadow-lg border border-gray-300 max-w-3xl mx-auto relative'
-                    initial={
-                      searchCollapsed
-                        ? { opacity: 0, y: -10, scale: 0.98 }
-                        : ({} as any)
-                    }
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: -10, scale: 0.98 }}
-                    transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
-                  >
+          {showSearch &&
+            searchProps &&
+            (!searchCollapsed || isDesktopSearchExpanded) && (
+              <div className='hidden md:flex items-center pb-4 w-full justify-center'>
+                {/* Centered search */}
+                <motion.div
+                  className='bg-white rounded-full shadow-lg border border-gray-300 relative max-w-3xl w-full'
+                  initial={
+                    searchCollapsed
+                      ? { opacity: 0, y: -10, scale: 0.98 }
+                      : ({} as any)
+                  }
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -10, scale: 0.98 }}
+                  transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
+                >
                     <div className='flex items-stretch'>
                       {/* Servicio button */}
                       <button
@@ -782,9 +782,8 @@ export function SharedHeader({
                       )}
                     </AnimatePresence>
                   </motion.div>
-                </div>
-              )}
-          </div>
+              </div>
+            )}
         </div>
       </header>
 

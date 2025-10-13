@@ -25,34 +25,44 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { data } = body;
 
-    // Save to profiles table (only basic user info - NO location, that's per publication)
-    const { error: profileError } = await supabase.from("profiles").upsert(
-      {
-        user_id: session.user.id,
-        full_name: data.fullName,
-        first_name: data.fullName.split(" ")[0],
-        last_name: data.fullName.split(" ").slice(1).join(" "),
-        phone: data.phone,
-        whatsapp_phone: data.whatsappPhone,
-        // location_province y location_city REMOVIDOS - cada publicación tiene su zona
-        user_type: "professional", // Mark as professional
-        onboarding_completed: true,
-        // Social media URLs
-        facebook_url: data.facebookUrl || null,
-        instagram_url: data.instagramUrl || null,
-        linkedin_url: data.linkedinUrl || null,
-        twitter_url: data.twitterUrl || null,
-        website_url: data.websiteUrl || null,
-        updated_at: new Date().toISOString(),
-      },
-      { onConflict: "user_id" }
-    );
+    // Check if this is the first publication (onboarding) or an additional one
+    const { count: existingProfilesCount } = await supabase
+      .from("professional_profiles")
+      .select("*", { count: "exact", head: true })
+      .eq("user_id", session.user.id);
 
-    if (profileError) {
-      return NextResponse.json(
-        { error: "Failed to save profile" },
-        { status: 500 }
+    const isFirstPublication = !existingProfilesCount || existingProfilesCount === 0;
+
+    // Only update profiles table on first publication (onboarding)
+    if (isFirstPublication) {
+      const { error: profileError } = await supabase.from("profiles").upsert(
+        {
+          user_id: session.user.id,
+          full_name: data.fullName,
+          first_name: data.fullName.split(" ")[0],
+          last_name: data.fullName.split(" ").slice(1).join(" "),
+          phone: data.phone,
+          whatsapp_phone: data.whatsappPhone,
+          // location_province y location_city REMOVIDOS - cada publicación tiene su zona
+          user_type: "professional", // Mark as professional
+          onboarding_completed: true,
+          // Social media URLs
+          facebook_url: data.facebookUrl || null,
+          instagram_url: data.instagramUrl || null,
+          linkedin_url: data.linkedinUrl || null,
+          twitter_url: data.twitterUrl || null,
+          website_url: data.websiteUrl || null,
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: "user_id" }
       );
+
+      if (profileError) {
+        return NextResponse.json(
+          { error: "Failed to save profile" },
+          { status: 500 }
+        );
+      }
     }
 
     // Create professional profile (required fields: specialty, trade_name)

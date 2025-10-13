@@ -420,19 +420,29 @@ export function SharedHeader({
               </div>
             </div>
           ) : (
-            <div className='md:hidden flex items-center justify-center w-full relative h-16'>
-              {showBackButton && (
+            <div className='md:hidden flex items-center justify-between w-full relative h-16 bg-primary px-2'>
+              {showBackButton ? (
                 <Button
                   variant='ghost'
                   size='sm'
                   onClick={() => navigate(-1)}
-                  className='absolute left-0 p-2 h-8 w-8 hover:bg-white/10 text-white'
+                  className='p-2 h-8 w-8 hover:bg-white/10 text-white'
                 >
                   <ArrowLeft className='h-4 w-4' />
                 </Button>
+              ) : (
+                <div className='w-8' />
               )}
-              {rightAction && (
-                <div className='absolute right-0'>{rightAction}</div>
+              <img
+                src='/logo-bco-experto-cerca.svg'
+                alt='Experto Cerca'
+                className='h-7 cursor-pointer'
+                onClick={() => navigate("/")}
+              />
+              {rightAction ? (
+                <div>{rightAction}</div>
+              ) : (
+                <div className='w-8' />
               )}
             </div>
           )}

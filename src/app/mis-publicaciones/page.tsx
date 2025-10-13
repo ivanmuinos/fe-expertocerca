@@ -62,9 +62,9 @@ export default function MyPublicationsPage() {
 
   const [createLoading, setCreateLoading] = useState(false);
   const handleCreateNew = () => {
-    setCurrentStep(OnboardingStep.SPECIALTY_SELECTION);
+    setCurrentStep(OnboardingStep.USER_TYPE_SELECTION);
     setCreateLoading(true);
-    navigate("/onboarding/specialty-selection");
+    navigate("/onboarding/user-type-selection");
     setTimeout(() => setCreateLoading(false), 600);
   };
 
@@ -72,12 +72,39 @@ export default function MyPublicationsPage() {
     navigate(`/publication?id=${profileId}`);
   };
 
-  if (loading) {
+  // Show skeleton while auth is loading or while profiles are being loaded for the first time
+  if (loading || (profilesLoading && !hasLoadedProfiles)) {
     return (
-      <div className='min-h-screen bg-background flex items-center justify-center'>
-        <div className='text-center'>
-          <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4'></div>
-          <p className='text-muted-foreground'>Cargando...</p>
+      <div className='min-h-screen bg-background'>
+        {/* Custom header for mis-publicaciones - Mobile only */}
+        <header className='lg:hidden sticky top-0 z-40 bg-primary'>
+          <div className='flex items-center justify-between h-10 px-4'>
+            <button
+              onClick={() => navigate(-1)}
+              className='p-2 -ml-2 hover:bg-white/10 rounded-full transition-colors'
+            >
+              <svg className='w-5 h-5 text-white' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M15 19l-7-7 7-7' />
+              </svg>
+            </button>
+
+            <img
+              src='/logo-bco-experto-cerca.svg'
+              alt='Experto Cerca'
+              className='h-6'
+            />
+
+            <div className='w-9' />
+          </div>
+        </header>
+
+        {/* Desktop header */}
+        <div className='hidden lg:block'>
+          <SharedHeader showBackButton={false} title='Mis Publicaciones' />
+        </div>
+
+        <div className='max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6'>
+          <MisPublicationsSkeleton />
         </div>
       </div>
     );
@@ -89,162 +116,197 @@ export default function MyPublicationsPage() {
 
   return (
     <>
-      <div className={`${myProfiles.length > 0 ? 'min-h-screen pb-24 md:pb-8' : 'h-screen flex flex-col overflow-hidden'} bg-background`}>
-        <SharedHeader
-          showBackButton={false}
-          title='Mis Publicaciones'
-          rightAction={
-            myProfiles.length > 0 ? (
-              <LoadingButton
-                onClick={handleCreateNew}
-                size="sm"
-                className='bg-primary hover:bg-primary-dark text-primary-foreground font-medium py-2 px-4 rounded-xl transition-all flex items-center gap-2'
-                loading={createLoading}
-                loadingText='Abriendo'
-              >
-                <Plus className='w-4 h-4' />
-                <span className="hidden sm:inline">Nueva</span>
-              </LoadingButton>
-            ) : undefined
-          }
-        />
+      <div
+        className={`${
+          myProfiles.length > 0
+            ? "min-h-screen pb-24 md:pb-8"
+            : "h-screen flex flex-col overflow-hidden"
+        } bg-background`}
+      >
+        {/* Custom header for mis-publicaciones - Mobile only */}
+        <header className='lg:hidden sticky top-0 z-40 bg-primary'>
+          <div className='flex items-center justify-between h-10 px-4'>
+            <button
+              onClick={() => navigate(-1)}
+              className='p-2 -ml-2 hover:bg-white/10 rounded-full transition-colors'
+            >
+              <svg className='w-5 h-5 text-white' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M15 19l-7-7 7-7' />
+              </svg>
+            </button>
+
+            <img
+              src='/logo-bco-experto-cerca.svg'
+              alt='Experto Cerca'
+              className='h-6'
+            />
+
+            <div className='w-9' />
+          </div>
+        </header>
+
+        {/* Desktop header */}
+        <div className='hidden lg:block'>
+          <SharedHeader showBackButton={false} title='Mis Publicaciones' />
+        </div>
 
         {myProfiles.length > 0 ? (
           <div className='max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6'>
-          {profilesLoading ? (
-            <MisPublicationsSkeleton />
-          ) : (
-            <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'>
-            {myProfiles.map((profile) => (
-              <div
-                key={profile.id}
-                className='bg-white rounded-2xl overflow-hidden hover:shadow-lg transition-all duration-200 border border-gray-200'
-              >
-                {/* Main image preview */}
-                <div className='aspect-video bg-gray-100 overflow-hidden relative'>
-                  {profile.main_portfolio_image ? (
-                    <img
-                      src={profile.main_portfolio_image}
-                      alt={profile.trade_name || "Publicación"}
-                      className='w-full h-full object-cover'
-                      loading='lazy'
-                    />
-                  ) : (
-                    <div className='w-full h-full flex items-center justify-center text-gray-400'>
-                      <Briefcase className='w-12 h-12' />
+            {profilesLoading ? (
+              <MisPublicationsSkeleton />
+            ) : (
+              <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'>
+                {/* New Publication Card */}
+                <button
+                  onClick={handleCreateNew}
+                  disabled={createLoading}
+                  className='bg-white rounded-2xl overflow-hidden hover:shadow-lg transition-all duration-200 border-2 border-dashed border-gray-300 hover:border-gray-400 hover:bg-gray-50 flex flex-col items-center justify-center min-h-[200px] sm:aspect-[4/5] group'
+                >
+                  <div className='flex flex-col items-center gap-3'>
+                    <div className='w-16 h-16 rounded-full bg-gray-100 group-hover:bg-gray-200 flex items-center justify-center transition-colors'>
+                      <Plus className='w-8 h-8 text-gray-400 group-hover:text-gray-500 transition-colors' />
                     </div>
-                  )}
-                </div>
+                    <span className='text-sm font-medium text-gray-500 group-hover:text-gray-700 transition-colors'>
+                      {createLoading ? "Cargando..." : "Nueva publicación"}
+                    </span>
+                  </div>
+                </button>
 
-                {/* Content */}
-                <div className='p-4 space-y-3'>
-                  {/* Avatar and title */}
-                  <div className='flex gap-3'>
-                    <EditableAvatar
-                      avatarUrl={profile.profile_avatar_url}
-                      userFullName={profile.profile_full_name}
-                      size='sm'
-                      showUploadButton={false}
-                      isOwner={true}
-                    />
-                    <div className='flex-1 min-w-0'>
-                      <h3 className='font-semibold text-gray-900 truncate text-base'>
-                        {profile.trade_name}
-                      </h3>
-                      {profile.profile_location_city && (
-                        <p className='text-sm text-gray-500'>
-                          {profile.profile_location_city}
-                        </p>
+                {myProfiles.map((profile) => (
+                  <div
+                    key={profile.id}
+                    className='bg-white rounded-2xl overflow-hidden hover:shadow-lg transition-all duration-200 border border-gray-200'
+                  >
+                    {/* Main image preview */}
+                    <div className='aspect-video bg-gray-100 overflow-hidden relative'>
+                      {profile.main_portfolio_image ? (
+                        <img
+                          src={profile.main_portfolio_image}
+                          alt={profile.trade_name || "Publicación"}
+                          className='w-full h-full object-cover'
+                          loading='lazy'
+                        />
+                      ) : (
+                        <div className='w-full h-full flex items-center justify-center text-gray-400'>
+                          <Briefcase className='w-12 h-12' />
+                        </div>
                       )}
                     </div>
-                  </div>
 
-                  {/* Skills */}
-                  {profile.profile_skills && profile.profile_skills.length > 0 && (
-                    <div className='flex flex-wrap gap-1.5'>
-                      {profile.profile_skills.slice(0, 3).map((skill, index) => (
-                        <span
-                          key={index}
-                          className='px-2 py-0.5 bg-gray-100 text-gray-700 rounded-md text-xs font-medium'
+                    {/* Content */}
+                    <div className='p-4 space-y-3'>
+                      {/* Avatar and title */}
+                      <div className='flex gap-3'>
+                        <EditableAvatar
+                          avatarUrl={profile.profile_avatar_url}
+                          userFullName={profile.profile_full_name}
+                          size='sm'
+                          showUploadButton={false}
+                          isOwner={true}
+                        />
+                        <div className='flex-1 min-w-0'>
+                          <h3 className='font-semibold text-gray-900 truncate text-base'>
+                            {profile.trade_name}
+                          </h3>
+                          {profile.profile_location_city && (
+                            <p className='text-sm text-gray-500'>
+                              {profile.profile_location_city}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Skills */}
+                      {profile.profile_skills &&
+                        profile.profile_skills.length > 0 && (
+                          <div className='flex flex-wrap gap-1.5'>
+                            {profile.profile_skills
+                              .slice(0, 3)
+                              .map((skill, index) => (
+                                <span
+                                  key={index}
+                                  className='px-2 py-0.5 bg-gray-100 text-gray-700 rounded-md text-xs font-medium'
+                                >
+                                  {skill}
+                                </span>
+                              ))}
+                            {profile.profile_skills.length > 3 && (
+                              <span className='px-2 py-0.5 bg-gray-50 text-gray-500 rounded-md text-xs border border-gray-200'>
+                                +{profile.profile_skills.length - 3}
+                              </span>
+                            )}
+                          </div>
+                        )}
+
+                      {/* Actions */}
+                      <div className='flex items-center gap-2 pt-2'>
+                        <button
+                          onClick={() => handleViewProfile(profile.id)}
+                          className='flex-1 bg-gray-100 hover:bg-gray-200 text-gray-900 font-medium py-2 px-3 rounded-lg transition-colors flex items-center justify-center gap-2 text-sm'
                         >
-                          {skill}
-                        </span>
-                      ))}
-                      {profile.profile_skills.length > 3 && (
-                        <span className='px-2 py-0.5 bg-gray-50 text-gray-500 rounded-md text-xs border border-gray-200'>
-                          +{profile.profile_skills.length - 3}
-                        </span>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Actions */}
-                  <div className='flex items-center gap-2 pt-2'>
-                    <button
-                      onClick={() => handleViewProfile(profile.id)}
-                      className='flex-1 bg-gray-100 hover:bg-gray-200 text-gray-900 font-medium py-2 px-3 rounded-lg transition-colors flex items-center justify-center gap-2 text-sm'
-                    >
-                      <Eye className='w-4 h-4' />
-                      Ver
-                    </button>
-                    <button
-                      onClick={async () => {
-                        try {
-                          await navigator.clipboard.writeText(
-                            `${window.location.origin}/publication/?id=${profile.id}`
-                          );
-                          toast({
-                            title: "Enlace copiado",
-                            description: "El enlace ha sido copiado al portapapeles",
-                          });
-                        } catch {
-                          toast({
-                            title: "Error",
-                            description: "No se pudo copiar el enlace",
-                            variant: "destructive",
-                          });
-                        }
-                      }}
-                      className='p-2 border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-600 rounded-lg transition-colors'
-                      title='Copiar enlace'
-                    >
-                      <Copy className='w-4 h-4' />
-                    </button>
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <button className='p-2 border border-red-200 hover:border-red-300 hover:bg-red-50 text-red-600 rounded-lg transition-colors'>
-                          <Trash2 className='w-4 h-4' />
+                          <Eye className='w-4 h-4' />
+                          Ver
                         </button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>
-                            ¿Eliminar publicación?
-                          </AlertDialogTitle>
-                          <AlertDialogDescription>
-                            Esta acción no se puede deshacer. Se eliminará permanentemente tu publicación.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                          <AlertDialogAction
-                            onClick={() => handleDeleteProfile(profile.id)}
-                            disabled={deletingId === profile.id}
-                            className='bg-red-600 hover:bg-red-700'
-                          >
-                            {deletingId === profile.id
-                              ? "Eliminando..."
-                              : "Eliminar"}
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
+                        <button
+                          onClick={async () => {
+                            try {
+                              await navigator.clipboard.writeText(
+                                `${window.location.origin}/publication/?id=${profile.id}`
+                              );
+                              toast({
+                                title: "Enlace copiado",
+                                description:
+                                  "El enlace ha sido copiado al portapapeles",
+                              });
+                            } catch {
+                              toast({
+                                title: "Error",
+                                description: "No se pudo copiar el enlace",
+                                variant: "destructive",
+                              });
+                            }
+                          }}
+                          className='p-2 border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-600 rounded-lg transition-colors'
+                          title='Copiar enlace'
+                        >
+                          <Copy className='w-4 h-4' />
+                        </button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <button className='p-2 border border-red-200 hover:border-red-300 hover:bg-red-50 text-red-600 rounded-lg transition-colors'>
+                              <Trash2 className='w-4 h-4' />
+                            </button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>
+                                ¿Eliminar publicación?
+                              </AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Esta acción no se puede deshacer. Se eliminará
+                                permanentemente tu publicación.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => handleDeleteProfile(profile.id)}
+                                disabled={deletingId === profile.id}
+                                className='bg-red-600 hover:bg-red-700'
+                              >
+                                {deletingId === profile.id
+                                  ? "Eliminando..."
+                                  : "Eliminar"}
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
+                    </div>
                   </div>
-                </div>
+                ))}
               </div>
-            ))}
-            </div>
-          )}
+            )}
           </div>
         ) : (
           // Empty state - centered and no scroll
@@ -257,7 +319,8 @@ export default function MyPublicationsPage() {
                 No tenés publicaciones aún
               </h3>
               <p className='text-gray-600 mb-6 text-sm'>
-                Creá tu primera publicación para empezar a ofrecer tus servicios profesionales
+                Creá tu primera publicación para empezar a ofrecer tus servicios
+                profesionales
               </p>
               <LoadingButton
                 onClick={handleCreateNew}

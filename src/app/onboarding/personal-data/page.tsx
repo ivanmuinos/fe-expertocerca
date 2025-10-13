@@ -9,7 +9,7 @@ import { useOnboarding } from "@/src/shared/stores/useOnboardingStore";
 import { LoadingButton } from "@/src/shared/components/ui/loading-button";
 import { Input } from "@/src/shared/components/ui/input";
 import { Label } from "@/src/shared/components/ui/label";
-import { Star, MessageCircle, Facebook, Instagram } from "lucide-react";
+import { Star, MessageCircle, Facebook, Instagram, Linkedin, Twitter, Globe } from "lucide-react";
 import { motion } from "framer-motion";
 import {
   useOnboardingProgress,
@@ -22,8 +22,11 @@ export interface PersonalDataForm {
   fullName: string;
   email: string;
   phone: string;
-  facebookProfile?: string;
-  instagramProfile?: string;
+  facebookUrl?: string;
+  instagramUrl?: string;
+  linkedinUrl?: string;
+  twitterUrl?: string;
+  websiteUrl?: string;
 }
 
 export default function PersonalDataPage() {
@@ -51,8 +54,11 @@ export default function PersonalDataPage() {
     fullName: "",
     email: "",
     phone: "",
-    facebookProfile: "",
-    instagramProfile: "",
+    facebookUrl: "",
+    instagramUrl: "",
+    linkedinUrl: "",
+    twitterUrl: "",
+    websiteUrl: "",
   });
 
   // Load user data from Google auth (only once on mount)
@@ -166,6 +172,12 @@ export default function PersonalDataPage() {
           professionalInfo?.hourlyRate && professionalInfo.hourlyRate > 0
             ? professionalInfo.hourlyRate
             : undefined,
+        // Social media URLs
+        facebookUrl: formData.facebookUrl || undefined,
+        instagramUrl: formData.instagramUrl || undefined,
+        linkedinUrl: formData.linkedinUrl || undefined,
+        twitterUrl: formData.twitterUrl || undefined,
+        websiteUrl: formData.websiteUrl || undefined,
       };
 
       console.log("onboardingData a enviar:", onboardingData);
@@ -317,47 +329,87 @@ export default function PersonalDataPage() {
               </p>
             </div>
 
-            {/* Optional Social Media */}
+            {/* Social Media Section */}
             <div className='pt-4 border-t border-border'>
-              <h3 className='text-sm font-medium text-foreground mb-4'>
-                Redes sociales
+              <h3 className='text-sm font-medium text-foreground mb-3'>
+                Redes sociales (opcional)
               </h3>
-
-              <div className='space-y-4'>
+              <p className='text-xs text-muted-foreground mb-4'>
+                Agregá tus redes sociales para que los clientes puedan conocer más sobre tu trabajo
+              </p>
+              <div className='space-y-3'>
                 {/* Facebook */}
-                <div className='space-y-2'>
-                  <Label htmlFor='facebook' className='flex items-center gap-2'>
-                    <Facebook className='w-4 h-4 text-blue-600' />
-                    Perfil de Facebook
+                <div className='space-y-1'>
+                  <Label htmlFor='facebook' className='flex items-center gap-2 text-xs'>
+                    <Facebook className='w-3.5 h-3.5 text-blue-600' />
+                    Facebook
                   </Label>
                   <Input
                     id='facebook'
-                    value={formData.facebookProfile}
-                    onChange={(e) =>
-                      updateFormData("facebookProfile", e.target.value)
-                    }
+                    value={formData.facebookUrl}
+                    onChange={(e) => updateFormData("facebookUrl", e.target.value)}
                     placeholder='https://facebook.com/tu-perfil'
-                    className='h-9 md:h-12 text-sm'
+                    className='h-9 text-sm'
                   />
                 </div>
 
                 {/* Instagram */}
-                <div className='space-y-2'>
-                  <Label
-                    htmlFor='instagram'
-                    className='flex items-center gap-2'
-                  >
-                    <Instagram className='w-4 h-4 text-pink-600' />
-                    Perfil de Instagram
+                <div className='space-y-1'>
+                  <Label htmlFor='instagram' className='flex items-center gap-2 text-xs'>
+                    <Instagram className='w-3.5 h-3.5 text-pink-600' />
+                    Instagram
                   </Label>
                   <Input
                     id='instagram'
-                    value={formData.instagramProfile}
-                    onChange={(e) =>
-                      updateFormData("instagramProfile", e.target.value)
-                    }
+                    value={formData.instagramUrl}
+                    onChange={(e) => updateFormData("instagramUrl", e.target.value)}
                     placeholder='https://instagram.com/tu-perfil'
-                    className='h-9 md:h-12 text-sm'
+                    className='h-9 text-sm'
+                  />
+                </div>
+
+                {/* LinkedIn */}
+                <div className='space-y-1'>
+                  <Label htmlFor='linkedin' className='flex items-center gap-2 text-xs'>
+                    <Linkedin className='w-3.5 h-3.5 text-blue-700' />
+                    LinkedIn
+                  </Label>
+                  <Input
+                    id='linkedin'
+                    value={formData.linkedinUrl}
+                    onChange={(e) => updateFormData("linkedinUrl", e.target.value)}
+                    placeholder='https://linkedin.com/in/tu-perfil'
+                    className='h-9 text-sm'
+                  />
+                </div>
+
+                {/* Twitter */}
+                <div className='space-y-1'>
+                  <Label htmlFor='twitter' className='flex items-center gap-2 text-xs'>
+                    <Twitter className='w-3.5 h-3.5 text-sky-500' />
+                    Twitter/X
+                  </Label>
+                  <Input
+                    id='twitter'
+                    value={formData.twitterUrl}
+                    onChange={(e) => updateFormData("twitterUrl", e.target.value)}
+                    placeholder='https://twitter.com/tu-perfil'
+                    className='h-9 text-sm'
+                  />
+                </div>
+
+                {/* Website */}
+                <div className='space-y-1'>
+                  <Label htmlFor='website' className='flex items-center gap-2 text-xs'>
+                    <Globe className='w-3.5 h-3.5 text-gray-600' />
+                    Sitio web
+                  </Label>
+                  <Input
+                    id='website'
+                    value={formData.websiteUrl}
+                    onChange={(e) => updateFormData("websiteUrl", e.target.value)}
+                    placeholder='https://tu-sitio.com'
+                    className='h-9 text-sm'
                   />
                 </div>
               </div>

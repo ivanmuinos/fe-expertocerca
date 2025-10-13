@@ -10,18 +10,58 @@ import {
   OnboardingStep,
 } from "@/src/shared/stores/useOnboardingProgressStore";
 import { useOnboardingFooterStore } from "@/src/shared/stores/useOnboardingFooterStore";
+import { useAuthState } from "@/src/features/auth";
 
 export default function WorkDescriptionPage() {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
+  const [shouldShowPersonalData, setShouldShowPersonalData] = useState<boolean | null>(null);
   const { workDescription, setWorkDescription, markStepCompleted } =
     useOnboarding();
   const { setCurrentStep } = useOnboardingProgress();
   const { setLeftButton, setRightButton, reset } = useOnboardingFooterStore();
+  const { user } = useAuthState();
 
   useEffect(() => {
     setCurrentStep(OnboardingStep.PHOTO_UPLOAD);
   }, [setCurrentStep]);
+
+  // Check if user already has profile data on mount
+  useEffect(() => {
+    const checkUserData = async () => {
+      if (!user) return;
+
+      try {
+        // Check if user has whatsapp_phone and professional profiles
+        const [profileResponse, professionalResponse] = await Promise.all([
+          fetch("/api/profile"),
+          fetch("/api/professionals/my")
+        ]);
+
+        if (profileResponse.ok && professionalResponse.ok) {
+          const { data: profile } = await profileResponse.json();
+          const { data: professionals } = await professionalResponse.json();
+
+          // Show personal-data only if:
+          // 1. No whatsapp_phone OR
+          // 2. No professional profiles (first time)
+          const hasWhatsapp = profile?.whatsapp_phone;
+          const hasProfessionals = professionals && professionals.length > 0;
+
+          setShouldShowPersonalData(!hasWhatsapp || !hasProfessionals);
+        } else {
+          // If APIs fail, default to showing personal-data
+          setShouldShowPersonalData(true);
+        }
+      } catch (error) {
+        console.error("Error checking user data:", error);
+        // Default to showing personal-data on error
+        setShouldShowPersonalData(true);
+      }
+    };
+
+    checkUserData();
+  }, [user]);
 
   const handleBack = () => {
     navigate("/onboarding/photo-upload");
@@ -30,7 +70,14 @@ export default function WorkDescriptionPage() {
   const handleContinue = () => {
     setIsLoading(true);
     markStepCompleted(4);
-    navigate("/onboarding/personal-data");
+
+    // Navigate based on whether user needs to fill personal data
+    if (shouldShowPersonalData) {
+      navigate("/onboarding/personal-data");
+    } else {
+      // Skip personal-data and go straight to completion
+      navigate("/onboarding/completion");
+    }
   };
 
   const canProceed = workDescription.trim().length >= 50;

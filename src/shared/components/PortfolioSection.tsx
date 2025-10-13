@@ -201,6 +201,7 @@ export function PortfolioSection({
   const [isMobile, setIsMobile] = useState(false);
   const [loadingPhotos, setLoadingPhotos] = useState(true);
   const [showGridView, setShowGridView] = useState(false);
+  const [showDetailsSheet, setShowDetailsSheet] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Detect mobile
@@ -819,17 +820,23 @@ export function PortfolioSection({
 
               {/* Close button */}
               <button
-                onClick={() => {
-                  const detailsSheet = document.getElementById('photo-details-sheet');
-                  const backdrop = document.getElementById('photo-details-backdrop');
-                  if (detailsSheet && backdrop) {
-                    detailsSheet.classList.remove('translate-y-0');
-                    detailsSheet.classList.add('translate-y-full');
-                    backdrop.classList.remove('bg-black/40', 'pointer-events-auto');
-                    backdrop.classList.add('bg-black/0', 'pointer-events-none');
-                  }
+                onClick={(e) => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  setShowDetailsSheet(false);
+                  setTimeout(() => {
+                    const detailsSheet = document.getElementById('photo-details-sheet');
+                    const backdrop = document.getElementById('photo-details-backdrop');
+                    if (detailsSheet && backdrop) {
+                      detailsSheet.classList.remove('translate-y-0');
+                      detailsSheet.classList.add('translate-y-full');
+                      backdrop.classList.remove('bg-black/40', 'pointer-events-auto');
+                      backdrop.classList.add('bg-black/0', 'pointer-events-none');
+                    }
+                  }, 10);
                 }}
-                className='absolute top-4 right-4 p-2 hover:bg-gray-100 rounded-full transition-colors'
+                className='absolute top-4 right-4 p-2 hover:bg-gray-100 rounded-full transition-colors z-50'
+                type='button'
               >
                 <X className='w-5 h-5' />
               </button>

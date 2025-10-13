@@ -23,6 +23,12 @@ export interface OnboardingData {
   tradeName?: string;
   yearsExperience?: number;
   hourlyRate?: number;
+  // Social media URLs
+  facebookUrl?: string;
+  instagramUrl?: string;
+  linkedinUrl?: string;
+  twitterUrl?: string;
+  websiteUrl?: string;
 }
 
 export const useProfiles = () => {

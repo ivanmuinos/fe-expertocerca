@@ -44,7 +44,7 @@ export function PromoBanner() {
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 100, opacity: 0 }}
           transition={{ type: "spring", damping: 25, stiffness: 300 }}
-          className="fixed bottom-20 md:bottom-6 left-4 right-4 md:left-1/2 md:right-auto md:-translate-x-1/2 z-40 md:max-w-xl md:w-full"
+          className="fixed bottom-20 md:bottom-6 left-4 right-4 md:left-auto md:right-6 z-40 md:max-w-md"
         >
           <div className="bg-white rounded-2xl shadow-2xl border border-gray-200 p-4 flex items-center gap-3">
             {/* Icon */}

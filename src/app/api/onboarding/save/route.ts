@@ -37,6 +37,12 @@ export async function POST(request: NextRequest) {
         // location_province y location_city REMOVIDOS - cada publicación tiene su zona
         user_type: "professional", // Mark as professional
         onboarding_completed: true,
+        // Social media URLs
+        facebook_url: data.facebookUrl || null,
+        instagram_url: data.instagramUrl || null,
+        linkedin_url: data.linkedinUrl || null,
+        twitter_url: data.twitterUrl || null,
+        website_url: data.websiteUrl || null,
         updated_at: new Date().toISOString(),
       },
       { onConflict: "user_id" }

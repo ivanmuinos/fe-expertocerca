@@ -26,6 +26,11 @@ export const profileUpdateSchema = z.object({
     .nullable(),
   location_city: z.string().max(100).optional().nullable(),
   location_province: z.string().max(100).optional().nullable(),
+  facebook_url: z.string().url("Invalid URL").optional().nullable().or(z.literal("")),
+  instagram_url: z.string().url("Invalid URL").optional().nullable().or(z.literal("")),
+  linkedin_url: z.string().url("Invalid URL").optional().nullable().or(z.literal("")),
+  twitter_url: z.string().url("Invalid URL").optional().nullable().or(z.literal("")),
+  website_url: z.string().url("Invalid URL").optional().nullable().or(z.literal("")),
 });
 
 // ============================================================================

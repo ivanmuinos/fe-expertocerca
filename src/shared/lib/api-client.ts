@@ -1,3 +1,9 @@
+import { container } from '@/src/core/di'
+
+/**
+ * @deprecated Use container.getHttpClient() or specific services instead
+ * This is kept for backward compatibility during migration
+ */
 class ApiError extends Error {
   constructor(
     message: string,
@@ -15,196 +21,129 @@ interface ApiResponse<T = any> {
   success?: boolean
 }
 
+/**
+ * @deprecated Legacy API Client - Use DI Container services instead
+ * Mantenido para compatibilidad durante la migración
+ */
 class ApiClient {
-  private baseUrl: string
-
-  constructor() {
-    // Use relative URLs when running in browser, absolute URLs for SSR
-    this.baseUrl = typeof window !== 'undefined' ? '' : (process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000')
-  }
-
-  private async request<T>(
-    endpoint: string,
-    options: RequestInit = {}
-  ): Promise<T> {
-    const url = `${this.baseUrl}/api${endpoint}`
-
-    const response = await fetch(url, {
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers,
-      },
-      credentials: 'same-origin',
-      ...options,
-    })
-
-    const data: ApiResponse<T> = await response.json()
-
-    if (!response.ok) {
-      throw new ApiError(
-        data.error || 'API request failed',
-        response.status,
-        data
-      )
-    }
-
-    return data.data as T
-  }
+  private httpClient = container.getHttpClient()
 
   // Auth methods
   async getSession() {
-    return this.request('/auth/session')
+    return this.httpClient.get('/auth/session')
   }
 
   async signInWithGoogle() {
-    return this.request('/auth/google', {
-      method: 'POST',
-    })
+    return this.httpClient.post('/auth/google')
   }
 
   async signOut() {
-    return this.request('/auth/signout', {
-      method: 'POST',
-    })
+    return this.httpClient.post('/auth/signout')
   }
 
   // Professionals methods
   async discoverProfessionals() {
-    return this.request('/professionals?mode=discover')
+    return this.httpClient.get('/professionals?mode=discover')
   }
 
   async browseProfessionals() {
-    return this.request('/professionals?mode=browse')
+    return this.httpClient.get('/professionals?mode=browse')
   }
 
   async getProfessionalById(id: string) {
-    return this.request(`/professionals/${id}`)
+    return this.httpClient.get(`/professionals/${id}`)
   }
 
   async syncAvatar() {
-    return this.request('/sync-avatar', { method: 'POST' })
+    return this.httpClient.post('/sync-avatar')
   }
 
   async bulkSyncAvatars() {
-    return this.request('/sync-avatar', { method: 'PUT' })
+    return this.httpClient.put('/sync-avatar')
   }
 
   async getMyProfiles() {
-    return this.request('/my-profiles')
+    return this.httpClient.get('/my-profiles')
   }
 
   async createProfessionalProfile(profileData: any) {
-    return this.request('/professionals', {
-      method: 'POST',
-      body: JSON.stringify(profileData),
-    })
+    return this.httpClient.post('/professionals', profileData)
   }
 
   async updateProfessionalProfile(id: string, profileData: any) {
-    return this.request(`/professionals/${id}`, {
-      method: 'PUT',
-      body: JSON.stringify(profileData),
-    })
+    return this.httpClient.put(`/professionals/${id}`, profileData)
   }
 
   async deleteProfessionalProfile(id: string) {
-    return this.request(`/professionals/${id}`, {
-      method: 'DELETE',
-    })
+    return this.httpClient.delete(`/professionals/${id}`)
   }
 
   async getProfessionalProfile(id: string) {
-    return this.request(`/professionals/${id}`)
+    return this.httpClient.get(`/professionals/${id}`)
   }
 
   // Portfolio methods
   async getPortfolio() {
-    return this.request('/user-profile/portfolio')
+    return this.httpClient.get('/user-profile/portfolio')
   }
 
   async createPortfolioItem(itemData: any) {
-    return this.request('/user-profile/portfolio', {
-      method: 'POST',
-      body: JSON.stringify(itemData),
-    })
+    return this.httpClient.post('/user-profile/portfolio', itemData)
   }
 
   // Reviews methods
   async getReviews(professionalId: string) {
-    return this.request(`/user-profile/reviews?professionalId=${professionalId}`)
+    return this.httpClient.get(`/user-profile/reviews?professionalId=${professionalId}`)
   }
 
   async createReview(reviewData: any) {
-    return this.request('/user-profile/reviews', {
-      method: 'POST',
-      body: JSON.stringify(reviewData),
-    })
+    return this.httpClient.post('/user-profile/reviews', reviewData)
   }
 
   // Generic HTTP methods
   async get(endpoint: string) {
-    return this.request(endpoint)
+    return this.httpClient.get(endpoint)
   }
 
   async post(endpoint: string, data?: any) {
-    return this.request(endpoint, {
-      method: 'POST',
-      body: data ? JSON.stringify(data) : undefined,
-    })
+    return this.httpClient.post(endpoint, data)
   }
 
   async put(endpoint: string, data?: any) {
-    return this.request(endpoint, {
-      method: 'PUT',
-      body: data ? JSON.stringify(data) : undefined,
-    })
+    return this.httpClient.put(endpoint, data)
   }
 
   async delete(endpoint: string) {
-    return this.request(endpoint, {
-      method: 'DELETE',
-    })
+    return this.httpClient.delete(endpoint)
   }
 
   // User profiles methods
   async getUserProfile(userId?: string) {
     const params = userId ? `?userId=${userId}` : ''
-    return this.request(`/profiles${params}`)
+    return this.httpClient.get(`/profiles${params}`)
   }
 
   async createUserProfile(profileData: any) {
-    return this.request('/profiles', {
-      method: 'POST',
-      body: JSON.stringify(profileData),
-    })
+    return this.httpClient.post('/profiles', profileData)
   }
 
   async updateUserProfile(profileData: any) {
-    return this.request('/profiles', {
-      method: 'PUT',
-      body: JSON.stringify(profileData),
-    })
+    return this.httpClient.put('/profiles', profileData)
   }
 
   // Onboarding methods
   async saveOnboardingData(onboardingData: any) {
-    return this.request('/onboarding', {
-      method: 'POST',
-      body: JSON.stringify(onboardingData),
-    })
+    return this.httpClient.post('/onboarding', onboardingData)
   }
 
   // User type selection methods
   async setUserType(userType: string) {
-    return this.request('/profiles/user-type', {
-      method: 'POST',
-      body: JSON.stringify({ userType }),
-    })
+    return this.httpClient.post('/profiles/user-type', { userType })
   }
 
   // Onboarding status methods
   async getOnboardingStatus() {
-    return this.request('/profiles/onboarding-status')
+    return this.httpClient.get('/profiles/onboarding-status')
   }
 }
 

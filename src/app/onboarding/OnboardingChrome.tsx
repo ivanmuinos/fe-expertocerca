@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { OnboardingProgressBar } from "@/src/shared/components/OnboardingProgressBar";
@@ -61,12 +62,15 @@ export default function OnboardingChrome({
       {/* Fixed Header */}
       {!hideAllChrome && (
         <div className='fixed top-0 left-0 right-0 z-40 bg-primary'>
-          <div className='mx-2 px-4 h-10 flex items-center justify-between'>
+          <div className='mx-2 px-4 h-12 flex items-center justify-between'>
             <Link href='/' className='flex items-center gap-2'>
-              <img
+              <Image
                 src='/logo-bco-experto-cerca.svg'
                 alt='Experto Cerca'
-                className='h-6'
+                width={120}
+                height={24}
+                className='h-6 w-auto'
+                priority
               />
             </Link>
             {!hideExitButton && (
@@ -87,8 +91,8 @@ export default function OnboardingChrome({
           hideAllChrome
             ? "pt-0 pb-0"
             : headerOnly
-            ? "pt-10 pb-0"
-            : "pt-10 pb-14"
+            ? "pt-12 pb-0"
+            : "pt-12 pb-16"
         } overflow-hidden`}
       >
         <div
@@ -103,7 +107,7 @@ export default function OnboardingChrome({
 
       {/* Fixed Footer with Progress Bar full-width */}
       {!hideAllChrome && !headerOnly && (
-        <div className='fixed bottom-0 left-0 right-0 z-40 bg-background/95 backdrop-blur-sm h-14 flex flex-col'>
+        <div className='fixed bottom-0 left-0 right-0 z-40 bg-background/95 backdrop-blur-sm h-16 flex flex-col'>
           {/* Progress bar flush to top, full width */}
           <div className='w-full h-1'>
             <OnboardingProgressBar />
@@ -128,7 +132,7 @@ export default function OnboardingChrome({
               loading={Boolean(rightButton?.loading)}
               loadingText={rightButton?.label || "Continuar"}
               disabled={rightButton?.disabled}
-              className='px-6 h-9 text-sm font-medium bg-primary text-white rounded-lg disabled:opacity-50'
+              className='px-6 h-10 text-sm font-medium bg-primary text-white rounded-lg disabled:opacity-50'
             >
               {rightButton?.label || "Continuar"}
             </LoadingButton>

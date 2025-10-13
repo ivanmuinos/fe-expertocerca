@@ -12,9 +12,11 @@ import {
   Car,
   Home,
 } from "lucide-react";
+import Image from "next/image";
 import { Badge } from "@/src/shared/components/ui/badge";
 import { LoadingButton } from "@/src/shared/components/ui/loading-button";
-import { useState } from "react";
+import { useState, memo } from "react";
+import { generateBlurDataURL, getImageSizes } from "@/src/shared/lib/image-optimization";
 
 interface Publication {
   id: string;
@@ -58,13 +60,13 @@ const getSpecialtyIcon = (specialty: string) => {
   return specialtyMap[specialty] || null;
 };
 
-export function PublicationCard({
+const PublicationCardComponent = ({
   professional,
   isSelected = false,
   onClick,
   showAllSkills = false,
   className = "",
-}: PublicationCardProps) {
+}: PublicationCardProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const handleClick = () => {
     if (onClick) {
@@ -102,16 +104,17 @@ export function PublicationCard({
         {/* Image section - cuadrado como Airbnb */}
         <div className='aspect-square relative bg-gray-200 overflow-hidden rounded-xl'>
           {professional.main_portfolio_image ? (
-            <img
+            <Image
               src={professional.main_portfolio_image}
               alt={professional.profile_full_name || "Publication"}
-              className='w-full h-full object-cover'
-              loading='lazy'
+              fill
+              sizes={getImageSizes.card}
+              className='object-cover'
+              placeholder="blur"
+              blurDataURL={generateBlurDataURL()}
+              priority={false}
+              quality={85}
               onError={(e) => {
-                console.log(
-                  "Error loading image:",
-                  professional.main_portfolio_image
-                );
                 e.currentTarget.style.display = "none";
               }}
             />
@@ -180,6 +183,8 @@ export function PublicationCard({
       </div>
     </div>
   );
-}
+};
 
+// Memoize component to prevent unnecessary re-renders
+export const PublicationCard = memo(PublicationCardComponent);
 export default PublicationCard;

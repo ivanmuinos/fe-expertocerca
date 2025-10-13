@@ -123,11 +123,19 @@ export default function HomePage() {
   ];
 
   useEffect(() => {
+    let ticking = false;
+    
     const handleScroll = () => {
-      setIsHeaderCollapsed(window.scrollY > 100);
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          setIsHeaderCollapsed(window.scrollY > 100);
+          ticking = false;
+        });
+        ticking = true;
+      }
     };
 
-    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 

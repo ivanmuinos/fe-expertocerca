@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import { useNavigate } from "@/src/shared/lib/navigation";
 import { useAuthState, useAuthActions } from "@/src/features/auth";
 import { Button } from "@/src/shared/components/ui/button";
@@ -170,10 +171,13 @@ export default function PerfilPage() {
               </svg>
             </button>
 
-            <img
+            <Image
               src='/logo-bco-experto-cerca.svg'
               alt='Experto Cerca'
-              className='h-6'
+              width={120}
+              height={24}
+              className='h-6 w-auto'
+              priority
             />
 
             <div className='w-9' />
@@ -220,10 +224,13 @@ export default function PerfilPage() {
             </svg>
           </button>
 
-          <img
+          <Image
             src='/logo-bco-experto-cerca.svg'
             alt='Experto Cerca'
-            className='h-6'
+            width={120}
+            height={24}
+            className='h-6 w-auto'
+            priority
           />
 
           <div className='w-9' />

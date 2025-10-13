@@ -19,6 +19,7 @@ interface MyProfessionalProfile {
   profile_location_province: string;
   profile_skills: string[];
   profile_avatar_url?: string;
+  main_portfolio_image?: string;
   created_at: string;
   updated_at: string;
 }
@@ -40,7 +41,6 @@ export function useMyProfessionalProfiles() {
     setLoading(true);
     try {
       const data = await apiClient.get("/my-profiles");
-      console.log("API Response:", data);
       setMyProfiles((data as MyProfessionalProfile[]) || []);
     } catch (error) {
       console.error("Error loading profiles:", error);
@@ -71,7 +71,6 @@ export function useMyProfessionalProfiles() {
         queryKey: queryKeys.professionals.lists(),
       });
 
-      console.log("Publicación eliminada - cache invalidado");
       return true;
     } catch (error) {
       toast({

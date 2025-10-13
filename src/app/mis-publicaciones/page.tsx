@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import { useNavigate } from "@/src/shared/lib/navigation";
 import { Plus, Trash2, Copy, Briefcase } from "lucide-react";
 import { LoadingButton } from "@/src/shared/components/ui/loading-button";
@@ -82,10 +83,13 @@ export default function MyPublicationsPage() {
               </svg>
             </button>
 
-            <img
+            <Image
               src='/logo-bco-experto-cerca.svg'
               alt='Experto Cerca'
-              className='h-6'
+              width={120}
+              height={24}
+              className='h-6 w-auto'
+              priority
             />
 
             <div className='w-9' />
@@ -129,10 +133,13 @@ export default function MyPublicationsPage() {
               </svg>
             </button>
 
-            <img
+            <Image
               src='/logo-bco-experto-cerca.svg'
               alt='Experto Cerca'
-              className='h-6'
+              width={120}
+              height={24}
+              className='h-6 w-auto'
+              priority
             />
 
             <div className='w-9' />
@@ -175,11 +182,13 @@ export default function MyPublicationsPage() {
                     {/* Main image preview */}
                     <div className='aspect-video bg-gray-100 overflow-hidden relative'>
                       {profile.main_portfolio_image ? (
-                        <img
+                        <Image
                           src={profile.main_portfolio_image}
                           alt={profile.trade_name || "Publicación"}
-                          className='w-full h-full object-cover group-hover:scale-105 transition-transform duration-200'
-                          loading='lazy'
+                          fill
+                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                          className='object-cover group-hover:scale-105 transition-transform duration-200'
+                          quality={85}
                         />
                       ) : (
                         <div className='w-full h-full flex items-center justify-center text-gray-400'>

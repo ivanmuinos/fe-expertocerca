@@ -29,6 +29,7 @@ import { PortfolioSection } from "@/src/shared/components/PortfolioSection";
 import { useAuthState } from "@/src/features/auth";
 import { EditableAvatar } from "@/src/shared/components/EditableAvatar";
 import { SharedHeader } from "@/src/shared/components/SharedHeader";
+import { LoginModal } from "@/src/shared/components/LoginModal";
 import { Footer } from "@/src/shared/components";
 import PublicationSkeleton from "@/src/shared/components/PublicationSkeleton";
 
@@ -45,6 +46,19 @@ export default function PublicationPage() {
 
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedZone, setSelectedZone] = useState("all");
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+
+  // Listen for login modal events
+  useEffect(() => {
+    const handleOpenLoginModal = () => {
+      setIsLoginModalOpen(true);
+    };
+
+    window.addEventListener("openLoginModal", handleOpenLoginModal);
+    return () => {
+      window.removeEventListener("openLoginModal", handleOpenLoginModal);
+    };
+  }, []);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -158,8 +172,9 @@ export default function PublicationPage() {
     if (professional?.whatsapp_phone) {
       setContactLoading(true);
       const cleanPhone = professional.whatsapp_phone.replace(/[^0-9]/g, "");
+      const publicationUrl = typeof window !== 'undefined' ? window.location.href : '';
       const message = encodeURIComponent(
-        `Hola ${professional.profile_full_name}, me interesa contactarte por tus servicios de ${professional.trade_name}.`
+        `Hola ${professional.profile_full_name}, me gustaría tener más información sobre la siguiente publicación en Experto Cerca: ${publicationUrl}`
       );
       const whatsappUrl = `https://wa.me/${cleanPhone}?text=${message}`;
       window.open(whatsappUrl, "_blank");
@@ -549,6 +564,12 @@ export default function PublicationPage() {
       </div>
 
       <Footer />
+
+      {/* Login Modal */}
+      <LoginModal
+        isOpen={isLoginModalOpen}
+        onClose={() => setIsLoginModalOpen(false)}
+      />
     </div>
   );
 }

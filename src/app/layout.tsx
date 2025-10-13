@@ -17,8 +17,8 @@ const poppins = Poppins({
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  maximumScale: 5,
-  userScalable: true,
+  maximumScale: 1,
+  userScalable: false,
   viewportFit: "cover",
   // Enable minimal-ui for Safari to hide address bar on scroll
   interactiveWidget: "resizes-content",

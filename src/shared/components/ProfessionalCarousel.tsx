@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import { Button } from "@/src/shared/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -45,6 +45,9 @@ export function ProfessionalCarousel({
     },
   });
 
+  const [canScrollPrev, setCanScrollPrev] = useState(false);
+  const [canScrollNext, setCanScrollNext] = useState(false);
+
   const scrollPrev = useCallback(() => {
     if (emblaApi) emblaApi.scrollPrev();
   }, [emblaApi]);
@@ -53,30 +56,53 @@ export function ProfessionalCarousel({
     if (emblaApi) emblaApi.scrollNext();
   }, [emblaApi]);
 
+  const onSelect = useCallback(() => {
+    if (!emblaApi) return;
+    setCanScrollPrev(emblaApi.canScrollPrev());
+    setCanScrollNext(emblaApi.canScrollNext());
+  }, [emblaApi]);
+
+  useEffect(() => {
+    if (!emblaApi) return;
+    
+    onSelect();
+    emblaApi.on("select", onSelect);
+    emblaApi.on("reInit", onSelect);
+    
+    return () => {
+      emblaApi.off("select", onSelect);
+      emblaApi.off("reInit", onSelect);
+    };
+  }, [emblaApi, onSelect]);
+
   return (
     <div className='space-y-3 sm:space-y-4'>
       <div className='flex items-center justify-between'>
         <h2 className='text-lg sm:text-xl font-semibold'>{categoryName}</h2>
-        <div className='flex items-center gap-2'>
-          <div className='hidden sm:flex gap-2'>
-            <Button
-              variant='outline'
-              size='sm'
-              onClick={scrollPrev}
-              className='h-7 w-7 p-0 rounded-full border-2'
-            >
-              <ChevronLeft className='h-3 w-3' />
-            </Button>
-            <Button
-              variant='outline'
-              size='sm'
-              onClick={scrollNext}
-              className='h-7 w-7 p-0 rounded-full border-2'
-            >
-              <ChevronRight className='h-3 w-3' />
-            </Button>
+        {(canScrollPrev || canScrollNext) && (
+          <div className='flex items-center gap-2'>
+            <div className='hidden sm:flex gap-2'>
+              <Button
+                variant='outline'
+                size='sm'
+                onClick={scrollPrev}
+                disabled={!canScrollPrev}
+                className='h-7 w-7 p-0 rounded-full border-2 disabled:opacity-30'
+              >
+                <ChevronLeft className='h-3 w-3' />
+              </Button>
+              <Button
+                variant='outline'
+                size='sm'
+                onClick={scrollNext}
+                disabled={!canScrollNext}
+                className='h-7 w-7 p-0 rounded-full border-2 disabled:opacity-30'
+              >
+                <ChevronRight className='h-3 w-3' />
+              </Button>
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       <div className='overflow-hidden' ref={emblaRef}>

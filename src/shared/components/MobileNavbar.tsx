@@ -255,8 +255,15 @@ export function MobileNavbar() {
           // Special handling for search and login buttons
           const handleClick = () => {
             if (item.id === "buscar") {
-              // Open search modal instead of navigating
-              setIsMobileSearchOpen(true);
+              // If already on home or search page, open modal
+              // Otherwise navigate to search page
+              if (pathname === "/" || pathname === "/buscar") {
+                setIsMobileSearchOpen(true);
+              } else {
+                setLoadingId(item.id);
+                navigate("/buscar");
+                setTimeout(() => setLoadingId(null), 600);
+              }
             } else if (item.id === "login") {
               // Open login modal by dispatching custom event
               window.dispatchEvent(new CustomEvent("openLoginModal"));

@@ -247,6 +247,10 @@ export function GlobalMobileSearch() {
                       { key: "GBA Norte", name: "GBA Norte", description: "San Isidro, Vicente López, Tigre y alrededores", icon: TreePine },
                       { key: "GBA Sur", name: "GBA Sur", description: "Quilmes, Avellaneda, Berazategui y zona sur", icon: Waves },
                       { key: "GBA Oeste", name: "GBA Oeste", description: "Morón, La Matanza, zona oeste", icon: Mountain },
+                      { key: "La Plata y alrededores", name: "La Plata y alrededores", description: "La Plata y zona de influencia", icon: Building },
+                      { key: "Córdoba", name: "Córdoba", description: "Córdoba Capital", icon: Building },
+                      { key: "Rosario", name: "Rosario", description: "Rosario, Santa Fe", icon: Building },
+                      { key: "Mendoza", name: "Mendoza", description: "Mendoza Capital", icon: Mountain },
                     ].map((zone) => {
                       const IconComponent = zone.icon;
                       return (

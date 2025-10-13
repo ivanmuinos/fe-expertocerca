@@ -759,6 +759,10 @@ export function SharedHeader({
                               { name: "GBA Norte", label: "GBA Norte", icon: TreePine },
                               { name: "GBA Sur", label: "GBA Sur", icon: Waves },
                               { name: "GBA Oeste", label: "GBA Oeste", icon: Mountain },
+                              { name: "La Plata y alrededores", label: "La Plata", icon: Building },
+                              { name: "Córdoba", label: "Córdoba", icon: Building },
+                              { name: "Rosario", label: "Rosario", icon: Building },
+                              { name: "Mendoza", label: "Mendoza", icon: Mountain },
                             ].map((zone) => {
                               const IconComponent = zone.icon;
                               return (
@@ -994,6 +998,10 @@ export function SharedHeader({
                           { name: "GBA Norte", label: "GBA Norte", icon: TreePine },
                           { name: "GBA Sur", label: "GBA Sur", icon: Waves },
                           { name: "GBA Oeste", label: "GBA Oeste", icon: Mountain },
+                          { name: "La Plata y alrededores", label: "La Plata", icon: Building },
+                          { name: "Córdoba", label: "Córdoba", icon: Building },
+                          { name: "Rosario", label: "Rosario", icon: Building },
+                          { name: "Mendoza", label: "Mendoza", icon: Mountain },
                         ].map((zone) => {
                           const IconComponent = zone.icon;
                           return (

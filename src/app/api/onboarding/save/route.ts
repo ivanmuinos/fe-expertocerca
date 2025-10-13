@@ -33,26 +33,15 @@ export async function POST(request: NextRequest) {
 
     const isFirstPublication = !existingProfilesCount || existingProfilesCount === 0;
 
+    // Get existing profile to check onboarding status
+    const { data: existingProfile } = await supabase
+      .from("profiles")
+      .select("onboarding_completed")
+      .eq("user_id", session.user.id)
+      .single();
+
     // Only update profiles table on first publication (onboarding)
-    // CRITICAL: This endpoint should ONLY be used during initial onboarding
-    // For additional publications, use the /publicar page which doesn't touch profiles
     if (isFirstPublication) {
-      // Double-check that onboarding is not already completed
-      const { data: existingProfile } = await supabase
-        .from("profiles")
-        .select("onboarding_completed")
-        .eq("user_id", session.user.id)
-        .single();
-
-      if (existingProfile?.onboarding_completed) {
-        return NextResponse.json(
-          {
-            error: "Onboarding already completed. Use /publicar to create additional publications."
-          },
-          { status: 400 }
-        );
-      }
-
       const { error: profileError } = await supabase.from("profiles").upsert(
         {
           user_id: session.user.id,
@@ -63,7 +52,7 @@ export async function POST(request: NextRequest) {
           whatsapp_phone: data.whatsappPhone,
           // location_province y location_city REMOVIDOS - cada publicación tiene su zona
           user_type: "professional", // Mark as professional
-          onboarding_completed: true,
+          onboarding_completed: true, // Always true when completing onboarding
           // Social media URLs
           facebook_url: data.facebookUrl || null,
           instagram_url: data.instagramUrl || null,
@@ -80,6 +69,21 @@ export async function POST(request: NextRequest) {
           { error: "Failed to save profile" },
           { status: 500 }
         );
+      }
+    } else {
+      // For additional publications: ensure onboarding_completed stays true
+      // CRITICAL: Once onboarding is completed, it must NEVER be set to false
+      const { error: profileError } = await supabase
+        .from("profiles")
+        .update({
+          onboarding_completed: true, // Always keep it true
+          updated_at: new Date().toISOString(),
+        })
+        .eq("user_id", session.user.id);
+
+      if (profileError) {
+        console.error("Error ensuring onboarding_completed stays true:", profileError);
+        // Don't fail the request, but log the error
       }
     }
 

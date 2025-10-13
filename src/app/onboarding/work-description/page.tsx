@@ -11,16 +11,19 @@ import {
 } from "@/src/shared/stores/useOnboardingProgressStore";
 import { useOnboardingFooterStore } from "@/src/shared/stores/useOnboardingFooterStore";
 import { useAuthState } from "@/src/features/auth";
+import { useProfiles, type OnboardingData } from "@/src/features/user-profile";
 
 export default function WorkDescriptionPage() {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [shouldShowPersonalData, setShouldShowPersonalData] = useState<boolean | null>(null);
-  const { workDescription, setWorkDescription, markStepCompleted } =
+  const [existingUserProfile, setExistingUserProfile] = useState<any>(null);
+  const { workDescription, setWorkDescription, markStepCompleted, selectedSpecialty, selectedSpecialtyCategory, selectedWorkZone, professionalInfo } =
     useOnboarding();
   const { setCurrentStep } = useOnboardingProgress();
   const { setLeftButton, setRightButton, reset } = useOnboardingFooterStore();
   const { user } = useAuthState();
+  const { saveOnboardingData } = useProfiles();
 
   useEffect(() => {
     setCurrentStep(OnboardingStep.PHOTO_UPLOAD);
@@ -41,6 +44,9 @@ export default function WorkDescriptionPage() {
         if (profileResponse.ok && professionalResponse.ok) {
           const { data: profile } = await profileResponse.json();
           const { data: professionals } = await professionalResponse.json();
+
+          // Store existing profile for later use
+          setExistingUserProfile(profile);
 
           // Show personal-data only if:
           // 1. No whatsapp_phone OR
@@ -67,7 +73,9 @@ export default function WorkDescriptionPage() {
     navigate("/onboarding/photo-upload");
   };
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
+    if (!user) return;
+
     setIsLoading(true);
     markStepCompleted(4);
 
@@ -75,8 +83,88 @@ export default function WorkDescriptionPage() {
     if (shouldShowPersonalData) {
       navigate("/onboarding/personal-data");
     } else {
-      // Skip personal-data and go straight to completion
-      navigate("/onboarding/completion");
+      // User already has profile data, create the publication here before going to completion
+      try {
+        // Mapear la zona de trabajo a ciudad y provincia usando los nombres exactos de la BD
+        const getLocationFromWorkZone = (workZone: string) => {
+          const zoneMap: Record<string, { city: string; province: string }> = {
+            "Ciudad Autónoma de Buenos Aires": {
+              city: "Ciudad Autónoma de Buenos Aires",
+              province: "Ciudad Autónoma de Buenos Aires",
+            },
+            "GBA Norte": { city: "Vicente López", province: "Buenos Aires" },
+            "GBA Oeste": { city: "Morón", province: "Buenos Aires" },
+            "GBA Sur": { city: "Avellaneda", province: "Buenos Aires" },
+            "La Plata y alrededores": {
+              city: "La Plata",
+              province: "Buenos Aires",
+            },
+            Córdoba: { city: "Córdoba", province: "Córdoba" },
+            Rosario: { city: "Rosario", province: "Santa Fe" },
+            Mendoza: { city: "Mendoza", province: "Mendoza" },
+          };
+          return (
+            zoneMap[workZone] || {
+              city: "Buenos Aires",
+              province: "Buenos Aires",
+            }
+          );
+        };
+
+        const location = getLocationFromWorkZone(selectedWorkZone || "");
+
+        // Use existing profile data with new publication data
+        const onboardingData: OnboardingData = {
+          fullName: existingUserProfile?.full_name || user.user_metadata?.full_name || "",
+          phone: existingUserProfile?.whatsapp_phone || "",
+          whatsappPhone: existingUserProfile?.whatsapp_phone || "",
+          locationProvince: location.province,
+          locationCity: location.city,
+          bio: workDescription || "Descripción profesional",
+          skills: professionalInfo?.skills?.length > 0 ? professionalInfo.skills : [],
+          specialty: selectedSpecialty || undefined,
+          specialtyCategory: selectedSpecialtyCategory || undefined,
+          workZone: selectedWorkZone || undefined,
+          tradeName:
+            professionalInfo?.tradeName && professionalInfo.tradeName.trim()
+              ? professionalInfo.tradeName
+              : existingUserProfile?.full_name || user.user_metadata?.full_name || "",
+          yearsExperience:
+            professionalInfo?.yearsExperience && professionalInfo.yearsExperience > 0
+              ? professionalInfo.yearsExperience
+              : 1,
+          hourlyRate:
+            professionalInfo?.hourlyRate && professionalInfo.hourlyRate > 0
+              ? professionalInfo.hourlyRate
+              : undefined,
+          // Keep existing social media URLs if they exist
+          facebookUrl: existingUserProfile?.facebook_url || undefined,
+          instagramUrl: existingUserProfile?.instagram_url || undefined,
+          linkedinUrl: existingUserProfile?.linkedin_url || undefined,
+          twitterUrl: existingUserProfile?.twitter_url || undefined,
+          websiteUrl: existingUserProfile?.website_url || undefined,
+        };
+
+        console.log("Creating new publication with data:", onboardingData);
+
+        const result = await saveOnboardingData(onboardingData, user.id);
+
+        if (result.success) {
+          // Go to completion page to upload photos
+          navigate("/onboarding/completion");
+        } else {
+          setIsLoading(false);
+          throw new Error(
+            `Failed to create publication: ${
+              result.error?.message || "Unknown error"
+            }`
+          );
+        }
+      } catch (error) {
+        setIsLoading(false);
+        console.error("Error creating publication:", error);
+        // Show error to user if needed
+      }
     }
   };
 

@@ -167,13 +167,20 @@ export function MobileNavbar() {
             return;
           }
 
-          // Scrolling down & past 50px - hide navbar
-          if (scrollDiff > 0 && currentScrollY > 50) {
-            setIsVisible(false);
-            setIsMobileNavbarVisible(false);
-          }
-          // Scrolling up - show navbar
-          else if (scrollDiff < 0) {
+          // Only hide/show navbar on scroll if user is logged in
+          if (user) {
+            // Scrolling down & past 50px - hide navbar
+            if (scrollDiff > 0 && currentScrollY > 50) {
+              setIsVisible(false);
+              setIsMobileNavbarVisible(false);
+            }
+            // Scrolling up - show navbar
+            else if (scrollDiff < 0) {
+              setIsVisible(true);
+              setIsMobileNavbarVisible(true);
+            }
+          } else {
+            // Always show navbar for non-logged users
             setIsVisible(true);
             setIsMobileNavbarVisible(true);
           }
@@ -193,7 +200,7 @@ export function MobileNavbar() {
       window.removeEventListener("scroll", controlNavbar);
       document.body.removeEventListener("scroll", controlNavbar);
     };
-  }, [isMobileSearchOpen, lastScrollY]);
+  }, [isMobileSearchOpen, lastScrollY, user]);
 
   const isActive = (path: string) => {
     if (path === "/") {

@@ -577,181 +577,441 @@ export function PortfolioSection({
         </DndContext>
       )}
 
-      {/* Photo Modal/Drawer - Drawer for mobile, Dialog for desktop */}
+      {/* Photo Modal/Drawer - Custom fullscreen for mobile, Dialog for desktop */}
       {isMobile ? (
-        <Drawer open={showPhotoModal} onOpenChange={setShowPhotoModal} modal={true}>
-          <DrawerContent className='h-screen w-screen p-0 overflow-hidden bg-black border-none fixed inset-0 rounded-none max-h-screen'>
-            <VisuallyHidden>
-              <DrawerTitle>Galería de fotos</DrawerTitle>
-            </VisuallyHidden>
-            {selectedPhoto && (
-              <div className='flex flex-col h-screen w-screen relative'>
-                {/* Close button - top left */}
-                <button
-                  onClick={() => {
-                    setShowPhotoModal(false);
-                    setShowGridView(false);
-                  }}
-                  className='absolute top-4 left-4 z-30 w-10 h-10 bg-black/60 hover:bg-black/80 text-white rounded-full flex items-center justify-center transition-colors'
-                  style={{ backdropFilter: 'blur(8px)' }}
-                >
-                  <svg className='w-6 h-6' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                    <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M6 18L18 6M6 6l12 12' />
-                  </svg>
-                </button>
+        showPhotoModal && selectedPhoto && (
+          <div
+            className='fixed top-0 left-0 right-0 bottom-0 z-[100] bg-black'
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              width: '100vw',
+              height: '100dvh',
+              overflow: 'hidden'
+            }}
+          >
+            {/* Close button - top left */}
+            <button
+              onClick={() => {
+                setShowPhotoModal(false);
+                setShowGridView(false);
+              }}
+              className='fixed top-4 left-4 z-50 w-10 h-10 bg-black/60 hover:bg-black/80 text-white rounded-full flex items-center justify-center transition-colors'
+              style={{ backdropFilter: 'blur(8px)' }}
+            >
+              <svg className='w-6 h-6' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M6 18L18 6M6 6l12 12' />
+              </svg>
+            </button>
 
-                {/* Grid view button - top right */}
-                {photos.length > 1 && !showGridView && (
-                  <button
-                    onClick={() => setShowGridView(true)}
-                    className='absolute top-4 right-4 z-30 w-10 h-10 bg-black/60 hover:bg-black/80 text-white rounded-full flex items-center justify-center transition-colors'
-                    style={{ backdropFilter: 'blur(8px)' }}
-                  >
-                    <Grid3x3 className='w-5 h-5' />
-                  </button>
+            {/* Grid view button - top right */}
+            {photos.length > 1 && !showGridView && (
+              <button
+                onClick={() => setShowGridView(true)}
+                className='fixed top-4 right-4 z-50 w-10 h-10 bg-black/60 hover:bg-black/80 text-white rounded-full flex items-center justify-center transition-colors'
+                style={{ backdropFilter: 'blur(8px)' }}
+              >
+                <Grid3x3 className='w-5 h-5' />
+              </button>
+            )}
+
+            {/* Grid View - All photos in 2 columns */}
+            {showGridView ? (
+              <div
+                className='fixed top-0 left-0 right-0 bottom-0 bg-black'
+                style={{
+                  position: 'fixed',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  width: '100vw',
+                  height: '100dvh',
+                  overflowY: 'auto',
+                  overflowX: 'hidden',
+                  WebkitOverflowScrolling: 'touch',
+                  touchAction: 'pan-y'
+                }}
+              >
+                <div className='grid grid-cols-2 gap-2 p-4 pt-20 pb-20 min-h-full'>
+                  {photos.map((photo, index) => (
+                    <div
+                      key={photo.id}
+                      className='aspect-square relative cursor-pointer'
+                      onClick={() => {
+                        setSelectedPhoto(photo);
+                        setSelectedPhotoIndex(index);
+                        setShowGridView(false);
+                      }}
+                    >
+                      <Image
+                        src={photo.image_url}
+                        alt={photo.title}
+                        fill
+                        className='object-cover rounded-lg'
+                        sizes='50vw'
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              /* Single Photo View */
+              <div
+                className='fixed top-0 left-0 right-0 bottom-0 bg-black flex items-center justify-center'
+                style={{
+                  position: 'fixed',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  width: '100vw',
+                  height: '100dvh'
+                }}
+                onTouchStart={(e) => {
+                  const touchStartX = e.touches[0].clientX;
+                  const touchStartY = e.touches[0].clientY;
+
+                  const handleTouchMove = (moveEvent: TouchEvent) => {
+                    const touchEndX = moveEvent.touches[0].clientX;
+                    const touchEndY = moveEvent.touches[0].clientY;
+                    const diffX = touchStartX - touchEndX;
+                    const diffY = touchStartY - touchEndY;
+
+                    // Only trigger swipe if horizontal movement is greater than vertical
+                    if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
+                      if (diffX > 0) {
+                        // Swipe left - next photo
+                        handleNextPhoto();
+                      } else {
+                        // Swipe right - previous photo
+                        handlePreviousPhoto();
+                      }
+                      document.removeEventListener('touchmove', handleTouchMove);
+                      document.removeEventListener('touchend', handleTouchEnd);
+                    }
+                  };
+
+                  const handleTouchEnd = () => {
+                    document.removeEventListener('touchmove', handleTouchMove);
+                    document.removeEventListener('touchend', handleTouchEnd);
+                  };
+
+                  document.addEventListener('touchmove', handleTouchMove, { passive: true });
+                  document.addEventListener('touchend', handleTouchEnd);
+                }}
+              >
+                <div className='relative w-full h-full'>
+                  <Image
+                    src={selectedPhoto.image_url}
+                    alt={selectedPhoto.title}
+                    fill
+                    className='object-contain'
+                    priority
+                  />
+                </div>
+
+                {/* Photo counter - top center */}
+                {photos.length > 1 && (
+                  <div className='fixed top-4 left-1/2 -translate-x-1/2 bg-black/60 text-white px-4 py-2 rounded-full text-sm font-medium z-40' style={{ backdropFilter: 'blur(8px)' }}>
+                    {selectedPhotoIndex + 1} / {photos.length}
+                  </div>
                 )}
 
-                {/* Grid View - All photos in 2 columns */}
-                {showGridView ? (
-                  <div className='absolute inset-0 bg-black overflow-y-auto overscroll-contain' style={{ WebkitOverflowScrolling: 'touch' }}>
-                    <div className='grid grid-cols-2 gap-2 p-4 pt-20 pb-20 min-h-full'>
-                      {photos.map((photo, index) => (
-                        <div
-                          key={photo.id}
-                          className='aspect-square relative cursor-pointer'
-                          onClick={() => {
-                            setSelectedPhoto(photo);
-                            setSelectedPhotoIndex(index);
-                            setShowGridView(false);
-                          }}
-                        >
-                          <Image
-                            src={photo.image_url}
-                            alt={photo.title}
-                            fill
-                            className='object-cover rounded-lg'
-                            sizes='50vw'
-                          />
-                        </div>
-                      ))}
+                {/* Details button - floating at bottom */}
+                {(selectedPhoto.title || selectedPhoto.description || isOwner) && (
+                  <div className='fixed bottom-0 left-0 right-0 p-4 z-40'>
+                    <button
+                      onClick={() => {
+                        const detailsSheet = document.getElementById('photo-details-sheet');
+                        const backdrop = document.getElementById('photo-details-backdrop');
+                        if (detailsSheet && backdrop) {
+                          detailsSheet.classList.remove('translate-y-full');
+                          detailsSheet.classList.add('translate-y-0');
+                          backdrop.classList.remove('bg-black/0', 'pointer-events-none');
+                          backdrop.classList.add('bg-black/40', 'pointer-events-auto');
+                        }
+                      }}
+                      className='w-full bg-white/90 backdrop-blur-sm hover:bg-white text-gray-900 font-medium py-3 px-4 rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg'
+                    >
+                      <span>Ver detalles</span>
+                      <svg className='w-4 h-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                        <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M5 15l7-7 7 7' />
+                      </svg>
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Backdrop for bottom sheet */}
+            <div
+              id='photo-details-backdrop'
+              className='fixed inset-0 bg-black/0 z-29 pointer-events-none transition-colors duration-300'
+              onClick={() => {
+                const detailsSheet = document.getElementById('photo-details-sheet');
+                const backdrop = document.getElementById('photo-details-backdrop');
+                if (detailsSheet && backdrop) {
+                  detailsSheet.classList.remove('translate-y-0');
+                  detailsSheet.classList.add('translate-y-full');
+                  backdrop.classList.remove('bg-black/40', 'pointer-events-auto');
+                  backdrop.classList.add('bg-black/0', 'pointer-events-none');
+                }
+              }}
+            />
+
+            {/* Details Bottom Sheet */}
+            <div
+              id='photo-details-sheet'
+              className='fixed inset-x-0 bottom-0 bg-white rounded-t-3xl shadow-2xl transform translate-y-full transition-transform duration-300 z-30 max-h-[70vh] flex flex-col'
+              onClick={(e) => e.stopPropagation()}
+              onTouchStart={(e) => {
+                const sheet = e.currentTarget;
+                const startY = e.touches[0].clientY;
+                const startTranslate = 0;
+                let currentTranslate = 0;
+
+                const handleTouchMove = (moveEvent: TouchEvent) => {
+                  const currentY = moveEvent.touches[0].clientY;
+                  const diff = currentY - startY;
+
+                  // Only allow dragging down
+                  if (diff > 0) {
+                    currentTranslate = diff;
+                    sheet.style.transform = `translateY(${diff}px)`;
+                    sheet.style.transition = 'none';
+                  }
+                };
+
+                const handleTouchEnd = () => {
+                  sheet.style.transition = 'transform 0.3s';
+
+                  // If dragged more than 100px, close it
+                  if (currentTranslate > 100) {
+                    const detailsSheet = document.getElementById('photo-details-sheet');
+                    const backdrop = document.getElementById('photo-details-backdrop');
+                    if (detailsSheet && backdrop) {
+                      detailsSheet.classList.remove('translate-y-0');
+                      detailsSheet.classList.add('translate-y-full');
+                      backdrop.classList.remove('bg-black/40', 'pointer-events-auto');
+                      backdrop.classList.add('bg-black/0', 'pointer-events-none');
+                    }
+                  } else {
+                    // Snap back
+                    sheet.style.transform = 'translateY(0)';
+                  }
+
+                  document.removeEventListener('touchmove', handleTouchMove);
+                  document.removeEventListener('touchend', handleTouchEnd);
+                };
+
+                document.addEventListener('touchmove', handleTouchMove, { passive: true });
+                document.addEventListener('touchend', handleTouchEnd);
+              }}
+            >
+              {/* Handle - draggable area */}
+              <div className='w-full flex justify-center pt-3 pb-2 cursor-grab active:cursor-grabbing'>
+                <div className='w-10 h-1 bg-gray-300 rounded-full' />
+              </div>
+
+              {/* Close button */}
+              <button
+                onClick={() => {
+                  const detailsSheet = document.getElementById('photo-details-sheet');
+                  const backdrop = document.getElementById('photo-details-backdrop');
+                  if (detailsSheet && backdrop) {
+                    detailsSheet.classList.remove('translate-y-0');
+                    detailsSheet.classList.add('translate-y-full');
+                    backdrop.classList.remove('bg-black/40', 'pointer-events-auto');
+                    backdrop.classList.add('bg-black/0', 'pointer-events-none');
+                  }
+                }}
+                className='absolute top-4 right-4 p-2 hover:bg-gray-100 rounded-full transition-colors'
+              >
+                <X className='w-5 h-5' />
+              </button>
+
+              {/* Content */}
+              <div className='flex-1 overflow-y-auto px-6 pb-6'>
+                {/* Title and Description: owner can edit; others see if present */}
+                {!isOwner && selectedPhoto.title && (
+                  <div className='mb-4'>
+                    <h3 className='text-2xl font-bold text-foreground'>
+                      {selectedPhoto.title}
+                    </h3>
+                  </div>
+                )}
+                {/* Title and Description: owner can edit; others see if present */}
+                {isOwner ? (
+                  <div className='flex-1 flex flex-col space-y-3'>
+                    <div className='rounded-lg bg-gray-50 border border-dashed border-gray-300 p-3 hover:border-gray-400 transition-colors'>
+                      <Input
+                        id='photo-title'
+                        placeholder='Título del trabajo'
+                        value={selectedPhoto.title}
+                        onChange={(e) =>
+                          setSelectedPhoto({
+                            ...selectedPhoto,
+                            title: e.target.value,
+                          })
+                        }
+                        className='text-lg font-semibold border-0 px-0 focus-visible:ring-0 placeholder:text-muted-foreground/50 bg-transparent'
+                      />
+                    </div>
+
+                    <div className='rounded-lg bg-gray-50 border border-dashed border-gray-300 p-3 hover:border-gray-400 transition-colors flex-1 flex'>
+                      <Textarea
+                        id='photo-description'
+                        className='flex-1 min-h-[100px] resize-none border-0 px-0 focus-visible:ring-0 placeholder:text-muted-foreground/50 bg-transparent'
+                        placeholder='Descripción del trabajo (opcional)'
+                        value={selectedPhoto.description || ""}
+                        onChange={(e) =>
+                          setSelectedPhoto({
+                            ...selectedPhoto,
+                            description: e.target.value,
+                          })
+                        }
+                      />
                     </div>
                   </div>
                 ) : (
-                  /* Single Photo View */
-                  <div
-                    className='absolute inset-0 bg-black overflow-hidden flex items-center justify-center'
-                    onTouchStart={(e) => {
-                      const touchStartX = e.touches[0].clientX;
-                      const touchStartY = e.touches[0].clientY;
-
-                      const handleTouchMove = (moveEvent: TouchEvent) => {
-                        const touchEndX = moveEvent.touches[0].clientX;
-                        const touchEndY = moveEvent.touches[0].clientY;
-                        const diffX = touchStartX - touchEndX;
-                        const diffY = touchStartY - touchEndY;
-
-                        // Only trigger swipe if horizontal movement is greater than vertical
-                        if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
-                          if (diffX > 0) {
-                            // Swipe left - next photo
-                            handleNextPhoto();
-                          } else {
-                            // Swipe right - previous photo
-                            handlePreviousPhoto();
-                          }
-                          document.removeEventListener('touchmove', handleTouchMove);
-                          document.removeEventListener('touchend', handleTouchEnd);
-                        }
-                      };
-
-                      const handleTouchEnd = () => {
-                        document.removeEventListener('touchmove', handleTouchMove);
-                        document.removeEventListener('touchend', handleTouchEnd);
-                      };
-
-                      document.addEventListener('touchmove', handleTouchMove, { passive: true });
-                      document.addEventListener('touchend', handleTouchEnd);
-                    }}
-                  >
-                    <Image
-                      src={selectedPhoto.image_url}
-                      alt={selectedPhoto.title}
-                      fill
-                      className='object-contain'
-                      priority
-                    />
-
-                    {/* Photo counter - top center */}
-                    {photos.length > 1 && (
-                      <div className='absolute top-4 left-1/2 -translate-x-1/2 bg-black/60 text-white px-4 py-2 rounded-full text-sm font-medium z-20' style={{ backdropFilter: 'blur(8px)' }}>
-                        {selectedPhotoIndex + 1} / {photos.length}
-                      </div>
-                    )}
-
-                    {/* Details button - floating at bottom */}
-                    {(selectedPhoto.title || selectedPhoto.description || isOwner) && (
-                      <div className='absolute bottom-0 left-0 right-0 p-4 z-20'>
-                        <button
-                          onClick={() => {
-                            const detailsSheet = document.getElementById('photo-details-sheet');
-                            if (detailsSheet) {
-                              detailsSheet.classList.remove('translate-y-full');
-                              detailsSheet.classList.add('translate-y-0');
-                            }
-                          }}
-                          className='w-full bg-white/90 backdrop-blur-sm hover:bg-white text-gray-900 font-medium py-3 px-4 rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg'
-                        >
-                          <span>Ver detalles</span>
-                          <svg className='w-4 h-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                            <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M5 15l7-7 7 7' />
-                          </svg>
-                        </button>
-                      </div>
-                    )}
-                  </div>
+                  selectedPhoto.description &&
+                  selectedPhoto.description.trim() && (
+                    <div className='bg-white border border-gray-200 rounded-2xl p-6 mb-6 flex-1 overflow-auto'>
+                      <p className='text-muted-foreground leading-relaxed text-lg'>
+                        {selectedPhoto.description}
+                      </p>
+                    </div>
+                  )
                 )}
 
-                {/* Details Bottom Sheet */}
-                <div
-                  id='photo-details-sheet'
-                  className='absolute inset-x-0 bottom-0 bg-white rounded-t-3xl shadow-2xl transform translate-y-full transition-transform duration-300 z-30 max-h-[70vh] flex flex-col'
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  {/* Handle */}
-                  <div className='w-full flex justify-center pt-3 pb-2'>
-                    <div className='w-10 h-1 bg-gray-300 rounded-full' />
+                {/* Action Buttons - Only visible to owner */}
+                {isOwner && (
+                  <div className='mt-auto space-y-2 pt-3 border-t border-gray-100'>
+                    <LoadingButton
+                      size='sm'
+                      className='w-full'
+                      loading={isSaving}
+                      loadingText='Guardando'
+                      onClick={async () => {
+                        try {
+                          setIsSaving(true);
+                          await updatePortfolioPhoto(
+                            selectedPhoto.id,
+                            selectedPhoto.title,
+                            selectedPhoto.description || ""
+                          );
+                          await loadPhotos();
+                        } finally {
+                          setIsSaving(false);
+                        }
+                      }}
+                    >
+                      Guardar cambios
+                    </LoadingButton>
+                    <Button
+                      variant='outline'
+                      size='sm'
+                      className='w-full justify-start gap-2 text-sm border-blue-200 hover:bg-blue-50 hover:border-blue-300'
+                      onClick={() => {
+                        handleSetAsMain(selectedPhoto);
+                        setShowPhotoModal(false);
+                      }}
+                    >
+                      <Star className='w-4 h-4 text-blue-600' />
+                      <span>Imagen principal</span>
+                    </Button>
+                    <Button
+                      variant='outline'
+                      size='sm'
+                      className='w-full justify-start gap-2 text-sm border-red-200 hover:bg-red-50 hover:border-red-300 text-red-600 hover:text-red-700'
+                      onClick={() => {
+                        setShowPhotoModal(false);
+                        handleDelete(selectedPhoto);
+                      }}
+                    >
+                      <Trash2 className='w-4 h-4' />
+                      <span>Eliminar</span>
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )
+      ) : (
+        <Dialog open={showPhotoModal} onOpenChange={setShowPhotoModal}>
+          <DialogContent className='p-0 w-screen h-screen max-w-none rounded-none overflow-hidden bg-white'>
+            <VisuallyHidden>
+              <DialogTitle>Galería de fotos</DialogTitle>
+            </VisuallyHidden>
+            {selectedPhoto && (
+              <div className='h-full flex flex-col'>
+                {/* Header with close button */}
+                <div className='flex items-center justify-between px-6 py-4 border-b border-gray-200'>
+                  <button
+                    onClick={() => setShowPhotoModal(false)}
+                    className='p-2 hover:bg-gray-100 rounded-full transition-colors'
+                  >
+                    <X className='w-6 h-6' />
+                  </button>
+                  {photos.length > 1 && (
+                    <div className='text-sm font-medium text-gray-600'>
+                      {selectedPhotoIndex + 1} / {photos.length}
+                    </div>
+                  )}
+                  <div className='w-10' /> {/* Spacer for centering */}
+                </div>
+
+                {/* Main content area */}
+                <div className='flex-1 flex overflow-hidden'>
+                  {/* Left side - Image (70%) */}
+                  <div className='flex-[7] relative bg-white flex items-center justify-center p-8'>
+                    {/* Navigation buttons */}
+                    {photos.length > 1 && (
+                      <>
+                        <button
+                          onClick={handlePreviousPhoto}
+                          className='absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white hover:bg-gray-50 border border-gray-300 rounded-full flex items-center justify-center shadow-lg transition-all z-10'
+                        >
+                          <ChevronLeft className='w-6 h-6' />
+                        </button>
+                        <button
+                          onClick={handleNextPhoto}
+                          className='absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white hover:bg-gray-50 border border-gray-300 rounded-full flex items-center justify-center shadow-lg transition-all z-10'
+                        >
+                          <ChevronRight className='w-6 h-6' />
+                        </button>
+                      </>
+                    )}
+
+                    {/* Image - centered and contained */}
+                    <div className='relative w-full h-full'>
+                      <Image
+                        src={selectedPhoto.image_url}
+                        alt={selectedPhoto.title}
+                        fill
+                        className='object-contain'
+                        quality={100}
+                        priority
+                      />
+                    </div>
                   </div>
 
-                  {/* Close button */}
-                  <button
-                    onClick={() => {
-                      const detailsSheet = document.getElementById('photo-details-sheet');
-                      if (detailsSheet) {
-                        detailsSheet.classList.remove('translate-y-0');
-                        detailsSheet.classList.add('translate-y-full');
-                      }
-                    }}
-                    className='absolute top-4 right-4 p-2 hover:bg-gray-100 rounded-full transition-colors'
-                  >
-                    <X className='w-5 h-5' />
-                  </button>
-
-                  {/* Content */}
-                  <div className='flex-1 overflow-y-auto px-6 pb-6'>
-                    {/* Title and Description: owner can edit; others see if present */}
-                    {!isOwner && selectedPhoto.title && (
-                      <div className='mb-4'>
-                        <h3 className='text-2xl font-bold text-foreground'>
-                          {selectedPhoto.title}
-                        </h3>
-                      </div>
-                    )}
-                    {/* Title and Description: owner can edit; others see if present */}
-                    {isOwner ? (
-                      <div className='flex-1 flex flex-col space-y-3'>
-                        <div className='rounded-lg bg-gray-50 border border-dashed border-gray-300 p-3 hover:border-gray-400 transition-colors'>
+                  {/* Right side - Details (30%) */}
+                  <div className='flex-[3] border-l border-gray-200 flex flex-col bg-white overflow-y-auto'>
+                    <div className='p-6 flex flex-col h-full'>
+                      {/* Title */}
+                      {isOwner ? (
+                        <div className='mb-4'>
+                          <Label className='text-sm font-medium text-gray-700 mb-2 block'>
+                            Título del trabajo
+                          </Label>
                           <Input
-                            id='photo-title'
+                            id='photo-title-desktop'
                             placeholder='Título del trabajo'
                             value={selectedPhoto.title}
                             onChange={(e) =>
@@ -760,14 +1020,28 @@ export function PortfolioSection({
                                 title: e.target.value,
                               })
                             }
-                            className='text-lg font-semibold border-0 px-0 focus-visible:ring-0 placeholder:text-muted-foreground/50 bg-transparent'
+                            className='text-xl font-semibold'
                           />
                         </div>
+                      ) : (
+                        selectedPhoto.title && (
+                          <div className='mb-4'>
+                            <h2 className='text-2xl font-bold text-gray-900'>
+                              {selectedPhoto.title}
+                            </h2>
+                          </div>
+                        )
+                      )}
 
-                        <div className='rounded-lg bg-gray-50 border border-dashed border-gray-300 p-3 hover:border-gray-400 transition-colors flex-1 flex'>
+                      {/* Description */}
+                      {isOwner ? (
+                        <div className='flex-1 mb-4'>
+                          <Label className='text-sm font-medium text-gray-700 mb-2 block'>
+                            Descripción
+                          </Label>
                           <Textarea
-                            id='photo-description'
-                            className='flex-1 min-h-[100px] resize-none border-0 px-0 focus-visible:ring-0 placeholder:text-muted-foreground/50 bg-transparent'
+                            id='photo-description-desktop'
+                            className='min-h-[200px] resize-none'
                             placeholder='Descripción del trabajo (opcional)'
                             value={selectedPhoto.description || ""}
                             onChange={(e) =>
@@ -778,252 +1052,92 @@ export function PortfolioSection({
                             }
                           />
                         </div>
-                      </div>
-                    ) : (
-                      selectedPhoto.description &&
-                      selectedPhoto.description.trim() && (
-                        <div className='bg-white border border-gray-200 rounded-2xl p-6 mb-6 flex-1 overflow-auto'>
-                          <p className='text-muted-foreground leading-relaxed text-lg'>
-                            {selectedPhoto.description}
-                          </p>
-                        </div>
-                      )
-                    )}
+                      ) : (
+                        selectedPhoto.description &&
+                        selectedPhoto.description.trim() && (
+                          <div className='flex-1 mb-4'>
+                            <p className='text-gray-700 leading-relaxed whitespace-pre-wrap'>
+                              {selectedPhoto.description}
+                            </p>
+                          </div>
+                        )
+                      )}
 
-                    {/* Action Buttons - Only visible to owner */}
-                    {isOwner && (
-                      <div className='mt-auto space-y-2 pt-3 border-t border-gray-100'>
-                        <LoadingButton
-                          size='sm'
-                          className='w-full'
-                          loading={isSaving}
-                          loadingText='Guardando'
-                          onClick={async () => {
-                            try {
-                              setIsSaving(true);
-                              await updatePortfolioPhoto(
-                                selectedPhoto.id,
-                                selectedPhoto.title,
-                                selectedPhoto.description || ""
-                              );
-                              await loadPhotos();
-                            } finally {
-                              setIsSaving(false);
-                            }
-                          }}
-                        >
-                          Guardar cambios
-                        </LoadingButton>
-                        <Button
-                          variant='outline'
-                          size='sm'
-                          className='w-full justify-start gap-2 text-sm border-blue-200 hover:bg-blue-50 hover:border-blue-300'
-                          onClick={() => {
-                            handleSetAsMain(selectedPhoto);
-                            setShowPhotoModal(false);
-                          }}
-                        >
-                          <Star className='w-4 h-4 text-blue-600' />
-                          <span>Imagen principal</span>
-                        </Button>
-                        <Button
-                          variant='outline'
-                          size='sm'
-                          className='w-full justify-start gap-2 text-sm border-red-200 hover:bg-red-50 hover:border-red-300 text-red-600 hover:text-red-700'
-                          onClick={() => {
-                            setShowPhotoModal(false);
-                            handleDelete(selectedPhoto);
-                          }}
-                        >
-                          <Trash2 className='w-4 h-4' />
-                          <span>Eliminar</span>
-                        </Button>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            )}
-          </DrawerContent>
-        </Drawer>
-      ) : (
-        <Dialog open={showPhotoModal} onOpenChange={setShowPhotoModal}>
-          <DialogContent className='p-0 w-screen h-screen max-w-none rounded-none sm:max-w-7xl sm:w-[95vw] sm:h-[90vh] sm:rounded-xl overflow-hidden'>
-            <VisuallyHidden>
-              <DialogTitle>Galería de fotos</DialogTitle>
-            </VisuallyHidden>
-            {selectedPhoto && (
-              <div className='grid grid-cols-1 lg:grid-cols-3 h-full'>
-                {/* Image Section - Takes up 2/3 of the space */}
-                <div className='lg:col-span-2 relative bg-gray-100 min-h-[50vh] lg:min-h-full overflow-hidden rounded-l-xl'>
-                  <Image
-                    src={selectedPhoto.image_url}
-                    alt={selectedPhoto.title}
-                    fill
-                    className='object-cover'
-                  />
-
-                  {/* Navigation buttons */}
-                  {photos.length > 1 && (
-                    <>
-                      <Button
-                        variant='ghost'
-                        size='icon'
-                        className='absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white/90 rounded-full h-10 w-10'
-                        onClick={handlePreviousPhoto}
-                      >
-                        <ChevronLeft className='h-6 w-6' />
-                      </Button>
-                      <Button
-                        variant='ghost'
-                        size='icon'
-                        className='absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white/90 rounded-full h-10 w-10'
-                        onClick={handleNextPhoto}
-                      >
-                        <ChevronRight className='h-6 w-6' />
-                      </Button>
-                    </>
-                  )}
-
-                  {/* Photo counter */}
-                  {photos.length > 1 && (
-                    <div className='absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/60 text-white px-3 py-1 rounded-full text-sm'>
-                      {selectedPhotoIndex + 1} / {photos.length}
-                    </div>
-                  )}
-                </div>
-
-                {/* Content Section - Takes up 1/3 of the space */}
-                <div className='p-6 sm:p-8 flex flex-col bg-gray-50/50 overflow-y-auto'>
-                  {/* Title at the top - only for non-owners */}
-                  {!isOwner && (
-                    <div className='mb-6'>
-                      <h3 className='text-3xl font-bold text-foreground'>
-                        {selectedPhoto.title}
-                      </h3>
-                    </div>
-                  )}
-
-                  {/* Title and Description: owner can edit; others see if present */}
-                  {isOwner ? (
-                    <div className='bg-white border border-gray-200 rounded-2xl p-4 mb-6 flex-1 flex flex-col space-y-4'>
-                      <div className='rounded-lg bg-gray-50 border border-dashed border-gray-300 p-3 hover:border-gray-400 transition-colors'>
-                        <Input
-                          id='photo-title-desktop'
-                          placeholder='Título del trabajo'
-                          value={selectedPhoto.title}
-                          onChange={(e) =>
-                            setSelectedPhoto({
-                              ...selectedPhoto,
-                              title: e.target.value,
-                            })
-                          }
-                          className='text-lg font-semibold border-0 px-0 focus-visible:ring-0 placeholder:text-muted-foreground/50 bg-transparent'
-                        />
-                      </div>
-
-                      <div className='rounded-lg bg-gray-50 border border-dashed border-gray-300 p-3 hover:border-gray-400 transition-colors flex-1 flex'>
-                        <Textarea
-                          id='photo-description-desktop'
-                          className='flex-1 min-h-[180px] resize-none border-0 px-0 focus-visible:ring-0 placeholder:text-muted-foreground/50 bg-transparent'
-                          placeholder='Descripción del trabajo (opcional)'
-                          value={selectedPhoto.description || ""}
-                          onChange={(e) =>
-                            setSelectedPhoto({
-                              ...selectedPhoto,
-                              description: e.target.value,
-                            })
-                          }
-                        />
-                      </div>
-
-                      {/* Guardar cambios se muestra solo en la sección de acciones inferior */}
-                    </div>
-                  ) : (
-                    selectedPhoto.description &&
-                    selectedPhoto.description.trim() && (
-                      <div className='bg-white border border-gray-200 rounded-2xl p-4 mb-6 flex-1 overflow-auto'>
-                        <Label className='mb-2 block'>Descripción</Label>
-                        <p className='text-gray-700 whitespace-pre-wrap'>
-                          {selectedPhoto.description}
-                        </p>
-                      </div>
-                    )
-                  )}
-
-                  {/* Action buttons: only for owner */}
-                  {isOwner && (
-                    <div className='mt-auto space-y-3'>
-                      <LoadingButton
-                        loading={isSaving}
-                        loadingText='Guardando'
-                        className='w-full'
-                        onClick={async () => {
-                          try {
-                            setIsSaving(true);
-                            await updatePortfolioPhoto(
-                              selectedPhoto.id,
-                              selectedPhoto.title,
-                              selectedPhoto.description || ""
-                            );
-                            await loadPhotos();
-                          } finally {
-                            setIsSaving(false);
-                          }
-                        }}
-                      >
-                        Guardar cambios
-                      </LoadingButton>
-                      <LoadingButton
-                        onClick={() => handleSetAsMain(selectedPhoto)}
-                        variant='outline'
-                        className='w-full flex items-center gap-2'
-                        loading={isSettingMain}
-                        loadingText='Estableciendo'
-                      >
-                        <Star className='w-5 h-5' />
-                        <span>Establecer como principal</span>
-                      </LoadingButton>
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button
-                            variant='destructive'
-                            className='w-full flex items-center gap-2'
-                          >
-                            <Trash2 className='w-5 h-5' />
-                            <span>Eliminar foto</span>
-                          </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>
-                              ¿Eliminar esta foto?
-                            </AlertDialogTitle>
-                            <AlertDialogDescription>
-                              Esta acción no se puede deshacer.
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                            <AlertDialogAction
-                              onClick={async () => {
-                                const { success } = await deletePortfolioPhoto(
+                      {/* Action buttons - only for owner */}
+                      {isOwner && (
+                        <div className='mt-auto space-y-3 pt-4 border-t border-gray-200'>
+                          <LoadingButton
+                            loading={isSaving}
+                            loadingText='Guardando'
+                            className='w-full'
+                            onClick={async () => {
+                              try {
+                                setIsSaving(true);
+                                await updatePortfolioPhoto(
                                   selectedPhoto.id,
-                                  selectedPhoto.image_url
+                                  selectedPhoto.title,
+                                  selectedPhoto.description || ""
                                 );
-                                if (success) {
-                                  setShowPhotoModal(false);
-                                  loadPhotos();
-                                }
-                              }}
-                            >
-                              Eliminar
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
+                                await loadPhotos();
+                              } finally {
+                                setIsSaving(false);
+                              }
+                            }}
+                          >
+                            Guardar cambios
+                          </LoadingButton>
+                          <LoadingButton
+                            onClick={() => handleSetAsMain(selectedPhoto)}
+                            variant='outline'
+                            className='w-full flex items-center justify-center gap-2'
+                            loading={isSettingMain}
+                            loadingText='Estableciendo'
+                          >
+                            <Star className='w-4 h-4' />
+                            <span>Establecer como principal</span>
+                          </LoadingButton>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button
+                                variant='outline'
+                                className='w-full flex items-center justify-center gap-2 text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200'
+                              >
+                                <Trash2 className='w-4 h-4' />
+                                <span>Eliminar foto</span>
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>
+                                  ¿Eliminar esta foto?
+                                </AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Esta acción no se puede deshacer.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                <AlertDialogAction
+                                  onClick={async () => {
+                                    const { success } = await deletePortfolioPhoto(
+                                      selectedPhoto.id,
+                                      selectedPhoto.image_url
+                                    );
+                                    if (success) {
+                                      setShowPhotoModal(false);
+                                      loadPhotos();
+                                    }
+                                  }}
+                                >
+                                  Eliminar
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </div>
+                      )}
                     </div>
-                  )}
+                  </div>
                 </div>
               </div>
             )}

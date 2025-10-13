@@ -204,7 +204,7 @@ export default function SpecialtySelectionPage() {
                 <SelectTrigger className='h-12 text-base'>
                   <SelectValue placeholder='Selecciona un oficio' />
                 </SelectTrigger>
-                <SelectContent position="popper" sideOffset={4} className='max-h-[300px]'>
+                <SelectContent position="popper" side="bottom" align="start" sideOffset={4} className='max-h-[200px] w-[var(--radix-select-trigger-width)]'>
                   {popularServices.map((service) => (
                     <SelectItem key={service.name} value={service.name}>
                       <div className='flex items-center gap-2'>
@@ -256,10 +256,10 @@ export default function SpecialtySelectionPage() {
                 <SelectTrigger className='h-12 text-base'>
                   <SelectValue placeholder='Selecciona una zona' />
                 </SelectTrigger>
-                <SelectContent position="popper" sideOffset={4} className='max-h-[300px]'>
+                <SelectContent position="popper" side="bottom" align="start" sideOffset={4} className='max-h-[200px] w-[var(--radix-select-trigger-width)]'>
                   {workZones.map((zone) => (
                     <SelectItem key={zone.value} value={zone.value}>
-                      {zone.value} - {zone.label}
+                      {zone.label}
                     </SelectItem>
                   ))}
                 </SelectContent>

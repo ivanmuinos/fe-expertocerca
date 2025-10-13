@@ -120,10 +120,22 @@ export const useOnboardingStore = create<OnboardingState>()(
           setPhotos: (photos: OnboardingPhoto[]) =>
             set({ uploadedPhotos: photos }),
 
-          addPhoto: (photo: OnboardingPhoto) =>
-            set((state) => ({
-              uploadedPhotos: [...state.uploadedPhotos, photo],
-            })),
+          addPhoto: (photo: OnboardingPhoto) => {
+            console.log("[STORE] addPhoto called", {
+              photoId: photo.id,
+              fileName: photo.file.name,
+              currentCount: useOnboardingStore.getState().uploadedPhotos.length
+            });
+            set((state) => {
+              const newPhotos = [...state.uploadedPhotos, photo];
+              console.log("[STORE] addPhoto - new state", {
+                previousCount: state.uploadedPhotos.length,
+                newCount: newPhotos.length,
+                allPhotoIds: newPhotos.map(p => p.id)
+              });
+              return { uploadedPhotos: newPhotos };
+            });
+          },
 
           removePhoto: (photoId: string) =>
             set((state) => {

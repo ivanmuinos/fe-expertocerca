@@ -35,6 +35,15 @@ export default function CompletionPage() {
 
   useEffect(() => {
     const uploadPhotos = async () => {
+      console.log("=== COMPLETION UPLOAD DEBUG START ===");
+      console.log("1. uploadPhotos function called", {
+        timestamp: new Date().toISOString(),
+        hasUser: !!user,
+        uploadedPhotosCount: uploadedPhotos.length,
+        hasUploaded,
+        uploadExecutedRef: uploadExecutedRef.current
+      });
+
       // Prevenir múltiples uploads usando ref
       if (
         !user ||
@@ -42,39 +51,112 @@ export default function CompletionPage() {
         hasUploaded ||
         uploadExecutedRef.current
       ) {
+        console.log("2. Early return - conditions not met", {
+          hasUser: !!user,
+          hasPhotos: uploadedPhotos.length > 0,
+          hasUploaded,
+          alreadyExecuted: uploadExecutedRef.current
+        });
         setIsUploading(false);
+        console.log("=== COMPLETION UPLOAD DEBUG END ===");
         return;
       }
 
       // Marcar como ejecutado inmediatamente
       uploadExecutedRef.current = true;
+      console.log("3. Upload execution started");
 
       try {
+        console.log("4. Fetching professional profile...");
         const profile = await apiClient.get("/profiles/professional");
+        console.log("5. Professional profile fetched", {
+          hasProfile: !!profile,
+          profileId: (profile as any)?.id
+        });
 
         if (!profile || !(profile as any).id) {
           throw new Error("Perfil profesional no encontrado");
         }
 
+        console.log("6. Starting photo uploads", {
+          photosToUpload: uploadedPhotos.length,
+          photos: uploadedPhotos.map((p, i) => ({
+            index: i,
+            id: p.id,
+            fileName: p.file.name,
+            fileSize: p.file.size,
+            fileType: p.file.type,
+            isMain: p.isMain
+          }))
+        });
+
         const uploadPromises = uploadedPhotos.map(async (photo, index) => {
+          console.log(`7.${index + 1}. Uploading photo ${index + 1}/${uploadedPhotos.length}`, {
+            photoId: photo.id,
+            fileName: photo.file.name,
+            fileSize: photo.file.size
+          });
+
           try {
+            // Sanitize filename to avoid issues with special characters
+            const originalFile = photo.file;
+            
+            // Get file extension from type, handle HEIC/HEIF
+            let fileExt = originalFile.type.split('/')[1] || 'jpg';
+            // Normalize HEIC/HEIF to jpg for compatibility
+            if (fileExt === 'heic' || fileExt === 'heif') {
+              fileExt = 'jpg';
+            }
+            // Remove any special characters from extension
+            fileExt = fileExt.replace(/[^a-z0-9]/gi, '');
+            
+            const sanitizedFileName = `photo_${Date.now()}_${index}.${fileExt}`;
+            
+            console.log(`7.${index + 1}.a Creating sanitized file`, {
+              originalName: originalFile.name,
+              sanitizedName: sanitizedFileName,
+              originalType: originalFile.type,
+              fileExt
+            });
+
+            // Create a new File with sanitized name
+            const sanitizedFile = new File([originalFile], sanitizedFileName, {
+              type: originalFile.type,
+              lastModified: originalFile.lastModified
+            });
+
             const formData = new FormData();
-            formData.append("file", photo.file);
+            formData.append("file", sanitizedFile);
             formData.append("professional_profile_id", (profile as any).id);
             formData.append("title", `Foto de trabajo ${index + 1}`);
             formData.append("description", "");
 
+            console.log(`7.${index + 1}.b FormData created, sending request...`);
             const response = await fetch("/api/user-profile/portfolio", {
               method: "POST",
               body: formData,
             });
 
+            console.log(`7.${index + 1}.c Response received`, {
+              status: response.status,
+              ok: response.ok
+            });
+
             if (!response.ok) {
               const errorText = await response.text();
+              console.error(`7.${index + 1}.ERROR Upload failed`, {
+                status: response.status,
+                errorText
+              });
               throw new Error(`Upload failed: ${response.status} ${errorText}`);
             }
 
             const result = await response.json();
+            console.log(`7.${index + 1}.d Upload successful`, {
+              photoId: photo.id,
+              supabaseUrl: result.data?.image_url
+            });
+
             return {
               success: true,
               photoId: photo.id,
@@ -82,15 +164,26 @@ export default function CompletionPage() {
               isMain: photo.isMain,
             };
           } catch (error) {
+            console.error(`7.${index + 1}.ERROR Exception during upload`, {
+              photoId: photo.id,
+              error: error instanceof Error ? error.message : String(error)
+            });
             return { success: false, photoId: photo.id, error };
           }
         });
 
+        console.log("8. Waiting for all uploads to complete...");
         const results = await Promise.all(uploadPromises);
+        console.log("9. All uploads completed", {
+          totalResults: results.length,
+          successful: results.filter(r => r.success).length,
+          failed: results.filter(r => !r.success).length
+        });
+
         const failedUploads = results.filter((r) => !r.success);
 
         if (failedUploads.length > 0) {
-          console.error("Failed uploads:", failedUploads);
+          console.error("10. Failed uploads detected:", failedUploads);
         }
 
         // If a main photo was selected during onboarding, persist as main image

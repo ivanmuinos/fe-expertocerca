@@ -55,73 +55,220 @@ export default function PhotoUploadPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [uploadedPhotos.length, isLoading]);
 
-  // No immediate upload - photos stay local until final step
+  // Helper function to compress and validate images
+  const processImageFile = async (file: File): Promise<File> => {
+    return new Promise((resolve, reject) => {
+      // Max file size: 10MB
+      const MAX_SIZE = 10 * 1024 * 1024;
+      const MAX_DIMENSION = 2048;
 
+      console.log("Processing image:", {
+        name: file.name,
+        size: file.size,
+        type: file.type,
+        needsCompression: file.size > MAX_SIZE
+      });
+
+      // If file is small enough and valid type, return as-is
+      if (file.size <= MAX_SIZE && (file.type === 'image/jpeg' || file.type === 'image/png')) {
+        console.log("File is valid, no processing needed");
+        resolve(file);
+        return;
+      }
+
+      // Need to compress or convert
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          console.log("Image loaded for processing:", {
+            width: img.width,
+            height: img.height
+          });
+
+          // Calculate new dimensions
+          let width = img.width;
+          let height = img.height;
+
+          if (width > MAX_DIMENSION || height > MAX_DIMENSION) {
+            if (width > height) {
+              height = (height / width) * MAX_DIMENSION;
+              width = MAX_DIMENSION;
+            } else {
+              width = (width / height) * MAX_DIMENSION;
+              height = MAX_DIMENSION;
+            }
+          }
+
+          console.log("Resizing to:", { width, height });
+
+          // Create canvas and compress
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          
+          if (!ctx) {
+            reject(new Error('Could not get canvas context'));
+            return;
+          }
+
+          ctx.drawImage(img, 0, 0, width, height);
+
+          // Convert to blob with compression
+          canvas.toBlob(
+            (blob) => {
+              if (!blob) {
+                reject(new Error('Could not create blob'));
+                return;
+              }
+
+              console.log("Image compressed:", {
+                originalSize: file.size,
+                newSize: blob.size,
+                reduction: `${((1 - blob.size / file.size) * 100).toFixed(1)}%`
+              });
+
+              // Create new file with sanitized name
+              const sanitizedName = `photo_${Date.now()}.jpg`;
+              const newFile = new File([blob], sanitizedName, {
+                type: 'image/jpeg',
+                lastModified: Date.now()
+              });
+
+              resolve(newFile);
+            },
+            'image/jpeg',
+            0.85 // Quality
+          );
+        };
+
+        img.onerror = () => {
+          reject(new Error('Could not load image'));
+        };
+
+        img.src = e.target?.result as string;
+      };
+
+      reader.onerror = () => {
+        reject(new Error('Could not read file'));
+      };
+
+      reader.readAsDataURL(file);
+    });
+  };
+
+  // No immediate upload - photos stay local until final step
   const handleFileSelect = async (
     files: FileList | null,
     event?: React.ChangeEvent<HTMLInputElement>
   ) => {
-    console.log("handleFileSelect called", { 
+    console.log("=== PHOTO UPLOAD DEBUG START ===");
+    console.log("1. handleFileSelect called", { 
+      timestamp: new Date().toISOString(),
       filesCount: files?.length, 
       hasFiles: !!files,
-      currentPhotos: uploadedPhotos.length 
+      currentPhotos: uploadedPhotos.length,
+      userAgent: navigator.userAgent,
+      platform: navigator.platform
     });
     
     if (!files || files.length === 0) {
-      console.log("No files selected");
+      console.log("2. No files selected - EARLY RETURN");
+      console.log("=== PHOTO UPLOAD DEBUG END ===");
       return;
     }
 
-    const newImages: OnboardingPhoto[] = [];
     const currentCount = uploadedPhotos.length;
     const availableSlots = 8 - currentCount;
 
-    console.log("Processing files", { availableSlots, filesLength: files.length });
+    console.log("3. Processing files", { 
+      availableSlots, 
+      filesLength: files.length,
+      willProcess: Math.min(files.length, availableSlots)
+    });
 
     // Procesar solo los archivos que caben en los slots disponibles
-    Array.from(files)
-      .slice(0, availableSlots)
-      .forEach((file, index) => {
-        console.log("Processing file", { 
-          fileName: file.name, 
-          fileType: file.type, 
-          fileSize: file.size 
-        });
-        
-        if (file.type.startsWith("image/")) {
-          const id = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
-          const url = URL.createObjectURL(file);
-          // Si es la primera foto y no hay ninguna foto cargada, marcarla como principal
-          const isMain = currentCount === 0 && index === 0;
-          newImages.push({
-            id,
-            file,
-            url,
-            uploading: false,
-            uploaded: false,
-            isMain,
-          });
-          console.log("Image added to queue", { id, isMain });
-        } else {
-          console.log("File skipped - not an image", file.type);
-        }
-      });
+    const filesToProcess = Array.from(files).slice(0, availableSlots);
+    console.log("4. Files to process:", filesToProcess.map(f => ({
+      name: f.name,
+      type: f.type,
+      size: f.size,
+      lastModified: f.lastModified
+    })));
 
-    console.log("Adding images to store", { count: newImages.length });
-    
-    // Add new images to the store (local only)
-    newImages.forEach((image) => {
-      addPhoto(image);
-    });
+    // Process files sequentially to avoid memory issues
+    for (let index = 0; index < filesToProcess.length; index++) {
+      const file = filesToProcess[index];
+      console.log(`5.${index + 1}. Processing file ${index + 1}/${filesToProcess.length}`, { 
+        fileName: file.name, 
+        fileType: file.type, 
+        fileSize: file.size,
+        isImage: file.type.startsWith("image/")
+      });
+      
+      // Validate it's an image
+      if (!file.type.startsWith("image/")) {
+        console.log(`5.${index + 1}. File skipped - not an image`, {
+          fileName: file.name,
+          fileType: file.type
+        });
+        continue;
+      }
+
+      try {
+        // Process and compress image
+        console.log(`5.${index + 1}.a Processing and compressing image...`);
+        const processedFile = await processImageFile(file);
+        console.log(`5.${index + 1}.b Image processed successfully`);
+
+        const id = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+        console.log(`5.${index + 1}.c Creating object URL`);
+        const url = URL.createObjectURL(processedFile);
+        console.log(`5.${index + 1}.d Object URL created:`, url);
+        
+        // Si es la primera foto y no hay ninguna foto cargada, marcarla como principal
+        const isMain = currentCount === 0 && index === 0;
+        const imageObj: OnboardingPhoto = {
+          id,
+          file: processedFile,
+          url,
+          uploading: false,
+          uploaded: false,
+          isMain,
+        };
+
+        console.log(`5.${index + 1}.e Adding image to store`, { 
+          id, 
+          isMain,
+          fileName: processedFile.name,
+          fileSize: processedFile.size,
+          objectUrl: url
+        });
+
+        addPhoto(imageObj);
+        console.log(`5.${index + 1}.f Image added successfully`);
+
+      } catch (error) {
+        console.error(`5.${index + 1}.ERROR processing image:`, {
+          error: error instanceof Error ? error.message : String(error),
+          fileName: file.name
+        });
+        // Continue with next file even if this one fails
+      }
+    }
 
     // Limpiar el input para permitir seleccionar los mismos archivos de nuevo
     if (event?.target) {
       event.target.value = "";
+      console.log("6. Input cleared");
     }
     
-    console.log("File selection complete", { 
-      totalPhotos: uploadedPhotos.length + newImages.length 
+    console.log("7. File selection complete", { 
+      totalPhotos: uploadedPhotos.length,
+      processedFiles: filesToProcess.length
     });
+    console.log("=== PHOTO UPLOAD DEBUG END ===");
   };
 
   // Since photos are local only, deletion is just removing from local state
@@ -230,7 +377,7 @@ export default function PhotoUploadPage() {
                                 id={`file-input-${index}`}
                                 type='file'
                                 multiple
-                                accept='image/*,image/heic,image/heif'
+                                accept='image/jpeg,image/jpg,image/png,image/heic,image/heif'
                                 className='sr-only'
                                 onChange={(e) => {
                                   console.log("Input onChange triggered", {

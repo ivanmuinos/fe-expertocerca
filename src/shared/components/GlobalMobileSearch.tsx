@@ -43,42 +43,20 @@ export function GlobalMobileSearch() {
   };
 
   const handleSearch = () => {
-    console.log("GlobalMobileSearch handleSearch called", {
-      searchTerm,
-      selectedZone,
-      pathname,
-      searchTermTrimmed: searchTerm?.trim(),
-      isTodos: searchTerm === "Todos",
-      isAllZone: selectedZone === "all"
-    });
-    
     const params = new URLSearchParams();
     
     // Add service parameter if it's not empty and not "Todos"
     if (searchTerm && searchTerm.trim() !== "" && searchTerm !== "Todos") {
       params.set("servicio", searchTerm.trim());
-      console.log("Added servicio param:", searchTerm.trim());
-    } else {
-      console.log("Skipped servicio param:", { searchTerm, reason: searchTerm === "Todos" ? "is Todos" : "is empty" });
     }
     
     // Add zone parameter if it's not "all"
     if (selectedZone && selectedZone !== "all") {
       params.set("zona", selectedZone);
-      console.log("Added zona param:", selectedZone);
-    } else {
-      console.log("Skipped zona param:", { selectedZone, reason: "is all" });
     }
     
     const queryString = params.toString();
     const targetUrl = queryString ? `/buscar?${queryString}` : "/buscar";
-    
-    console.log("Final navigation:", { 
-      queryString, 
-      targetUrl,
-      paramsCount: Array.from(params.entries()).length,
-      params: Array.from(params.entries())
-    });
     
     navigate(targetUrl);
     handleClose();
@@ -147,10 +125,7 @@ export function GlobalMobileSearch() {
                 <div className='flex-1 overflow-y-auto p-4 space-y-3'>
                   {/* Service selector button */}
                   <button
-                    onClick={() => {
-                      console.log("Opening service selector, current searchTerm:", searchTerm);
-                      setMobileSubScreen('service');
-                    }}
+                    onClick={() => setMobileSubScreen('service')}
                     className='w-full p-4 border border-gray-300 rounded-xl text-left hover:border-gray-400 transition-colors'
                   >
                     <div className='text-xs font-semibold text-gray-500 mb-1'>Servicio</div>
@@ -163,10 +138,7 @@ export function GlobalMobileSearch() {
 
                   {/* Zone selector button */}
                   <button
-                    onClick={() => {
-                      console.log("Opening zone selector, current selectedZone:", selectedZone);
-                      setMobileSubScreen('zone');
-                    }}
+                    onClick={() => setMobileSubScreen('zone')}
                     className='w-full p-4 border border-gray-300 rounded-xl text-left hover:border-gray-400 transition-colors'
                   >
                     <div className='text-xs font-semibold text-gray-500 mb-1'>Zona</div>

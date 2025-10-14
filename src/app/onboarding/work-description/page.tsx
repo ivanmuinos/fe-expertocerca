@@ -145,8 +145,6 @@ export default function WorkDescriptionPage() {
           websiteUrl: existingUserProfile?.website_url || undefined,
         };
 
-        console.log("Creating new publication with data:", onboardingData);
-
         const result = await saveOnboardingData(onboardingData, user.id);
 
         if (result.success) {

@@ -54,6 +54,9 @@ import { SharedHeader } from "@/src/shared/components/SharedHeader";
 import { ProfessionalCarousel } from "@/src/shared/components/ProfessionalCarousel";
 import { Footer } from "@/src/shared/components";
 import HomeSkeleton from "@/src/shared/components/HomeSkeleton";
+import { HomeMiniNavbar } from "@/src/shared/components/HomeMiniNavbar";
+import { HomeSearchBar } from "@/src/shared/components/HomeSearchBar";
+import { useMobile } from "@/src/shared/components/MobileWrapper";
 
 export default function HomePage() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -66,6 +69,7 @@ export default function HomePage() {
   const { toast } = useToast();
   const { user, loading: authLoading } = useAuthState();
   const navigate = useNavigate();
+  const { setIsMobileSearchOpen } = useMobile();
 
   // Handle user redirection for first-time users - runs in background
   const { isCheckingRedirect } = useUserRedirect();
@@ -178,20 +182,32 @@ export default function HomePage() {
 
   return (
     <div className='min-h-screen bg-dots-pattern'>
-      <SharedHeader
-        variant='transparent'
-        showSearch={true}
-        searchCollapsed={true}
-        searchProps={{
-          searchTerm,
-          setSearchTerm,
-          selectedZone,
-          setSelectedZone,
-          popularServices,
-          clearFilters,
-          onSearch: handleSearch,
-        }}
+      {/* Mini navbar solo en mobile */}
+      <HomeMiniNavbar />
+      
+      {/* Barra de búsqueda compacta solo en mobile */}
+      <HomeSearchBar 
+        searchTerm={searchTerm}
+        onOpen={() => setIsMobileSearchOpen(true)}
       />
+
+      {/* Header completo solo en desktop */}
+      <div className='hidden md:block'>
+        <SharedHeader
+          variant='transparent'
+          showSearch={true}
+          searchCollapsed={true}
+          searchProps={{
+            searchTerm,
+            setSearchTerm,
+            selectedZone,
+            setSelectedZone,
+            popularServices,
+            clearFilters,
+            onSearch: handleSearch,
+          }}
+        />
+      </div>
 
       <section className='px-3 sm:px-4 md:px-6 lg:px-8 pb-6 mt-2 bg-transparent'>
         <div className='max-w-7xl mx-auto'>

@@ -42,6 +42,7 @@ interface PublicationCardProps {
   onClick?: (professional: Publication) => void;
   showAllSkills?: boolean;
   className?: string;
+  priority?: boolean; // Add priority prop for LCP optimization
 }
 
 // Función para mapear especialidades a iconos
@@ -66,6 +67,7 @@ const PublicationCardComponent = ({
   onClick,
   showAllSkills = false,
   className = "",
+  priority = false,
 }: PublicationCardProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const handleClick = () => {
@@ -112,8 +114,10 @@ const PublicationCardComponent = ({
               className='object-cover'
               placeholder="blur"
               blurDataURL={generateBlurDataURL()}
-              priority={false}
-              quality={85}
+              priority={priority}
+              quality={priority ? 90 : 85}
+              loading={priority ? "eager" : "lazy"}
+              fetchPriority={priority ? "high" : "auto"}
               onError={(e) => {
                 e.currentTarget.style.display = "none";
               }}

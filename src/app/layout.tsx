@@ -80,6 +80,14 @@ export default function RootLayout({
   return (
     <html lang='en'>
       <head>
+        {/* Preconnect to external domains */}
+        <link rel='preconnect' href='https://fonts.googleapis.com' />
+        <link rel='preconnect' href='https://fonts.gstatic.com' crossOrigin='anonymous' />
+        
+        {/* DNS Prefetch for faster lookups */}
+        <link rel='dns-prefetch' href='https://fonts.googleapis.com' />
+        <link rel='dns-prefetch' href='https://fonts.gstatic.com' />
+        
         {/* PWA Meta Tags */}
         <link
           rel='apple-touch-icon'

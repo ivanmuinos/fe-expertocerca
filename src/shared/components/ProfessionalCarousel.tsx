@@ -107,7 +107,7 @@ const ProfessionalCarouselComponent = ({
 
       <div className='overflow-hidden' ref={emblaRef}>
         <div className='flex gap-2 sm:gap-3'>
-          {professionals.map((professional) => (
+          {professionals.map((professional, index) => (
             <div
               key={professional.id}
               className='flex-shrink-0 w-[160px] sm:w-[200px]'
@@ -116,6 +116,7 @@ const ProfessionalCarouselComponent = ({
                 professional={professional}
                 onClick={() => navigate(`/publication?id=${professional.id}`)}
                 showAllSkills={false}
+                priority={index < 2}
               />
             </div>
           ))}

@@ -134,7 +134,7 @@ const PublicationCardComponent = ({
                 {professional.trade_name}
               </h3>
               {professional.specialty && (
-                <div className='flex items-center gap-1 text-[11px] sm:text-xs text-muted-foreground'>
+                <div className='flex items-center gap-1 text-xs text-muted-foreground'>
                   {(() => {
                     const SpecialtyIcon = getSpecialtyIcon(
                       professional.specialty
@@ -149,7 +149,7 @@ const PublicationCardComponent = ({
             </div>
 
             {/* Location */}
-            <div className='flex items-center gap-1 text-[11px] sm:text-xs text-muted-foreground font-normal'>
+            <div className='flex items-center gap-1 text-xs text-muted-foreground font-normal'>
               <MapPin className='h-3 w-3 sm:h-3.5 sm:w-3.5 flex-shrink-0' />
               <span className='line-clamp-1'>
                 {professional.profile_location_city &&
@@ -166,7 +166,7 @@ const PublicationCardComponent = ({
                   <Badge
                     key={index}
                     variant='secondary'
-                    className='text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5'
+                    className='text-xs px-1.5 sm:px-2 py-0.5'
                   >
                     {skill}
                   </Badge>

@@ -9,8 +9,10 @@ import "./globals.css";
 
 const poppins = Poppins({
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
+  weight: ["400", "500", "600"], // Reducido: solo los pesos más usados
   display: "swap",
+  preload: true,
+  fallback: ['system-ui', '-apple-system', 'sans-serif'],
 });
 
 export const viewport: Viewport = {
@@ -80,9 +82,12 @@ export default function RootLayout({
   return (
     <html lang='en'>
       <head>
-        {/* Preconnect to external domains */}
+        {/* Preconnect to external domains - CRITICAL */}
         <link rel='preconnect' href='https://fonts.googleapis.com' />
         <link rel='preconnect' href='https://fonts.gstatic.com' crossOrigin='anonymous' />
+        
+        {/* Preload critical assets */}
+        <link rel='preload' as='image' href='/logo-bco-experto-cerca.svg' type='image/svg+xml' />
         
         {/* DNS Prefetch for faster lookups */}
         <link rel='dns-prefetch' href='https://fonts.googleapis.com' />

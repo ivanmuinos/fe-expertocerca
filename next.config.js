@@ -24,6 +24,9 @@ const nextConfig = {
     dangerouslyAllowSVG: true,
     contentDispositionType: "attachment",
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
+    // Optimize image loading
+    loader: 'default',
+    unoptimized: false,
   },
   // Dynamic server-side features enabled
   // output: 'export', // Commented out to enable API routes
@@ -86,8 +89,16 @@ const nextConfig = {
       '@radix-ui/react-tabs',
       '@radix-ui/react-toast',
       '@radix-ui/react-tooltip',
+      'framer-motion',
+      'date-fns',
     ],
+    // Optimize CSS
+    optimizeCss: true,
+    // Optimize fonts
+    optimizeFonts: true,
   },
+  // Optimize production output
+  productionBrowserSourceMaps: false,
   // Compress responses
   compress: true,
   // Optimize production builds

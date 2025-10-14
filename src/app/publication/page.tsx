@@ -270,7 +270,7 @@ export default function PublicationPage() {
               src='/logo-bco-experto-cerca.svg'
               alt='Experto Cerca'
               width={120}
-              height={24}
+              height={40}
               className='h-6 w-auto'
               priority
             />
@@ -358,7 +358,7 @@ export default function PublicationPage() {
             src='/logo-bco-experto-cerca.svg'
             alt='Experto Cerca'
             width={120}
-            height={24}
+            height={40}
             className='h-6 w-auto'
             priority
           />

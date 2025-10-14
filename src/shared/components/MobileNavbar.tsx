@@ -296,7 +296,7 @@ export function MobileNavbar() {
                 <div className='mb-1'>
                   <Avatar className='w-6 h-6 ring-2 ring-white/30'>
                     <AvatarImage src={userProfile.avatar_url || undefined} />
-                    <AvatarFallback className='text-[10px] bg-white/20 text-white'>
+                    <AvatarFallback className='text-xs bg-white/20 text-white'>
                       {userProfile.full_name?.charAt(0).toUpperCase() || "U"}
                     </AvatarFallback>
                   </Avatar>
@@ -317,7 +317,7 @@ export function MobileNavbar() {
                 </div>
               )}
               <span
-                className={`text-[10px] font-medium leading-none ${
+                className={`text-xs font-medium leading-none ${
                   item.id === "login"
                     ? "text-white"
                     : active

@@ -11,6 +11,7 @@ import { Camera, Upload, User } from "lucide-react";
 import { useAuthState } from "@/src/features/auth";
 import { supabase } from "@/src/config/supabase";
 import { useToast } from "@/src/shared/hooks/use-toast";
+import { ImageCropModal } from "@/src/shared/components/ImageCropModal";
 
 interface EditableAvatarProps {
   avatarUrl?: string | null;
@@ -35,6 +36,8 @@ export function EditableAvatar({
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [showCropModal, setShowCropModal] = useState(false);
 
   // Get Google avatar from user metadata as fallback for owner, or use provided fallback
   const googleAvatar =
@@ -70,29 +73,53 @@ export function EditableAvatar({
       return;
     }
 
-    // Validate file size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
+    // Validate file size (max 10MB before compression)
+    if (file.size > 10 * 1024 * 1024) {
       toast({
         title: "Error",
-        description: "La imagen es muy grande. Máximo 5MB permitido",
+        description: "La imagen es muy grande. Máximo 10MB permitido",
         variant: "destructive",
       });
       return;
     }
 
+    // Open crop modal
+    setSelectedFile(file);
+    setShowCropModal(true);
+    
+    // Reset file input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  const handleCropComplete = async (croppedFile: File) => {
+    if (!user) return;
+
     setUploading(true);
     try {
-      // Upload via server API (preserves auth and can transform path/bucket)
+      // Compress image before upload
+      const compressedFile = await compressImage(croppedFile);
+
+      console.log("Avatar upload:", {
+        originalSize: croppedFile.size,
+        compressedSize: compressedFile.size,
+        reduction: `${((1 - compressedFile.size / croppedFile.size) * 100).toFixed(1)}%`
+      });
+
+      // Upload via server API
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("file", compressedFile);
       const res = await fetch("/api/profiles/avatar", {
         method: "POST",
         body: formData,
       });
+      
       if (!res.ok) {
         const txt = await res.text();
         throw new Error(txt || "Upload failed");
       }
+      
       const { url: publicUrl } = await res.json();
 
       // Update user profile with new avatar URL
@@ -121,7 +148,73 @@ export function EditableAvatar({
       });
     } finally {
       setUploading(false);
+      setSelectedFile(null);
     }
+  };
+
+  // Compress image function (same as onboarding)
+  const compressImage = async (file: File): Promise<File> => {
+    return new Promise((resolve, reject) => {
+      const MAX_SIZE = 1024; // Max dimension for avatar
+      
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          // Calculate new dimensions
+          let width = img.width;
+          let height = img.height;
+
+          if (width > MAX_SIZE || height > MAX_SIZE) {
+            if (width > height) {
+              height = (height / width) * MAX_SIZE;
+              width = MAX_SIZE;
+            } else {
+              width = (width / height) * MAX_SIZE;
+              height = MAX_SIZE;
+            }
+          }
+
+          // Create canvas and compress
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          
+          if (!ctx) {
+            reject(new Error('Could not get canvas context'));
+            return;
+          }
+
+          ctx.drawImage(img, 0, 0, width, height);
+
+          // Convert to blob with compression
+          canvas.toBlob(
+            (blob) => {
+              if (!blob) {
+                reject(new Error('Could not create blob'));
+                return;
+              }
+
+              const newFile = new File([blob], file.name, {
+                type: 'image/jpeg',
+                lastModified: Date.now()
+              });
+
+              resolve(newFile);
+            },
+            'image/jpeg',
+            0.85 // Quality
+          );
+        };
+
+        img.onerror = () => reject(new Error('Could not load image'));
+        img.src = e.target?.result as string;
+      };
+
+      reader.onerror = () => reject(new Error('Could not read file'));
+      reader.readAsDataURL(file);
+    });
   };
 
   const handleUseGoogleAvatar = async () => {
@@ -261,6 +354,18 @@ export function EditableAvatar({
         onChange={handleFileSelect}
         accept='image/*'
         className='hidden'
+      />
+
+      {/* Crop Modal */}
+      <ImageCropModal
+        open={showCropModal}
+        onClose={() => {
+          setShowCropModal(false);
+          setSelectedFile(null);
+        }}
+        imageFile={selectedFile}
+        onCropComplete={handleCropComplete}
+        aspectRatio={1}
       />
     </div>
   );

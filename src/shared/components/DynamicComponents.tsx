@@ -17,3 +17,8 @@ export const PromoBanner = dynamic(
   () => import("@/src/shared/components/PromoBanner").then(mod => ({ default: mod.PromoBanner })),
   { ssr: false }
 );
+
+export const GlobalLoginModal = dynamic(
+  () => import("@/src/shared/components/GlobalLoginModal").then(mod => ({ default: mod.GlobalLoginModal })),
+  { ssr: false }
+);

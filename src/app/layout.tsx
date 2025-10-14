@@ -4,7 +4,7 @@ import { ClientProviders } from "./providers";
 import { MobileNavbar } from "@/src/shared/components/MobileNavbar";
 import { MobileWrapper } from "@/src/shared/components/MobileWrapper";
 import { DynamicLayoutWrapper } from "@/src/shared/components/DynamicLayoutWrapper";
-import { GlobalMobileSearch, Toaster, PromoBanner } from "@/src/shared/components/DynamicComponents";
+import { GlobalMobileSearch, Toaster, PromoBanner, GlobalLoginModal } from "@/src/shared/components/DynamicComponents";
 import "./globals.css";
 
 const poppins = Poppins({
@@ -112,6 +112,7 @@ export default function RootLayout({
             <DynamicLayoutWrapper>{children}</DynamicLayoutWrapper>
             <MobileNavbar />
             <GlobalMobileSearch />
+            <GlobalLoginModal />
           </MobileWrapper>
           <Toaster />
           <PromoBanner />

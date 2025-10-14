@@ -35,6 +35,7 @@ export default function MyPublicationsPage() {
   } = useMyProfessionalProfiles();
 
   const [hasLoadedProfiles, setHasLoadedProfiles] = useState(false);
+  const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     if (loading || !user) return;
@@ -44,12 +45,15 @@ export default function MyPublicationsPage() {
   }, [user?.id, loading, loadMyProfiles, hasLoadedProfiles]);
 
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [deletedIds, setDeletedIds] = useState<Set<string>>(new Set());
+  
   const handleDeleteProfile = async (profileId: string) => {
     try {
       setDeletingId(profileId);
       const success = await deleteProfessionalProfile(profileId);
       if (success) {
-        setHasLoadedProfiles(false);
+        // Mark as deleted to prevent any further requests
+        setDeletedIds(prev => new Set(prev).add(profileId));
       }
     } finally {
       setDeletingId(null);
@@ -173,22 +177,26 @@ export default function MyPublicationsPage() {
                   </div>
                 </button>
 
-                {myProfiles.map((profile) => (
+                {myProfiles.filter(p => !deletedIds.has(p.id)).map((profile) => (
                   <div
-                    key={profile.id}
+                    key={`${profile.id}-${profile.updated_at}`}
                     className='bg-white rounded-2xl overflow-hidden hover:shadow-lg transition-all duration-200 border border-gray-200 cursor-pointer group'
                     onClick={() => handleViewProfile(profile.id)}
                   >
                     {/* Main image preview */}
                     <div className='aspect-video bg-gray-100 overflow-hidden relative'>
-                      {profile.main_portfolio_image ? (
+                      {profile.main_portfolio_image && !imageErrors.has(profile.id) ? (
                         <Image
+                          key={`img-${profile.id}`}
                           src={profile.main_portfolio_image}
                           alt={profile.trade_name || "Publicación"}
                           fill
                           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                           className='object-cover group-hover:scale-105 transition-transform duration-200'
                           quality={85}
+                          onError={() => {
+                            setImageErrors(prev => new Set(prev).add(profile.id));
+                          }}
                         />
                       ) : (
                         <div className='w-full h-full flex items-center justify-center text-gray-400'>
@@ -292,7 +300,10 @@ export default function MyPublicationsPage() {
                             <AlertDialogFooter>
                               <AlertDialogCancel>Cancelar</AlertDialogCancel>
                               <AlertDialogAction
-                                onClick={() => handleDeleteProfile(profile.id)}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDeleteProfile(profile.id);
+                                }}
                                 disabled={deletingId === profile.id}
                                 className='bg-red-600 hover:bg-red-700'
                               >

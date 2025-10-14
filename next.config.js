@@ -75,6 +75,29 @@ const nextConfig = {
           }
         : false,
   },
+  // Optimize bundle size
+  experimental: {
+    optimizePackageImports: [
+      'lucide-react',
+      '@radix-ui/react-dialog',
+      '@radix-ui/react-dropdown-menu',
+      '@radix-ui/react-popover',
+      '@radix-ui/react-select',
+      '@radix-ui/react-tabs',
+      '@radix-ui/react-toast',
+      '@radix-ui/react-tooltip',
+    ],
+  },
+  // Compress responses
+  compress: true,
+  // Optimize production builds
+  swcMinify: true,
+  // Reduce JavaScript payload
+  modularizeImports: {
+    'lucide-react': {
+      transform: 'lucide-react/dist/esm/icons/{{kebabCase member}}',
+    },
+  },
   async redirects() {
     return [
       // onboarding

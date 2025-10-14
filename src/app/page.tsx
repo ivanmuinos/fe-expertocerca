@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "@/src/shared/lib/navigation";
 import { queryKeys } from "@/src/shared/lib/query-keys";
+import { useOptimizedScroll } from "@/src/shared/hooks/use-optimized-scroll";
 import {
   Search,
   Filter,
@@ -59,7 +60,7 @@ export default function HomePage() {
   const [selectedService, setSelectedService] = useState("");
   const [selectedZone, setSelectedZone] = useState("all");
   const [showFilters, setShowFilters] = useState(false);
-  const [isHeaderCollapsed, setIsHeaderCollapsed] = useState(false);
+  const isHeaderCollapsed = useOptimizedScroll(100);
   const { discoverProfessionals, browseProfessionals } =
     useSecureProfessionals();
   const { toast } = useToast();
@@ -122,22 +123,7 @@ export default function HomePage() {
     { name: "Techista", icon: Triangle },
   ];
 
-  useEffect(() => {
-    let ticking = false;
-    
-    const handleScroll = () => {
-      if (!ticking) {
-        window.requestAnimationFrame(() => {
-          setIsHeaderCollapsed(window.scrollY > 100);
-          ticking = false;
-        });
-        ticking = true;
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  // Removed - using optimized scroll hook instead
 
   // Filter by selected zone using work_zone_name when provided
   // Home does NOT filter results; filtering happens only on explicit search click

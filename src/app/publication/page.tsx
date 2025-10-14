@@ -101,7 +101,10 @@ export default function PublicationPage() {
   };
 
   useEffect(() => {
-    if (id) loadProfessional();
+    // Only load if we have an id and we're actually on the publication page
+    if (id && typeof window !== 'undefined' && window.location.pathname.includes('/publication')) {
+      loadProfessional();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
@@ -111,6 +114,20 @@ export default function PublicationPage() {
       const response = await fetch(`/api/professionals/${id}`);
 
       if (!response.ok) {
+        // If 404 or 400, the professional was deleted or doesn't exist
+        if (response.status === 404 || response.status === 400) {
+          console.log("[Publication] Professional not found or deleted");
+          setProfessional(null);
+          setLoading(false);
+          toast({
+            title: "Publicación no encontrada",
+            description: "Esta publicación ya no existe",
+            variant: "destructive",
+          });
+          // Redirect to search after a short delay
+          setTimeout(() => navigate("/buscar"), 2000);
+          return;
+        }
         throw new Error(`API error: ${response.status}`);
       }
 

@@ -64,15 +64,31 @@ export function useMyProfessionalProfiles() {
     if (!user?.id) return false;
 
     try {
+      // Optimistic update: remove from local state BEFORE the API call
+      setMyProfiles((prev) => prev.filter((p) => p.id !== profileId));
+
       await apiClient.delete(`/my-profiles?id=${profileId}`);
+
+      // Remove from cache to prevent refetch attempts
+      queryClient.removeQueries({
+        queryKey: ['professional', profileId],
+      });
 
       // Invalidar cache de professionals para que se actualice la home
       queryClient.invalidateQueries({
         queryKey: queryKeys.professionals.lists(),
       });
 
+      toast({
+        title: "Publicación eliminada",
+        description: "Tu publicación ha sido eliminada exitosamente",
+      });
+
       return true;
     } catch (error) {
+      // Rollback optimistic update on error
+      await loadMyProfiles();
+      
       toast({
         title: "Error",
         description: "No se pudo eliminar la publicación",

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Plus, Edit2, Trash2, Upload, X } from 'lucide-react';
+import { Plus, Edit2, Trash2, Upload, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import Image from 'next/image';
 import { Button } from '@/src/shared/components/ui/button';
 import { Card, CardContent } from '@/src/shared/components/ui/card';
@@ -8,7 +8,8 @@ import { Label } from '@/src/shared/components/ui/label';
 import { Textarea } from '@/src/shared/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/src/shared/components/ui/dialog';
 import { usePortfolio, type PortfolioPhoto } from '@/src/features/user-profile';
-import { useAuthState } from '@/src/features/auth'
+import { useAuthState } from '@/src/features/auth';
+import useEmblaCarousel from 'embla-carousel-react';
 
 interface PortfolioSectionProps {
   professionalProfileId: string;
@@ -27,6 +28,14 @@ export function PortfolioSection({ professionalProfileId, isOwner }: PortfolioSe
     description: ''
   });
   const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  // Embla carousel for mobile
+  const [emblaRef, emblaApi] = useEmblaCarousel({ 
+    loop: false,
+    skipSnaps: false,
+    dragFree: false,
+  });
+  const [selectedIndex, setSelectedIndex] = useState(0);
 
   const loadPhotos = useCallback(async () => {
     const { data } = await getPortfolioPhotos(professionalProfileId);
@@ -38,6 +47,30 @@ export function PortfolioSection({ professionalProfileId, isOwner }: PortfolioSe
   useEffect(() => {
     loadPhotos();
   }, [professionalProfileId]);
+
+  // Update selected index when carousel scrolls
+  useEffect(() => {
+    if (!emblaApi) return;
+
+    const onSelect = () => {
+      setSelectedIndex(emblaApi.selectedScrollSnap());
+    };
+
+    emblaApi.on('select', onSelect);
+    onSelect();
+
+    return () => {
+      emblaApi.off('select', onSelect);
+    };
+  }, [emblaApi]);
+
+  const scrollPrev = useCallback(() => {
+    if (emblaApi) emblaApi.scrollPrev();
+  }, [emblaApi]);
+
+  const scrollNext = useCallback(() => {
+    if (emblaApi) emblaApi.scrollNext();
+  }, [emblaApi]);
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -226,7 +259,7 @@ export function PortfolioSection({ professionalProfileId, isOwner }: PortfolioSe
         )}
       </div>
 
-      {/* Photos grid - Airbnb style */}
+      {/* Photos - Mobile Carousel / Desktop Grid */}
       {photos.length === 0 ? (
         isOwner ? (
           /* Empty gallery with upload slots for owner */
@@ -258,65 +291,160 @@ export function PortfolioSection({ professionalProfileId, isOwner }: PortfolioSe
           </div>
         )
       ) : (
-        <div className="grid grid-cols-4 grid-rows-2 gap-2 h-96 rounded-xl overflow-hidden">
-          {photos.map((photo, index) => {
-            const isMainPhoto = index === 0;
-            const gridClass = isMainPhoto 
-              ? "col-span-2 row-span-2" 
-              : index === 1 
-                ? "col-span-1 row-span-1" 
-                : index === 2 
-                  ? "col-span-1 row-span-1" 
-                  : index === 3 
-                    ? "col-span-1 row-span-1" 
-                    : index === 4 
-                      ? "col-span-1 row-span-1" 
-                      : "hidden";
-            
-            if (index > 4) return null;
-            
-            return (
-              <div key={photo.id} className={`relative overflow-hidden group cursor-pointer ${gridClass}`}>
-                <Image
-                  src={photo.image_url}
-                  alt={photo.title}
-                  fill
-                  sizes={isMainPhoto ? "(max-width: 768px) 100vw, 50vw" : "(max-width: 768px) 50vw, 25vw"}
-                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                  priority={index === 0}
-                />
-                {index === 4 && photos.length > 5 && (
-                  <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                    <span className="text-white font-semibold">+{photos.length - 5}</span>
-                  </div>
-                )}
-                {isOwner && (
-                  <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity space-x-1">
-                    <Button
-                      size="sm"
-                      variant="secondary"
-                      onClick={() => openEditDialog(photo)}
-                    >
-                      <Edit2 className="w-3 h-3" />
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="destructive"
-                      onClick={() => handleDelete(photo)}
-                    >
-                      <Trash2 className="w-3 h-3" />
-                    </Button>
-                  </div>
-                )}
+        <>
+          {/* Mobile Carousel */}
+          <div className="lg:hidden">
+            <div className="relative">
+              <div className="overflow-hidden rounded-xl" ref={emblaRef}>
+                <div className="flex">
+                  {photos.map((photo, index) => (
+                    <div key={photo.id} className="flex-[0_0_100%] min-w-0">
+                      <div className="relative aspect-[4/3] bg-gray-100">
+                        <Image
+                          src={photo.image_url}
+                          alt={photo.title}
+                          fill
+                          sizes="100vw"
+                          className="object-cover"
+                          priority={index < 2}
+                          loading={index < 2 ? "eager" : "lazy"}
+                        />
+                        {isOwner && (
+                          <div className="absolute top-2 right-2 flex gap-1">
+                            <Button
+                              size="sm"
+                              variant="secondary"
+                              onClick={() => openEditDialog(photo)}
+                              className="h-8 w-8 p-0"
+                            >
+                              <Edit2 className="w-3 h-3" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              onClick={() => handleDelete(photo)}
+                              className="h-8 w-8 p-0"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
-            );
-          })}
-        </div>
+
+              {/* Navigation Arrows */}
+              {photos.length > 1 && (
+                <>
+                  <button
+                    onClick={scrollPrev}
+                    className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/90 hover:bg-white rounded-full flex items-center justify-center shadow-lg transition-all disabled:opacity-50"
+                    disabled={selectedIndex === 0}
+                  >
+                    <ChevronLeft className="w-5 h-5" />
+                  </button>
+                  <button
+                    onClick={scrollNext}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/90 hover:bg-white rounded-full flex items-center justify-center shadow-lg transition-all disabled:opacity-50"
+                    disabled={selectedIndex === photos.length - 1}
+                  >
+                    <ChevronRight className="w-5 h-5" />
+                  </button>
+                </>
+              )}
+
+              {/* Dots Indicator */}
+              {photos.length > 1 && (
+                <div className="flex justify-center gap-1.5 mt-3">
+                  {photos.map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => emblaApi?.scrollTo(index)}
+                      className={`h-1.5 rounded-full transition-all ${
+                        index === selectedIndex
+                          ? 'w-6 bg-primary'
+                          : 'w-1.5 bg-gray-300'
+                      }`}
+                    />
+                  ))}
+                </div>
+              )}
+
+              {/* Counter */}
+              {photos.length > 1 && (
+                <div className="absolute bottom-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded-full">
+                  {selectedIndex + 1} / {photos.length}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Desktop Grid */}
+          <div className="hidden lg:block">
+            <div className="grid grid-cols-4 grid-rows-2 gap-2 h-96 rounded-xl overflow-hidden">
+              {photos.map((photo, index) => {
+                const isMainPhoto = index === 0;
+                const gridClass = isMainPhoto 
+                  ? "col-span-2 row-span-2" 
+                  : index === 1 
+                    ? "col-span-1 row-span-1" 
+                    : index === 2 
+                      ? "col-span-1 row-span-1" 
+                      : index === 3 
+                        ? "col-span-1 row-span-1" 
+                        : index === 4 
+                          ? "col-span-1 row-span-1" 
+                          : "hidden";
+                
+                if (index > 4) return null;
+                
+                return (
+                  <div key={photo.id} className={`relative overflow-hidden group cursor-pointer bg-gray-100 ${gridClass}`}>
+                    <Image
+                      src={photo.image_url}
+                      alt={photo.title}
+                      fill
+                      sizes={isMainPhoto ? "50vw" : "25vw"}
+                      className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                      priority={index < 3}
+                      loading={index < 3 ? "eager" : "lazy"}
+                    />
+                    {index === 4 && photos.length > 5 && (
+                      <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                        <span className="text-white font-semibold">+{photos.length - 5}</span>
+                      </div>
+                    )}
+                    {isOwner && (
+                      <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity space-x-1">
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          onClick={() => openEditDialog(photo)}
+                        >
+                          <Edit2 className="w-3 h-3" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          onClick={() => handleDelete(photo)}
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </>
       )}
       
-      {/* Show photo details below grid */}
+      {/* Show photo details below grid - Hidden on mobile */}
       {photos.length > 0 && (
-        <div className="mt-6 space-y-4">
+        <div className="mt-6 space-y-4 hidden lg:block">
           {photos.slice(0, 3).map((photo) => (
             <div key={photo.id} className="border-b border-border pb-4 last:border-b-0">
               <h4 className="font-medium text-foreground">{photo.title}</h4>

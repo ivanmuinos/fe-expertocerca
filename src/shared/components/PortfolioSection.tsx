@@ -735,29 +735,7 @@ export function PortfolioSection({
                   </div>
                 )}
 
-                {/* Details button - floating at bottom */}
-                {(selectedPhoto.title || selectedPhoto.description || isOwner) && (
-                  <div className='fixed bottom-0 left-0 right-0 p-4 z-40'>
-                    <button
-                      onClick={() => {
-                        const detailsSheet = document.getElementById('photo-details-sheet');
-                        const backdrop = document.getElementById('photo-details-backdrop');
-                        if (detailsSheet && backdrop) {
-                          detailsSheet.classList.remove('translate-y-full');
-                          detailsSheet.classList.add('translate-y-0');
-                          backdrop.classList.remove('bg-black/0', 'pointer-events-none');
-                          backdrop.classList.add('bg-black/40', 'pointer-events-auto');
-                        }
-                      }}
-                      className='w-full bg-white/90 backdrop-blur-sm hover:bg-white text-gray-900 font-medium py-3 px-4 rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg'
-                    >
-                      <span>Ver detalles</span>
-                      <svg className='w-4 h-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                        <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M5 15l7-7 7 7' />
-                      </svg>
-                    </button>
-                  </div>
-                )}
+
               </div>
             )}
 

@@ -110,7 +110,7 @@ export default function PhotoGuidelinesPage() {
                       <h3 className='font-semibold text-foreground text-sm md:text-base mb-0.5 md:mb-1'>
                         {practice.title}
                       </h3>
-                      <p className='text-[10px] md:text-sm text-muted-foreground'>
+                      <p className='text-xs md:text-sm text-muted-foreground'>
                         {practice.description}
                       </p>
                     </div>

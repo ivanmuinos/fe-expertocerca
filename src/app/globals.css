@@ -203,12 +203,17 @@ body {
 }
 
 @layer utilities {
+  /* Critical CSS - Above the fold optimization */
+  .critical-render {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 500px;
+  }
+
   /* Prevent overscroll bounce */
   .overscroll-none {
     overscroll-behavior: none;
     overscroll-behavior-y: none;
   }
-
 
   /* Hide scrollbar for webkit browsers (Chrome, Safari, Edge) */
   .scrollbar-hide::-webkit-scrollbar {

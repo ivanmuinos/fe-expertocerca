@@ -12,7 +12,7 @@ export function HomeMiniNavbar() {
         src='/logo-bco-experto-cerca.svg'
         alt='Experto Cerca'
         width={120}
-        height={28}
+        height={40}
         className='h-6 w-auto cursor-pointer'
         onClick={() => navigate("/")}
         priority

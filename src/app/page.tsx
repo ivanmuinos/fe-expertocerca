@@ -1,18 +1,13 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "@/src/shared/lib/navigation";
 import { queryKeys } from "@/src/shared/lib/query-keys";
 import { useOptimizedScroll } from "@/src/shared/hooks/use-optimized-scroll";
+import dynamic from "next/dynamic";
 import {
   Search,
-  Filter,
-  MapPin,
-  Clock,
-  Phone,
-  ChevronDown,
-  X,
   Zap,
   Wrench,
   Hammer,
@@ -25,38 +20,31 @@ import {
   Key,
   Zap as ZapIcon,
   Triangle,
-  ChevronLeft,
-  ChevronRight,
 } from "lucide-react";
-import useEmblaCarousel from "embla-carousel-react";
 import { LoadingButton } from "@/src/shared/components/ui/loading-button";
-import { Input } from "@/src/shared/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/src/shared/components/ui/select";
-import { Card, CardContent } from "@/src/shared/components/ui/card";
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@/src/shared/components/ui/avatar";
-import { Badge } from "@/src/shared/components/ui/badge";
 import { useSecureProfessionals } from "@/src/features/professionals";
 import { useToast } from "@/src/shared/hooks/use-toast";
 import { useAuthState } from "@/src/features/auth";
 import { useUserRedirect } from "@/src/features/onboarding";
 import { SharedHeader } from "@/src/shared/components/SharedHeader";
-
-import { ProfessionalCarousel } from "@/src/shared/components/ProfessionalCarousel";
-import { Footer } from "@/src/shared/components";
 import HomeSkeleton from "@/src/shared/components/HomeSkeleton";
 import { HomeMiniNavbar } from "@/src/shared/components/HomeMiniNavbar";
 import { HomeSearchBar } from "@/src/shared/components/HomeSearchBar";
 import { useMobile } from "@/src/shared/components/MobileWrapper";
+
+// Lazy load heavy components
+const ProfessionalCarousel = dynamic(
+  () => import("@/src/shared/components/ProfessionalCarousel").then(mod => ({ default: mod.ProfessionalCarousel })),
+  { 
+    loading: () => <div className="h-64 animate-pulse bg-muted rounded-lg" />,
+    ssr: true 
+  }
+);
+
+const Footer = dynamic(
+  () => import("@/src/shared/components").then(mod => ({ default: mod.Footer })),
+  { ssr: false }
+);
 
 export default function HomePage() {
   const [searchTerm, setSearchTerm] = useState("");

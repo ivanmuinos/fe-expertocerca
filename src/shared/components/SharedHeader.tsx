@@ -438,7 +438,7 @@ export function SharedHeader({
                 src='/logo-bco-experto-cerca.svg'
                 alt='Experto Cerca'
                 width={120}
-                height={28}
+                height={40}
                 className='h-7 w-auto cursor-pointer'
                 onClick={() => navigate("/")}
                 priority
@@ -459,7 +459,7 @@ export function SharedHeader({
                 src='/logo-bco-experto-cerca.svg'
                 alt='Experto Cerca'
                 width={140}
-                height={36}
+                height={46}
                 className='h-8 md:h-9 w-auto cursor-pointer'
                 onClick={() => navigate("/")}
                 priority

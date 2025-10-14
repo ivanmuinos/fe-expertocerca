@@ -82,16 +82,8 @@ export default function RootLayout({
   return (
     <html lang='en'>
       <head>
-        {/* Preconnect to external domains - CRITICAL */}
-        <link rel='preconnect' href='https://fonts.googleapis.com' />
-        <link rel='preconnect' href='https://fonts.gstatic.com' crossOrigin='anonymous' />
-        
         {/* Preload critical assets */}
         <link rel='preload' as='image' href='/logo-bco-experto-cerca.svg' type='image/svg+xml' />
-        
-        {/* DNS Prefetch for faster lookups */}
-        <link rel='dns-prefetch' href='https://fonts.googleapis.com' />
-        <link rel='dns-prefetch' href='https://fonts.gstatic.com' />
         
         {/* PWA Meta Tags */}
         <link

@@ -26,6 +26,8 @@ import PublicationCard from "@/src/shared/components/PublicationCard";
 import { Footer } from "@/src/shared/components";
 import { motion, AnimatePresence } from "framer-motion";
 import { useMobile } from "@/src/shared/components/MobileWrapper";
+import { HomeMiniNavbar } from "@/src/shared/components/HomeMiniNavbar";
+import { HomeSearchBar } from "@/src/shared/components/HomeSearchBar";
 
 interface Professional {
   id: string;
@@ -67,6 +69,7 @@ function BuscarPageContent() {
   } = useSecureProfessionals();
   const { user } = useAuthState();
   const { toast } = useToast();
+  const { setIsMobileSearchOpen } = useMobile();
 
   // Popular services for autocomplete
   const popularServices = [
@@ -89,10 +92,6 @@ function BuscarPageContent() {
   };
 
   const handleSearch = () => {
-    console.log("Search button clicked, applying filters:", {
-      searchTerm,
-      selectedZone,
-    });
     // Si el término de búsqueda es "Todos", tratarlo como vacío
     setAppliedSearchTerm(searchTerm === "Todos" ? "" : searchTerm);
     setAppliedSelectedZone(selectedZone);
@@ -103,31 +102,19 @@ function BuscarPageContent() {
     const servicio = searchParams.get("servicio") || "";
     const zona = searchParams.get("zona") || "all";
     
-    console.log("URL params changed:", { 
-      servicio, 
-      zona, 
-      allParams: searchParams.toString(),
-      timestamp: new Date().toISOString()
-    });
-    
     setSearchTerm(servicio);
     setSelectedZone(zona);
     // Apply filters immediately when coming from URL
     setAppliedSearchTerm(servicio);
     setAppliedSelectedZone(zona);
-    
-    console.log("Applied filters from URL:", { servicio, zona });
   }, [searchParams]);
 
   const loadProfessionals = useCallback(async () => {
-    console.log("Loading professionals...", { isAuthenticated: !!user });
-    
     const { data, error } = user
       ? await browseProfessionals()
       : await discoverProfessionals();
 
     if (error) {
-      console.error("Error loading professionals:", error);
       toast({
         title: "Error",
         description: "No se pudieron cargar los profesionales",
@@ -136,53 +123,14 @@ function BuscarPageContent() {
       return;
     }
 
-    console.log("Raw API response:", data);
-    console.log("Number of professionals loaded:", data?.length || 0);
-
-    // Log all unique specialties and trade names to see what's available
-    if (data && data.length > 0) {
-      const specialties = [
-        ...new Set(data.map((p: any) => p.specialty).filter(Boolean)),
-      ];
-      const tradeNames = [
-        ...new Set(data.map((p) => p.trade_name).filter(Boolean)),
-      ];
-      const skills = [...new Set(data.flatMap((p) => p.profile_skills || []))];
-
-      console.log("=== AVAILABLE DATA IN DATABASE ===");
-      console.log("Available specialties:", specialties);
-      console.log("Available trade names:", tradeNames);
-      console.log("Available skills:", skills);
-      console.log("==================================");
-
-      // Log each professional's searchable fields
-      console.log("All professionals with searchable fields:");
-      data.forEach((p: any, index: number) => {
-        console.log(`Professional ${index + 1}:`, {
-          trade_name: p.trade_name,
-          specialty: p.specialty,
-          skills: p.profile_skills,
-          full_name: p.profile_full_name
-        });
-      });
-    }
-
     setProfessionals((data || []) as Professional[]);
   }, [user, browseProfessionals, discoverProfessionals, toast]);
 
   const applyFilters = useCallback(() => {
     let filtered = professionals;
 
-    console.log("Applying filters:", {
-      appliedSearchTerm,
-      appliedSelectedZone,
-    });
-    console.log("Total professionals:", professionals.length);
-    console.log("Sample professional data:", professionals[0]);
-
     // Filtro por término de búsqueda (servicio)
     if (appliedSearchTerm && appliedSearchTerm.trim() !== "") {
-      console.log("Filtering by search term:", appliedSearchTerm);
       const searchLower = appliedSearchTerm.toLowerCase();
       
       filtered = filtered.filter((prof) => {
@@ -198,24 +146,8 @@ function BuscarPageContent() {
         );
         const matchesSpecialty = specialty.includes(searchLower);
 
-        const matches =
-          matchesName || matchesFullName || matchesSkills || matchesSpecialty;
-
-        console.log("Checking professional:", {
-          trade_name: prof.trade_name,
-          specialty: (prof as any).specialty,
-          profile_skills: prof.profile_skills,
-          searchTerm: appliedSearchTerm,
-          matchesName,
-          matchesFullName,
-          matchesSkills,
-          matchesSpecialty,
-          finalMatch: matches
-        });
-
-        return matches;
+        return matchesName || matchesFullName || matchesSkills || matchesSpecialty;
       });
-      console.log("Filtered results:", filtered.length, "out of", professionals.length);
     }
 
     // Filtro por zona (por work_zone_name exacto; fallback ciudad/provincia contiene)
@@ -240,11 +172,6 @@ function BuscarPageContent() {
   }, [user, loadProfessionals]);
 
   useEffect(() => {
-    console.log("Effect triggered - applying filters with:", {
-      professionalsCount: professionals.length,
-      appliedSearchTerm,
-      appliedSelectedZone,
-    });
     applyFilters();
   }, [professionals, appliedSearchTerm, appliedSelectedZone, applyFilters]);
 
@@ -266,20 +193,32 @@ function BuscarPageContent() {
 
   return (
     <div className='bg-background'>
-      <SharedHeader
-        variant='transparent'
-        showSearch={true}
-        searchCollapsed={true}
-        searchProps={{
-          searchTerm,
-          setSearchTerm,
-          selectedZone,
-          setSelectedZone,
-          popularServices,
-          clearFilters,
-          onSearch: handleSearch,
-        }}
+      {/* Mini navbar solo en mobile */}
+      <HomeMiniNavbar />
+      
+      {/* Barra de búsqueda compacta solo en mobile */}
+      <HomeSearchBar 
+        searchTerm={searchTerm}
+        onOpen={() => setIsMobileSearchOpen(true)}
       />
+
+      {/* Header completo solo en desktop */}
+      <div className='hidden md:block'>
+        <SharedHeader
+          variant='transparent'
+          showSearch={true}
+          searchCollapsed={true}
+          searchProps={{
+            searchTerm,
+            setSearchTerm,
+            selectedZone,
+            setSelectedZone,
+            popularServices,
+            clearFilters,
+            onSearch: handleSearch,
+          }}
+        />
+      </div>
 
       {/* Layout tipo Airbnb */}
       <div className='min-h-screen flex flex-col lg:flex-row'>

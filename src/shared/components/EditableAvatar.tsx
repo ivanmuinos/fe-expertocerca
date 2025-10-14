@@ -101,12 +101,6 @@ export function EditableAvatar({
       // Compress image before upload
       const compressedFile = await compressImage(croppedFile);
 
-      console.log("Avatar upload:", {
-        originalSize: croppedFile.size,
-        compressedSize: compressedFile.size,
-        reduction: `${((1 - compressedFile.size / croppedFile.size) * 100).toFixed(1)}%`
-      });
-
       // Upload via server API
       const formData = new FormData();
       formData.append("file", compressedFile);

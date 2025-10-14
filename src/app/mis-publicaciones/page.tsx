@@ -92,7 +92,8 @@ export default function MyPublicationsPage() {
               alt='Experto Cerca'
               width={120}
               height={40}
-              className='h-6 w-auto'
+              className='h-6 w-auto cursor-pointer'
+              onClick={() => navigate('/')}
               priority
             />
 
@@ -142,7 +143,8 @@ export default function MyPublicationsPage() {
               alt='Experto Cerca'
               width={120}
               height={40}
-              className='h-6 w-auto'
+              className='h-6 w-auto cursor-pointer'
+              onClick={() => navigate('/')}
               priority
             />
 

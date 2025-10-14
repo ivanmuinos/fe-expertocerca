@@ -96,13 +96,6 @@ export function SharedHeader({
 
   const { setLoading, clearLoading } = useLoadingStore();
   const handleSearch = () => {
-    console.log("SharedHeader handleSearch called", {
-      pathname,
-      isDesktopSearchExpanded,
-      searchCollapsed,
-      hasOnSearch: !!searchProps?.onSearch,
-    });
-
     // Close mobile search modal after search
     setIsMobileSearchOpen(false);
     // Start loading feedback on search action
@@ -112,14 +105,12 @@ export function SharedHeader({
 
     // Check current page to determine behavior
     if (pathname.startsWith("/buscar")) {
-      console.log("On /buscar page - applying filters and collapsing");
       // If we're on /buscar page, apply filters in-place
       if (searchProps?.onSearch) {
         searchProps.onSearch();
       }
       // Collapse desktop search if expanded
       if (isDesktopSearchExpanded) {
-        console.log("Collapsing desktop search");
         setIsDesktopSearchExpanded(false);
       }
     } else {
@@ -252,11 +243,6 @@ export function SharedHeader({
                 ticking = false;
                 return;
               }
-              console.log("⬇️ Scrolled down enough - collapsing search", {
-                currentScrollY,
-                lastAction: lastActionScrollY.current,
-                diff: currentScrollY - lastActionScrollY.current,
-              });
               setIsDesktopSearchExpanded(false);
               setIsScrollingDown(true);
               lastActionScrollY.current = currentScrollY;

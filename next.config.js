@@ -6,9 +6,7 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: false,
   },
-  devIndicators: {
-    buildActivity: false,
-  },
+
   images: {
     domains: ["localhost"],
     remotePatterns: [
@@ -92,17 +90,11 @@ const nextConfig = {
       'framer-motion',
       'date-fns',
     ],
-    // Optimize CSS
-    optimizeCss: true,
-    // Optimize fonts
-    optimizeFonts: true,
   },
   // Optimize production output
   productionBrowserSourceMaps: false,
   // Compress responses
   compress: true,
-  // Optimize production builds
-  swcMinify: true,
   // Reduce JavaScript payload
   modularizeImports: {
     'lucide-react': {

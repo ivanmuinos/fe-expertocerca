@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/src/config/supabase-server";
+import { createModerationService } from "@/src/shared/lib/content-moderation";
 
 export async function POST(request: NextRequest) {
   try {
@@ -14,6 +15,18 @@ export async function POST(request: NextRequest) {
     const file = formData.get("file") as File | null;
     if (!file)
       return NextResponse.json({ error: "Missing file" }, { status: 400 });
+
+    // Moderate image content
+    const moderationService = createModerationService();
+    const imageBuffer = Buffer.from(await file.arrayBuffer());
+    const decision = await moderationService.checkImage(imageBuffer);
+
+    if (!decision.allowed) {
+      return NextResponse.json(
+        { error: decision.reason || "Imagen no permitida" },
+        { status: 400 }
+      );
+    }
 
     const ext = file.name.split(".").pop() || "jpg";
     const path = `avatars/${session.user.id}/${Date.now()}.${ext}`;

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createSupabaseServerClient } from '@/src/config/supabase-server'
+import { createModerationService } from '@/src/shared/lib/content-moderation'
 
 export async function GET() {
   try {
@@ -84,6 +85,32 @@ export async function POST(request: NextRequest) {
     if (!file) {
       console.log(`[SERVER ${requestId}] 6.ERROR No file provided`);
       return NextResponse.json({ error: 'No file provided' }, { status: 400 })
+    }
+
+    // Moderate image content
+    console.log(`[SERVER ${requestId}] 6.5. Moderating image content...`);
+    try {
+      const moderationService = createModerationService();
+      const imageBuffer = Buffer.from(await file.arrayBuffer());
+      const decision = await moderationService.checkImage(imageBuffer);
+
+      if (!decision.allowed) {
+        console.log(`[SERVER ${requestId}] 6.5.ERROR Image rejected by moderation`, {
+          reason: decision.reason,
+          details: decision.details
+        });
+        return NextResponse.json(
+          { error: decision.reason || 'Imagen no permitida por políticas de contenido' },
+          { status: 400 }
+        );
+      }
+      console.log(`[SERVER ${requestId}] 6.5. Image passed moderation`);
+    } catch (moderationError: any) {
+      console.error(`[SERVER ${requestId}] 6.5.ERROR Moderation failed`, moderationError);
+      return NextResponse.json(
+        { error: 'Error al verificar la imagen. Por favor intenta de nuevo.' },
+        { status: 500 }
+      );
     }
 
     // Upload file to Supabase Storage

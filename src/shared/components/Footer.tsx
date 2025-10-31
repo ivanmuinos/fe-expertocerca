@@ -18,26 +18,10 @@ export function Footer() {
             <ul className='space-y-2 md:space-y-3'>
               <li>
                 <a
-                  href='#'
+                  href='/ayuda'
                   className='text-gray-600 hover:text-gray-900 transition-colors text-xs md:text-sm'
                 >
                   Centro de ayuda
-                </a>
-              </li>
-              <li>
-                <a
-                  href='#'
-                  className='text-gray-600 hover:text-gray-900 transition-colors text-xs md:text-sm'
-                >
-                  Información de seguridad
-                </a>
-              </li>
-              <li>
-                <a
-                  href='#'
-                  className='text-gray-600 hover:text-gray-900 transition-colors text-xs md:text-sm'
-                >
-                  Contáctanos
                 </a>
               </li>
             </ul>
@@ -57,14 +41,6 @@ export function Footer() {
                   Convertite en experto
                 </a>
               </li>
-              <li>
-                <a
-                  href='#'
-                  className='text-gray-600 hover:text-gray-900 transition-colors text-xs md:text-sm'
-                >
-                  Centro de recursos
-                </a>
-              </li>
             </ul>
           </div>
         </div>
@@ -80,7 +56,7 @@ export function Footer() {
               <Instagram className='h-5 w-5' />
             </a>
             <a
-              href='mailto:hola@expertocerca.com'
+              href='mailto:soporte@expertocerca.com'
               className='text-gray-600 hover:text-gray-900 transition-colors'
               aria-label='Correo electrónico'
             >
@@ -96,17 +72,14 @@ export function Footer() {
             <div className='flex flex-wrap items-center justify-center md:justify-start gap-2 md:gap-4 text-xs md:text-sm text-gray-600'>
               <span>© {currentYear} Experto Cerca, Inc.</span>
               <span className='hidden md:inline'>·</span>
-              <a href='#' className='hover:text-gray-900 transition-colors'>
+              <a href='/privacidad' className='hover:text-gray-900 transition-colors'>
                 Privacidad
               </a>
               <span className='hidden md:inline'>·</span>
-              <a href='#' className='hover:text-gray-900 transition-colors'>
+              <a href='/terminos' className='hover:text-gray-900 transition-colors'>
                 Términos
               </a>
               <span className='hidden md:inline'>·</span>
-              <a href='#' className='hover:text-gray-900 transition-colors'>
-                Mapa del sitio
-              </a>
             </div>
 
             {/* Right side - Social and Contact (Desktop only) */}
@@ -120,7 +93,7 @@ export function Footer() {
                   <Instagram className='h-5 w-5' />
                 </a>
                 <a
-                  href='mailto:hola@expertocerca.com'
+                  href='mailto:soporte@expertocerca.com'
                   className='text-gray-600 hover:text-gray-900 transition-colors'
                   aria-label='Correo electrónico'
                 >

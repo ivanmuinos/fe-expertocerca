@@ -124,7 +124,11 @@ function SortablePhotoItem({
               : "(max-width: 768px) 50vw, 25vw"
           }
           className='w-full h-full object-cover hover:scale-105 transition-transform duration-300'
-          priority={index === 0}
+          priority={index < 4}
+          loading={index < 4 ? "eager" : "lazy"}
+          quality={index === 0 ? 90 : 75}
+          placeholder="blur"
+          blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjQwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjQwMCIgZmlsbD0iI2YzZjRmNiIvPjwvc3ZnPg=="
         />
       </div>
 
@@ -667,6 +671,8 @@ export function PortfolioSection({
                         fill
                         className='object-cover rounded-lg'
                         sizes='50vw'
+                        loading={index < 6 ? "eager" : "lazy"}
+                        quality={75}
                       />
                     </div>
                   ))}
@@ -725,6 +731,8 @@ export function PortfolioSection({
                     fill
                     className='object-contain'
                     priority
+                    loading="eager"
+                    quality={90}
                   />
                 </div>
 
@@ -993,8 +1001,9 @@ export function PortfolioSection({
                         alt={selectedPhoto.title}
                         fill
                         className='object-contain'
-                        quality={100}
+                        quality={90}
                         priority
+                        loading="eager"
                       />
                     </div>
                   </div>

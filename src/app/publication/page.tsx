@@ -108,6 +108,24 @@ export default function PublicationPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
+  // Preload critical images
+  useEffect(() => {
+    if (professional?.main_portfolio_image) {
+      const link = document.createElement('link');
+      link.rel = 'preload';
+      link.as = 'image';
+      link.href = professional.main_portfolio_image;
+      document.head.appendChild(link);
+    }
+    if (professional?.profile_avatar_url) {
+      const link = document.createElement('link');
+      link.rel = 'preload';
+      link.as = 'image';
+      link.href = professional.profile_avatar_url;
+      document.head.appendChild(link);
+    }
+  }, [professional]);
+
   const loadProfessional = async () => {
     if (!id) return;
     try {
@@ -290,6 +308,7 @@ export default function PublicationPage() {
               height={40}
               className='h-6 w-auto'
               priority
+              loading="eager"
             />
 
             <button
@@ -416,7 +435,7 @@ export default function PublicationPage() {
         />
       </div>
 
-      <div className='max-w-6xl mx-auto px-3 sm:px-6 lg:px-8 pb-24 lg:pb-8'>
+      <div className='max-w-6xl mx-auto px-3 sm:px-6 lg:px-8 pb-24 lg:pb-8 lg:mt-6'>
         {/* Mobile Gallery - Show first */}
         <div className='lg:hidden mb-6'>
           <PortfolioSection

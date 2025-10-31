@@ -72,6 +72,7 @@ export interface SharedHeaderProps {
 
   // Styling
   variant?: "default" | "transparent";
+  hideOnMobile?: boolean;
 }
 
 export function SharedHeader({
@@ -85,6 +86,7 @@ export function SharedHeader({
   showSearch = false,
   searchCollapsed = false,
   searchProps,
+  hideOnMobile = false,
 }: SharedHeaderProps) {
   const navigate = useNavigate();
   const pathname = usePathname();
@@ -377,7 +379,7 @@ export function SharedHeader({
       {/* Mobile-first Airbnb-style header */}
       <header
         ref={headerRef}
-        className='sticky top-0 z-40 transition-all duration-300 ease-out bg-white md:bg-primary'
+        className={`sticky top-0 z-40 transition-all duration-300 ease-out bg-white md:bg-primary ${hideOnMobile ? 'hidden md:block' : ''}`}
       >
         <div className='w-full px-3 md:px-6 sm:px-8 lg:px-10 pt-2 pb-3'>
           {/* Mobile: ONLY search bar */}

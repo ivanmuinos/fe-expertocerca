@@ -5,6 +5,11 @@ import { Instagram, Mail } from "lucide-react";
 export function Footer() {
   const currentYear = new Date().getFullYear();
 
+  const handleConvertClick = () => {
+    // Dispatch custom event to open login modal
+    window.dispatchEvent(new Event("openLoginModal"));
+  };
+
   return (
     <footer className='bg-gray-50 border-t border-gray-200 mt-8 md:mt-12  md:pb-0'>
       <div className='max-w-7xl mx-auto px-3 md:px-6 py-6 md:py-12'>
@@ -18,26 +23,10 @@ export function Footer() {
             <ul className='space-y-2 md:space-y-3'>
               <li>
                 <a
-                  href='#'
+                  href='/ayuda'
                   className='text-gray-600 hover:text-gray-900 transition-colors text-xs md:text-sm'
                 >
                   Centro de ayuda
-                </a>
-              </li>
-              <li>
-                <a
-                  href='#'
-                  className='text-gray-600 hover:text-gray-900 transition-colors text-xs md:text-sm'
-                >
-                  Información de seguridad
-                </a>
-              </li>
-              <li>
-                <a
-                  href='#'
-                  className='text-gray-600 hover:text-gray-900 transition-colors text-xs md:text-sm'
-                >
-                  Contáctanos
                 </a>
               </li>
             </ul>
@@ -50,20 +39,12 @@ export function Footer() {
             </h3>
             <ul className='space-y-2 md:space-y-3'>
               <li>
-                <a
-                  href='#'
-                  className='text-gray-600 hover:text-gray-900 transition-colors text-xs md:text-sm'
+                <button
+                  onClick={handleConvertClick}
+                  className='text-gray-600 hover:text-gray-900 transition-colors text-xs md:text-sm text-left'
                 >
                   Convertite en experto
-                </a>
-              </li>
-              <li>
-                <a
-                  href='#'
-                  className='text-gray-600 hover:text-gray-900 transition-colors text-xs md:text-sm'
-                >
-                  Centro de recursos
-                </a>
+                </button>
               </li>
             </ul>
           </div>
@@ -80,7 +61,7 @@ export function Footer() {
               <Instagram className='h-5 w-5' />
             </a>
             <a
-              href='mailto:hola@expertocerca.com'
+              href='mailto:soporte@expertocerca.com'
               className='text-gray-600 hover:text-gray-900 transition-colors'
               aria-label='Correo electrónico'
             >
@@ -96,17 +77,14 @@ export function Footer() {
             <div className='flex flex-wrap items-center justify-center md:justify-start gap-2 md:gap-4 text-xs md:text-sm text-gray-600'>
               <span>© {currentYear} Experto Cerca, Inc.</span>
               <span className='hidden md:inline'>·</span>
-              <a href='#' className='hover:text-gray-900 transition-colors'>
+              <a href='/privacidad' className='hover:text-gray-900 transition-colors'>
                 Privacidad
               </a>
               <span className='hidden md:inline'>·</span>
-              <a href='#' className='hover:text-gray-900 transition-colors'>
+              <a href='/terminos' className='hover:text-gray-900 transition-colors'>
                 Términos
               </a>
               <span className='hidden md:inline'>·</span>
-              <a href='#' className='hover:text-gray-900 transition-colors'>
-                Mapa del sitio
-              </a>
             </div>
 
             {/* Right side - Social and Contact (Desktop only) */}
@@ -120,7 +98,7 @@ export function Footer() {
                   <Instagram className='h-5 w-5' />
                 </a>
                 <a
-                  href='mailto:hola@expertocerca.com'
+                  href='mailto:soporte@expertocerca.com'
                   className='text-gray-600 hover:text-gray-900 transition-colors'
                   aria-label='Correo electrónico'
                 >

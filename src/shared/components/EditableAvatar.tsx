@@ -294,6 +294,7 @@ export function EditableAvatar({
           <AvatarImage
             src={displayAvatar || undefined}
             alt={`${userFullName}'s avatar`}
+            loading="eager"
           />
           <AvatarFallback className='text-lg font-medium'>
             {userFullName ? (

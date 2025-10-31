@@ -1,6 +1,6 @@
 export default function PublicationSkeleton() {
   return (
-    <div className='max-w-6xl mx-auto px-3 sm:px-6 lg:px-8 pb-24 lg:pb-8'>
+    <div className='max-w-6xl mx-auto px-3 sm:px-6 lg:px-8 pb-24 lg:pb-8 lg:mt-6'>
       {/* Mobile Gallery Skeleton - Show first on mobile */}
       <div className='lg:hidden mb-6'>
         <div className='grid grid-cols-2 gap-2 rounded-xl overflow-hidden'>

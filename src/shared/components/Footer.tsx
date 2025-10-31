@@ -5,6 +5,11 @@ import { Instagram, Mail } from "lucide-react";
 export function Footer() {
   const currentYear = new Date().getFullYear();
 
+  const handleConvertClick = () => {
+    // Dispatch custom event to open login modal
+    window.dispatchEvent(new Event("openLoginModal"));
+  };
+
   return (
     <footer className='bg-gray-50 border-t border-gray-200 mt-8 md:mt-12  md:pb-0'>
       <div className='max-w-7xl mx-auto px-3 md:px-6 py-6 md:py-12'>
@@ -34,12 +39,12 @@ export function Footer() {
             </h3>
             <ul className='space-y-2 md:space-y-3'>
               <li>
-                <a
-                  href='#'
-                  className='text-gray-600 hover:text-gray-900 transition-colors text-xs md:text-sm'
+                <button
+                  onClick={handleConvertClick}
+                  className='text-gray-600 hover:text-gray-900 transition-colors text-xs md:text-sm text-left'
                 >
                   Convertite en experto
-                </a>
+                </button>
               </li>
             </ul>
           </div>

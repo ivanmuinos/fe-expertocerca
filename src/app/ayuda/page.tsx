@@ -256,7 +256,7 @@ export default function AyudaPage() {
               📧 Email: <a href="mailto:soporte@expertocerca.com" className="text-blue-600 hover:underline font-medium">soporte@expertocerca.com</a>
             </p>
             <p className="text-gray-700 text-base">
-              📱 O desde la opción "Ayuda" dentro de la app
+              📱 O desde la opción &quot;Ayuda&quot; dentro de la app
             </p>
           </div>
         </div>

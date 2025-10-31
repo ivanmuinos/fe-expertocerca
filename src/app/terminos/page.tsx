@@ -352,7 +352,7 @@ export default function TerminosPage() {
 
           <Section title="15. EXENCIÓN DE GARANTÍAS">
             <p className="font-semibold">
-              LA PLATAFORMA SE PROPORCIONA "TAL CUAL" Y "SEGÚN DISPONIBILIDAD".
+              LA PLATAFORMA SE PROPORCIONA &quot;TAL CUAL&quot; Y &quot;SEGÚN DISPONIBILIDAD&quot;.
             </p>
             <p className="font-semibold">NO GARANTIZAMOS:</p>
             <ul>

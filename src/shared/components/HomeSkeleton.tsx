@@ -7,11 +7,11 @@ export default function HomeSkeleton() {
           <div className='h-6 bg-muted rounded w-48 animate-pulse' />
 
           {/* Carousel of cards skeleton */}
-          <div className='flex gap-3 overflow-hidden'>
-            {[...Array(4)].map((__, i) => (
+          <div className='flex gap-2 sm:gap-3 overflow-hidden'>
+            {[...Array(6)].map((__, i) => (
               <div
                 key={i}
-                className='flex-shrink-0 w-[200px] sm:w-[240px] md:w-[260px]'
+                className='flex-shrink-0 w-[160px] sm:w-[200px]'
               >
                 <div className='bg-white rounded-xl hover:shadow-md transition-shadow duration-300 overflow-hidden'>
                   {/* Image skeleton - aspect-square */}

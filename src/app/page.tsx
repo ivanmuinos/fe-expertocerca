@@ -36,7 +36,7 @@ import { useMobile } from "@/src/shared/components/MobileWrapper";
 const ProfessionalCarousel = dynamic(
   () => import("@/src/shared/components/ProfessionalCarousel").then(mod => ({ default: mod.ProfessionalCarousel })),
   { 
-    loading: () => <div className="h-64 animate-pulse bg-muted rounded-lg" />,
+    loading: () => <HomeSkeleton />,
     ssr: true 
   }
 );
@@ -158,15 +158,8 @@ export default function HomePage() {
 
   const groupedProfessionals = groupProfessionalsByCategory();
 
-  if (isCheckingRedirect) {
-    return (
-      <div className='min-h-screen bg-background flex items-center justify-center'>
-        <div className='text-center space-y-4'>
-          <div className='w-8 h-8 border-4 border-primary/20 border-t-primary rounded-full animate-spin mx-auto' />
-        </div>
-      </div>
-    );
-  }
+  // Combine both loading states to show skeleton only once
+  const isInitialLoading = isCheckingRedirect || (loading && professionals.length === 0);
 
   return (
     <div className='min-h-screen bg-dots-pattern'>
@@ -198,7 +191,7 @@ export default function HomePage() {
 
       <section className='px-3 sm:px-4 md:px-6 lg:px-8 pb-6 mt-2 bg-transparent'>
         <div className='max-w-7xl mx-auto'>
-          {loading ? (
+          {isInitialLoading ? (
             <HomeSkeleton />
           ) : groupedProfessionals.length > 0 ? (
             <div className='space-y-8'>

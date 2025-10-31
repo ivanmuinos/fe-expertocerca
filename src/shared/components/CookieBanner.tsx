@@ -73,7 +73,7 @@ export function CookieBanner() {
                   </h3>
                   <p className="text-sm md:text-base text-gray-600 mb-4">
                     Utilizamos cookies para mejorar tu experiencia, analizar el tráfico del sitio y personalizar el contenido. 
-                    Al hacer clic en "Aceptar todo", aceptás el uso de todas las cookies.
+                    Al hacer clic en &quot;Aceptar todo&quot;, aceptás el uso de todas las cookies.
                   </p>
                   <div className="flex flex-col sm:flex-row gap-3">
                     <Button

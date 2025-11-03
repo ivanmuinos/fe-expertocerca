@@ -347,7 +347,7 @@ export default function PersonalDataPage() {
                 className='h-9 md:h-12 text-sm'
               />
               <p className='text-xs text-muted-foreground'>
-                Si tenés matrícula profesional (plomero, electricista, gasista, etc.), ingresala aquí. Aparecerá como "Matriculado" en tu publicación.
+                Si tenés matrícula profesional (plomero, electricista, gasista, etc.), ingresala aquí. Aparecerá como &quot;Matriculado&quot; en tu publicación.
               </p>
             </div>
 

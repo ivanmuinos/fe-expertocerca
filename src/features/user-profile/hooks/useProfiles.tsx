@@ -23,6 +23,7 @@ export interface OnboardingData {
   tradeName?: string;
   yearsExperience?: number;
   hourlyRate?: number;
+  licenseNumber?: string; // Professional license number (matricula)
   // Social media URLs
   facebookUrl?: string;
   instagramUrl?: string;

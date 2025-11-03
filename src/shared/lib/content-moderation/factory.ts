@@ -4,15 +4,17 @@ import { StrictModerationPolicy } from './strict-policy';
 
 // Factory pattern for creating moderation service
 export function createModerationService(): ModerationService {
+  // Soportar tanto API Key como Service Account credentials
   const apiKey = process.env.GOOGLE_CLOUD_VISION_API_KEY;
+  const credentials = process.env.GOOGLE_CLOUD_CREDENTIALS;
 
-  if (!apiKey) {
+  if (!apiKey && !credentials) {
     throw new Error(
-      'GOOGLE_CLOUD_VISION_API_KEY environment variable is not set'
+      'GOOGLE_CLOUD_VISION_API_KEY or GOOGLE_CLOUD_CREDENTIALS environment variable must be set'
     );
   }
 
-  const moderator = new GoogleVisionModerator(apiKey);
+  const moderator = new GoogleVisionModerator(apiKey, credentials);
   const policy = new StrictModerationPolicy();
 
   return new ModerationService(moderator, policy);

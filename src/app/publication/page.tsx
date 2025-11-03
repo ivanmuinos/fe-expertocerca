@@ -462,9 +462,16 @@ export default function PublicationPage() {
                 }
               />
               <div className='flex-1'>
-                <h1 className='text-lg font-bold text-foreground leading-tight'>
-                  {professional.profile_full_name}
-                </h1>
+                <div className='flex items-center gap-2 flex-wrap'>
+                  <h1 className='text-lg font-bold text-foreground leading-tight'>
+                    {professional.profile_full_name}
+                  </h1>
+                  {professional.license_number && (
+                    <span className='inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold bg-primary text-primary-foreground'>
+                      Matriculado
+                    </span>
+                  )}
+                </div>
                 {professional.specialty && (
                   <p className='text-sm text-primary font-medium mt-1'>
                     {professional.specialty}
@@ -598,9 +605,16 @@ export default function PublicationPage() {
                     }
                   />
                   <div>
-                    <h3 className='text-xl font-bold text-foreground'>
-                      {professional.profile_full_name}
-                    </h3>
+                    <div className='flex items-center gap-2 flex-wrap'>
+                      <h3 className='text-xl font-bold text-foreground'>
+                        {professional.profile_full_name}
+                      </h3>
+                      {professional.license_number && (
+                        <span className='inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-primary text-primary-foreground'>
+                          Matriculado
+                        </span>
+                      )}
+                    </div>
                     {professional.specialty && (
                       <p className='text-sm text-primary font-medium mt-1'>
                         {professional.specialty}

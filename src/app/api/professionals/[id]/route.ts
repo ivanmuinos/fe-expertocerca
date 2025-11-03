@@ -73,6 +73,7 @@ export async function GET(request: NextRequest, { params }: Context) {
       profile_avatar_url: profileRow?.avatar_url || userMetadata?.avatar_url || userMetadata?.picture || null,
       main_portfolio_image: prof.main_portfolio_image,
       hourly_rate: prof.hourly_rate,
+      license_number: prof.license_number || null,
       has_contact_info: profileRow?.whatsapp_phone ? true : false,
       whatsapp_phone: profileRow?.whatsapp_phone || null,
       phone: profileRow?.phone || null,

@@ -87,6 +87,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 })
     }
 
+    // Check if user is banned
+    console.log(`[SERVER ${requestId}] 6.4. Checking ban status...`);
+    const { checkUserBan } = await import('@/src/shared/lib/check-user-ban');
+    const banResponse = await checkUserBan(session.user.id);
+    if (banResponse) {
+      console.log(`[SERVER ${requestId}] 6.4.ERROR User is banned`);
+      return banResponse;
+    }
+
     // Moderate image content
     console.log(`[SERVER ${requestId}] 6.5. Moderating image content...`);
     try {
@@ -99,8 +108,45 @@ export async function POST(request: NextRequest) {
           reason: decision.reason,
           details: decision.details
         });
+
+        // Registrar violación
+        const violationType = decision.reason?.includes('adulto') ? 'adult' :
+                             decision.reason?.includes('violencia') ? 'violence' :
+                             decision.reason?.includes('arma') ? 'weapon' :
+                             decision.reason?.includes('sugestivo') ? 'racy' : 'other';
+        
+        const severity = violationType === 'weapon' || violationType === 'violence' ? 'high' :
+                        violationType === 'adult' ? 'critical' : 'medium';
+
+        await userModerationService.recordViolation({
+          userId: session.user.id,
+          violationType,
+          severity,
+          moderationDetails: decision.details,
+          imageData: {
+            fileName: file.name,
+            fileSize: file.size,
+            fileType: file.type,
+          },
+        });
+
+        // Obtener info actualizada del usuario
+        const banInfo = await userModerationService.getBanInfo(session.user.id);
+        const violationCount = banInfo?.violation_count || 0;
+
+        let errorMessage = decision.reason || 'Imagen no permitida por políticas de contenido';
+        
+        // Agregar advertencia según el número de violaciones
+        if (violationCount === 1) {
+          errorMessage += '\n\n⚠️ Primera advertencia. Dos violaciones más resultarán en la suspensión de tu cuenta.';
+        } else if (violationCount === 2) {
+          errorMessage += '\n\n⚠️ Segunda advertencia. Tu cuenta ha sido suspendida por 48 horas. Una violación más resultará en suspensión permanente.';
+        } else if (violationCount >= 3) {
+          errorMessage += '\n\n🚫 Tu cuenta ha sido suspendida permanentemente por múltiples violaciones.';
+        }
+
         return NextResponse.json(
-          { error: decision.reason || 'Imagen no permitida por políticas de contenido' },
+          { error: errorMessage },
           { status: 400 }
         );
       }

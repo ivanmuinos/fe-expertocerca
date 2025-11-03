@@ -34,6 +34,7 @@ interface Publication {
   whatsapp_phone?: string;
   hourly_rate?: number;
   main_portfolio_image?: string;
+  license_number?: string;
 }
 
 interface PublicationCardProps {
@@ -110,14 +111,10 @@ const PublicationCardComponent = ({
               src={professional.main_portfolio_image}
               alt={professional.profile_full_name || "Publication"}
               fill
-              sizes={getImageSizes.card}
+              sizes="(max-width: 640px) 160px, (max-width: 768px) 200px, 250px"
               className='object-cover'
-              placeholder="blur"
-              blurDataURL={generateBlurDataURL()}
-              priority={priority}
-              quality={priority ? 90 : 85}
-              loading={priority ? "eager" : "lazy"}
-              fetchPriority={priority ? "high" : "auto"}
+              quality={85}
+              loading="eager"
               onError={(e) => {
                 e.currentTarget.style.display = "none";
               }}
@@ -130,9 +127,19 @@ const PublicationCardComponent = ({
           <div className='space-y-1.5 sm:space-y-2'>
             {/* Title and specialty */}
             <div>
-              <h3 className='font-semibold text-foreground line-clamp-1 text-xs sm:text-sm'>
-                {professional.trade_name}
-              </h3>
+              <div className='flex items-center gap-1.5'>
+                <h3 className='font-semibold text-foreground line-clamp-1 text-xs sm:text-sm flex-1'>
+                  {professional.trade_name}
+                </h3>
+                {professional.license_number && (
+                  <Badge 
+                    variant='default' 
+                    className='text-[10px] sm:text-xs px-1.5 py-0 bg-primary text-primary-foreground flex-shrink-0'
+                  >
+                    Matriculado
+                  </Badge>
+                )}
+              </div>
               {professional.specialty && (
                 <div className='flex items-center gap-1 text-xs text-muted-foreground'>
                   {(() => {

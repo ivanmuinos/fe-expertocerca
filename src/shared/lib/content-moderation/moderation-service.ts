@@ -1,4 +1,4 @@
-import { ContentModerator, ModerationPolicy, ModerationDecision } from './types';
+import { ContentModerator, ModerationPolicy, ModerationDecision, ModerationLevel } from './types';
 
 // Service that coordinates moderation (Single Responsibility)
 export class ModerationService {
@@ -8,7 +8,27 @@ export class ModerationService {
   ) {}
 
   async checkImage(imageBuffer: Buffer): Promise<ModerationDecision> {
+    // Verificar si la moderación está habilitada
+    const isModerationEnabled = process.env.ENABLE_IMAGE_MODERATION === 'true';
+
+    if (!isModerationEnabled) {
+      console.log('[ModerationService] ⚠️ Moderation is DISABLED (development mode)');
+      // En desarrollo, permitir todas las imágenes sin moderar
+      return {
+        allowed: true,
+        details: {
+          adult: ModerationLevel.VERY_UNLIKELY,
+          violence: ModerationLevel.VERY_UNLIKELY,
+          racy: ModerationLevel.VERY_UNLIKELY,
+          spoof: ModerationLevel.VERY_UNLIKELY,
+          medical: ModerationLevel.VERY_UNLIKELY,
+        },
+      };
+    }
+
     try {
+      console.log('[ModerationService] ✅ Moderation is ENABLED (production mode)');
+      
       // Get moderation result from the moderator
       const result = await this.moderator.moderateImage(imageBuffer);
 

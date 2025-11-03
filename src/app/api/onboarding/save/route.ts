@@ -25,6 +25,11 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { data } = body;
 
+    // Check if user is banned
+    const { checkUserBan } = await import('@/src/shared/lib/check-user-ban');
+    const banResponse = await checkUserBan(session.user.id);
+    if (banResponse) return banResponse;
+
     // Check if this is the first publication (onboarding) or an additional one
     const { count: existingProfilesCount } = await supabase
       .from("professional_profiles")
@@ -144,6 +149,7 @@ export async function POST(request: NextRequest) {
             whatsapp_phone: data.whatsappPhone,
             location_city: data.locationCity || null,
             location_province: data.locationProvince || null,
+            license_number: data.licenseNumber || null, // Professional license number
             is_active: true, // Default to active
             accepts_new_clients: true, // Default to accepting clients
             created_at: new Date().toISOString(),

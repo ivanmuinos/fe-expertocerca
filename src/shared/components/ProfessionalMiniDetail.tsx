@@ -37,6 +37,7 @@ interface Professional {
   whatsapp_phone?: string;
   hourly_rate?: number;
   main_portfolio_image?: string;
+  license_number?: string;
 }
 
 interface ProfessionalMiniDetailProps {
@@ -118,9 +119,16 @@ export default function ProfessionalMiniDetail({
 
           <div className='flex-1 space-y-2'>
             <div>
-              <h2 className='text-xl font-bold text-foreground'>
-                {professional.trade_name}
-              </h2>
+              <div className='flex items-center gap-2 flex-wrap'>
+                <h2 className='text-xl font-bold text-foreground'>
+                  {professional.trade_name}
+                </h2>
+                {professional.license_number && (
+                  <Badge variant='default' className='text-xs px-2 py-0.5'>
+                    Matriculado
+                  </Badge>
+                )}
+              </div>
               {professional.specialty && (
                 <p className='text-lg text-primary font-semibold'>
                   {professional.specialty}

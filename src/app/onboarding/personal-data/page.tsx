@@ -22,6 +22,7 @@ export interface PersonalDataForm {
   fullName: string;
   email: string;
   phone: string;
+  licenseNumber?: string;
   facebookUrl?: string;
   instagramUrl?: string;
   linkedinUrl?: string;
@@ -54,6 +55,7 @@ export default function PersonalDataPage() {
     fullName: "",
     email: "",
     phone: "",
+    licenseNumber: "",
     facebookUrl: "",
     instagramUrl: "",
     linkedinUrl: "",
@@ -171,6 +173,9 @@ export default function PersonalDataPage() {
         hourlyRate:
           professionalInfo?.hourlyRate && professionalInfo.hourlyRate > 0
             ? professionalInfo.hourlyRate
+            : undefined,
+        licenseNumber: formData.licenseNumber && formData.licenseNumber.trim() 
+            ? formData.licenseNumber.trim() 
             : undefined,
         // Social media URLs
         facebookUrl: formData.facebookUrl || undefined,
@@ -326,6 +331,23 @@ export default function PersonalDataPage() {
               <p className='text-xs text-muted-foreground'>
                 Ingresá tu número sin el código de país. Este será tu principal
                 medio de contacto.
+              </p>
+            </div>
+
+            {/* License Number */}
+            <div className='space-y-1 md:space-y-2'>
+              <Label htmlFor='licenseNumber' className='text-xs md:text-sm'>
+                Número de matrícula (opcional)
+              </Label>
+              <Input
+                id='licenseNumber'
+                value={formData.licenseNumber}
+                onChange={(e) => updateFormData("licenseNumber", e.target.value)}
+                placeholder='Ej: 12345'
+                className='h-9 md:h-12 text-sm'
+              />
+              <p className='text-xs text-muted-foreground'>
+                Si tenés matrícula profesional (plomero, electricista, gasista, etc.), ingresala aquí. Aparecerá como "Matriculado" en tu publicación.
               </p>
             </div>
 

@@ -11,6 +11,11 @@ export async function POST(request: NextRequest) {
     if (!session)
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
+    // Check if user is banned
+    const { checkUserBan } = await import('@/src/shared/lib/check-user-ban');
+    const banResponse = await checkUserBan(session.user.id);
+    if (banResponse) return banResponse;
+
     const formData = await request.formData();
     const file = formData.get("file") as File | null;
     if (!file)
@@ -22,6 +27,23 @@ export async function POST(request: NextRequest) {
     const decision = await moderationService.checkImage(imageBuffer);
 
     if (!decision.allowed) {
+      // Registrar violación
+      const { userModerationService } = await import('@/src/shared/lib/user-moderation');
+      const violationType = decision.reason?.includes('adulto') ? 'adult' :
+                           decision.reason?.includes('violencia') ? 'violence' :
+                           decision.reason?.includes('arma') ? 'weapon' : 'other';
+      
+      const severity = violationType === 'weapon' || violationType === 'violence' ? 'high' :
+                      violationType === 'adult' ? 'critical' : 'medium';
+
+      await userModerationService.recordViolation({
+        userId: session.user.id,
+        violationType,
+        severity,
+        moderationDetails: decision.details,
+        imageData: { fileName: file.name, fileSize: file.size, fileType: file.type },
+      });
+
       return NextResponse.json(
         { error: decision.reason || "Imagen no permitida" },
         { status: 400 }

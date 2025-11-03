@@ -45,6 +45,7 @@ interface Professional {
   whatsapp_phone?: string;
   hourly_rate?: number;
   main_portfolio_image?: string;
+  license_number?: string;
 }
 
 function BuscarPageContent() {

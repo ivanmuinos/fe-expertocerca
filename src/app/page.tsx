@@ -5,7 +5,6 @@ import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "@/src/shared/lib/navigation";
 import { queryKeys } from "@/src/shared/lib/query-keys";
 import { useOptimizedScroll } from "@/src/shared/hooks/use-optimized-scroll";
-import dynamic from "next/dynamic";
 import {
   Search,
   Zap,
@@ -31,20 +30,8 @@ import HomeSkeleton from "@/src/shared/components/HomeSkeleton";
 import { HomeMiniNavbar } from "@/src/shared/components/HomeMiniNavbar";
 import { HomeSearchBar } from "@/src/shared/components/HomeSearchBar";
 import { useMobile } from "@/src/shared/components/MobileWrapper";
-
-// Lazy load heavy components
-const ProfessionalCarousel = dynamic(
-  () => import("@/src/shared/components/ProfessionalCarousel").then(mod => ({ default: mod.ProfessionalCarousel })),
-  { 
-    loading: () => <HomeSkeleton />,
-    ssr: true 
-  }
-);
-
-const Footer = dynamic(
-  () => import("@/src/shared/components").then(mod => ({ default: mod.Footer })),
-  { ssr: false }
-);
+import { ProfessionalCarousel } from "@/src/shared/components/ProfessionalCarousel";
+import { Footer } from "@/src/shared/components";
 
 export default function HomePage() {
   const [searchTerm, setSearchTerm] = useState("");

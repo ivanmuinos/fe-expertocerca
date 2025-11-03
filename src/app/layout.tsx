@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { Suspense } from "react";
 import { Poppins } from "next/font/google";
 import { ClientProviders } from "./providers";
 import { MobileNavbar } from "@/src/shared/components/MobileNavbar";
@@ -92,7 +93,9 @@ export default function RootLayout({
       </head>
       <body className={poppins.className}>
         <GoogleTagManagerNoScript />
-        <GoogleTagManager />
+        <Suspense fallback={null}>
+          <GoogleTagManager />
+        </Suspense>
         <ClientProviders>
           <MobileWrapper>
             <DynamicLayoutWrapper>{children}</DynamicLayoutWrapper>

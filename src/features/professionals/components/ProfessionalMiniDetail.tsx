@@ -206,7 +206,7 @@ export default function ProfessionalMiniDetail({
               size='lg'
             >
               <MessageCircle className='mr-2 h-4 w-4' />
-              Contactar por WhatsApp
+              Solicitar presupuesto por WhatsApp
             </Button>
           )}
 

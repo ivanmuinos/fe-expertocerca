@@ -727,7 +727,7 @@ export default function PublicationPage() {
                     className='w-full bg-primary hover:bg-primary-dark text-primary-foreground font-semibold py-3.5 px-6 rounded-xl transition-all duration-200'
                   >
                     {user
-                      ? "Contactar por WhatsApp"
+                      ? "Solicitar presupuesto por WhatsApp"
                       : "Inicia sesión para contactar"}
                   </button>
                 </div>
@@ -747,7 +747,7 @@ export default function PublicationPage() {
           >
             <MessageCircle className='w-5 h-5' />
             <span className='text-sm'>
-              {user ? "Contactar por WhatsApp" : "Inicia sesión para contactar"}
+              {user ? "Solicitar presupuesto por WhatsApp" : "Inicia sesión para contactar"}
             </span>
           </LoadingButton>
         </div>

@@ -54,7 +54,9 @@ export function Footer() {
         <div className='md:hidden flex justify-center py-4 border-b border-gray-200'>
           <div className='flex items-center space-x-4'>
             <a
-              href='#'
+              href='https://www.instagram.com/expertocerca/'
+              target='_blank'
+              rel='noopener noreferrer'
               className='text-gray-600 hover:text-gray-900 transition-colors'
               aria-label='Instagram'
             >
@@ -91,7 +93,9 @@ export function Footer() {
             <div className='hidden md:flex items-center justify-end'>
               <div className='flex items-center space-x-3'>
                 <a
-                  href='#'
+                  href='https://www.instagram.com/expertocerca/'
+                  target='_blank'
+                  rel='noopener noreferrer'
                   className='text-gray-600 hover:text-gray-900 transition-colors'
                   aria-label='Instagram'
                 >

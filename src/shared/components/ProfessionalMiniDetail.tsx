@@ -20,6 +20,8 @@ import {
 } from "@/src/shared/components/ui/avatar";
 import { Badge } from "@/src/shared/components/ui/badge";
 import { Separator } from "@/src/shared/components/ui/separator";
+import { useAuthState } from "@/src/features/auth";
+import { trackWhatsAppClick } from "@/src/shared/lib/gtm";
 
 interface Professional {
   id: string;
@@ -49,6 +51,7 @@ export default function ProfessionalMiniDetail({
 }: ProfessionalMiniDetailProps) {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
+  const { user } = useAuthState();
 
   if (!professional) {
     return (
@@ -86,6 +89,17 @@ export default function ProfessionalMiniDetail({
 
   const handleContactWhatsApp = () => {
     if (professional.whatsapp_phone) {
+      // Track WhatsApp contact
+      trackWhatsAppClick(
+        professional.id,
+        professional.profile_full_name || professional.trade_name,
+        user ? {
+          userId: user.id,
+          email: user.email,
+          fullName: user.user_metadata?.full_name,
+        } : undefined
+      );
+      
       const message = encodeURIComponent(
         `Hola ${professional.profile_full_name}, me interesa tu servicio de ${professional.trade_name}. ¿Podrías brindarme más información?`
       );

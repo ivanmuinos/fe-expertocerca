@@ -7,6 +7,7 @@ import { LoadingButton } from "@/src/shared/components/ui/loading-button";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuthState, useAuthActions } from "@/src/features/auth";
 import { useLoading } from "@/src/shared/stores/useLoadingStore";
+import { trackLoginAttempt } from "@/src/shared/lib/gtm";
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -39,6 +40,9 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
   const handleGoogleLogin = async () => {
     setHasInitiatedLogin(true);
     setLoading(true, "Iniciando sesión...", false); // false = no mostrar overlay
+
+    // Track login attempt
+    trackLoginAttempt('google');
 
     try {
       const { error } = await signInWithGoogle();

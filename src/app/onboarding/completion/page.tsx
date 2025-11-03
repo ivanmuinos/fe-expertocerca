@@ -13,6 +13,7 @@ import {
 import { useOnboarding } from "@/src/shared/stores/useOnboardingStore";
 import { useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "@/src/shared/lib/query-keys";
+import { trackOnboardingComplete } from "@/src/shared/lib/gtm";
 
 export default function CompletionPage() {
   const navigate = useNavigate();
@@ -140,6 +141,9 @@ export default function CompletionPage() {
 
         setHasUploaded(true);
         resetOnboarding();
+        
+        // Track onboarding completion
+        trackOnboardingComplete();
 
         // Invalidar cache de professionals para que se recarguen en home
         queryClient.invalidateQueries({

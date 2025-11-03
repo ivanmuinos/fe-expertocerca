@@ -10,6 +10,7 @@ import { apiClient } from "@/src/shared/lib/api-client";
 import { useLoading } from "@/src/shared/stores/useLoadingStore";
 import { SharedHeader } from "@/src/shared/components/SharedHeader";
 import { Button } from "@/src/shared/components/ui/button";
+import { trackUserTypeSelection, setUserData } from "@/src/shared/lib/gtm";
 
 export default function UserTypeSelectionPage() {
   const [selectedType, setSelectedType] = useState<string | null>(null);
@@ -46,6 +47,17 @@ export default function UserTypeSelectionPage() {
     try {
       await withLoading(async () => {
         await apiClient.setUserType(userType);
+
+        // Track user type selection
+        trackUserTypeSelection(userType === "customer" ? "client" : "professional");
+        
+        // Set user data in GTM
+        setUserData({
+          userId: user.id,
+          email: user.email,
+          fullName: user.user_metadata?.full_name,
+          userType: userType === "customer" ? "client" : "professional",
+        });
 
         // Redirigir según el tipo de usuario
         if (userType === "professional") {

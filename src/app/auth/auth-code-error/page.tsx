@@ -1,11 +1,12 @@
 "use client"
 
+import { Suspense } from "react"
 import { Button } from "@/src/shared/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/src/shared/components/ui/card"
 import { AlertCircle } from "lucide-react"
 import { useNavigate } from "@/src/shared/lib/navigation"
 
-export default function AuthCodeError() {
+function AuthCodeErrorContent() {
   const navigate = useNavigate()
 
   return (
@@ -37,5 +38,13 @@ export default function AuthCodeError() {
         </CardContent>
       </Card>
     </div>
+  )
+}
+
+export default function AuthCodeError() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-background" />}>
+      <AuthCodeErrorContent />
+    </Suspense>
   )
 }

@@ -6,6 +6,7 @@ import { MobileWrapper } from "@/src/shared/components/MobileWrapper";
 import { DynamicLayoutWrapper } from "@/src/shared/components/DynamicLayoutWrapper";
 import { GlobalMobileSearch, Toaster, PromoBanner, GlobalLoginModal } from "@/src/shared/components/DynamicComponents";
 import { CookieBanner } from "@/src/shared/components/CookieBanner";
+import { GoogleTagManager, GoogleTagManagerNoScript } from "@/src/shared/components/GoogleTagManager";
 import "./globals.css";
 
 const poppins = Poppins({
@@ -85,29 +86,13 @@ export default function RootLayout({
       <head>
         {/* Preload critical assets */}
         <link rel='preload' as='image' href='/logo-bco-experto-cerca.svg' type='image/svg+xml' />
-        
-        {/* PWA Meta Tags */}
-        <link
-          rel='apple-touch-icon'
-          sizes='180x180'
-          href='/apple-touch-icon.png'
-        />
-        <link
-          rel='icon'
-          type='image/png'
-          sizes='32x32'
-          href='/favicon-32x32.png'
-        />
-        <link
-          rel='icon'
-          type='image/png'
-          sizes='16x16'
-          href='/favicon-16x16.png'
-        />
-        <link rel='mask-icon' href='/safari-pinned-tab.svg' color='#3B82F6' />
-        <meta name='msapplication-TileColor' content='#ffffff' />
+
+        {/* Favicon */}
+        <link rel='icon' href='/favicon.ico' />
       </head>
       <body className={poppins.className}>
+        <GoogleTagManagerNoScript />
+        <GoogleTagManager />
         <ClientProviders>
           <MobileWrapper>
             <DynamicLayoutWrapper>{children}</DynamicLayoutWrapper>

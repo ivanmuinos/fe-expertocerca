@@ -38,6 +38,7 @@ import { SharedHeader } from "@/src/shared/components/SharedHeader";
 import { LoginModal } from "@/src/shared/components/LoginModal";
 import { Footer } from "@/src/shared/components";
 import PublicationSkeleton from "@/src/shared/components/PublicationSkeleton";
+import { trackWhatsAppClick, trackProfileView } from "@/src/shared/lib/gtm";
 
 export default function PublicationPage() {
   const [id, setId] = useState<string>("");
@@ -160,6 +161,10 @@ export default function PublicationPage() {
 
       setProfessional(result.data);
       setAvatarUrl(result.data.profile_avatar_url);
+      
+      // Track profile view
+      trackProfileView(result.data.id, result.data.specialty || 'Unknown');
+      
       return;
     } catch (fetchError) {
       console.error("[Publication] Error fetching from API:", fetchError);
@@ -212,6 +217,18 @@ export default function PublicationPage() {
     }
     if (professional?.whatsapp_phone) {
       setContactLoading(true);
+      
+      // Track WhatsApp contact with user data
+      trackWhatsAppClick(
+        professional.id,
+        professional.profile_full_name || professional.trade_name,
+        {
+          userId: user.id,
+          email: user.email,
+          fullName: user.user_metadata?.full_name,
+        }
+      );
+      
       const cleanPhone = professional.whatsapp_phone.replace(/[^0-9]/g, "");
       const publicationUrl = typeof window !== 'undefined' ? window.location.href : '';
       const message = encodeURIComponent(

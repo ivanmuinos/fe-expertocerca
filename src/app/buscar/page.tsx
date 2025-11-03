@@ -28,6 +28,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useMobile } from "@/src/shared/components/MobileWrapper";
 import { HomeMiniNavbar } from "@/src/shared/components/HomeMiniNavbar";
 import { HomeSearchBar } from "@/src/shared/components/HomeSearchBar";
+import { trackSearch } from "@/src/shared/lib/gtm";
 
 interface Professional {
   id: string;
@@ -94,8 +95,12 @@ function BuscarPageContent() {
 
   const handleSearch = () => {
     // Si el término de búsqueda es "Todos", tratarlo como vacío
-    setAppliedSearchTerm(searchTerm === "Todos" ? "" : searchTerm);
+    const finalSearchTerm = searchTerm === "Todos" ? "" : searchTerm;
+    setAppliedSearchTerm(finalSearchTerm);
     setAppliedSelectedZone(selectedZone);
+    
+    // Track search
+    trackSearch(finalSearchTerm || undefined, selectedZone !== "all" ? selectedZone : undefined);
   };
 
   // Read and apply URL parameters whenever they change

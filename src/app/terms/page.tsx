@@ -37,7 +37,7 @@ export default function TerminosPage() {
               {user ? (
                 <Button
                   variant="ghost"
-                  onClick={() => router.push("/perfil")}
+                  onClick={() => router.push("/profile")}
                   className="relative h-10 w-10 rounded-full p-0 hover:bg-gray-100"
                 >
                   <Avatar className="h-10 w-10">

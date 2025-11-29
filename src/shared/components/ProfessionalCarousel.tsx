@@ -1,9 +1,5 @@
-"use client";
-
-import { useCallback, useEffect, useState, memo } from "react";
+import { memo } from "react";
 import useEmblaCarousel from "embla-carousel-react";
-import { Button } from "@/src/shared/components/ui/button";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useNavigate } from "@/src/shared/lib/navigation";
 import PublicationCard from "@/src/shared/components/PublicationCard";
 
@@ -36,82 +32,30 @@ const ProfessionalCarouselComponent = ({
   professionals,
 }: ProfessionalCarouselProps) => {
   const navigate = useNavigate();
+
+  // Limit to 7 professionals per category for main page
+  const displayedProfessionals = professionals.slice(0, 7);
+
   const [emblaRef, emblaApi] = useEmblaCarousel({
     align: "start",
     slidesToScroll: 1,
-    breakpoints: {
-      "(min-width: 640px)": { slidesToScroll: 2 },
-      "(min-width: 1024px)": { slidesToScroll: 3 },
-      "(min-width: 1280px)": { slidesToScroll: 4 },
-    },
+    containScroll: "trimSnaps",
+    dragFree: true, // Allow free scrolling
   });
-
-  const [canScrollPrev, setCanScrollPrev] = useState(false);
-  const [canScrollNext, setCanScrollNext] = useState(false);
-
-  const scrollPrev = useCallback(() => {
-    if (emblaApi) emblaApi.scrollPrev();
-  }, [emblaApi]);
-
-  const scrollNext = useCallback(() => {
-    if (emblaApi) emblaApi.scrollNext();
-  }, [emblaApi]);
-
-  const onSelect = useCallback(() => {
-    if (!emblaApi) return;
-    setCanScrollPrev(emblaApi.canScrollPrev());
-    setCanScrollNext(emblaApi.canScrollNext());
-  }, [emblaApi]);
-
-  useEffect(() => {
-    if (!emblaApi) return;
-    
-    onSelect();
-    emblaApi.on("select", onSelect);
-    emblaApi.on("reInit", onSelect);
-    
-    return () => {
-      emblaApi.off("select", onSelect);
-      emblaApi.off("reInit", onSelect);
-    };
-  }, [emblaApi, onSelect]);
 
   return (
     <div className='space-y-3 sm:space-y-4'>
       <div className='flex items-center justify-between'>
         <h2 className='text-lg sm:text-xl font-semibold'>{categoryName}</h2>
-        {(canScrollPrev || canScrollNext) && (
-          <div className='flex items-center gap-2'>
-            <div className='hidden sm:flex gap-2'>
-              <Button
-                variant='outline'
-                size='sm'
-                onClick={scrollPrev}
-                disabled={!canScrollPrev}
-                className='h-7 w-7 p-0 rounded-full border-2 disabled:opacity-30'
-              >
-                <ChevronLeft className='h-3 w-3' />
-              </Button>
-              <Button
-                variant='outline'
-                size='sm'
-                onClick={scrollNext}
-                disabled={!canScrollNext}
-                className='h-7 w-7 p-0 rounded-full border-2 disabled:opacity-30'
-              >
-                <ChevronRight className='h-3 w-3' />
-              </Button>
-            </div>
-          </div>
-        )}
       </div>
 
-      <div className='overflow-hidden' ref={emblaRef}>
-        <div className='flex gap-2 sm:gap-3'>
-          {professionals.map((professional, index) => (
+      {/* Mobile Carousel */}
+      <div className="md:hidden overflow-hidden" ref={emblaRef}>
+        <div className="flex gap-3">
+          {displayedProfessionals.map((professional, index) => (
             <div
               key={professional.id}
-              className='flex-shrink-0 w-[160px] sm:w-[200px]'
+              className="flex-[0_0_45%] min-w-0"
             >
               <PublicationCard
                 professional={professional}
@@ -122,6 +66,23 @@ const ProfessionalCarouselComponent = ({
             </div>
           ))}
         </div>
+      </div>
+
+      {/* Desktop Grid */}
+      <div className='hidden md:grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-7 gap-3 sm:gap-4'>
+        {displayedProfessionals.map((professional, index) => (
+          <div
+            key={professional.id}
+            className='w-full'
+          >
+            <PublicationCard
+              professional={professional}
+              onClick={() => navigate(`/publication?id=${professional.id}`)}
+              showAllSkills={false}
+              priority={index < 2}
+            />
+          </div>
+        ))}
       </div>
     </div>
   );

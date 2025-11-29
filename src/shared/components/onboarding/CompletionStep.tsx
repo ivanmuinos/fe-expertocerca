@@ -18,7 +18,7 @@ export function CompletionStep({ userType, userName }: CompletionStepProps) {
   };
 
   const handleGoToPublications = () => {
-    navigate("/mis-publicaciones");
+    navigate("/my-publications");
   };
 
   return (

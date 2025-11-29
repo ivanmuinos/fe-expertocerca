@@ -23,7 +23,7 @@ export function Footer() {
             <ul className='space-y-2 md:space-y-3'>
               <li>
                 <a
-                  href='/ayuda'
+                  href='/help'
                   className='text-gray-600 hover:text-gray-900 transition-colors text-xs md:text-sm'
                 >
                   Centro de ayuda
@@ -79,11 +79,11 @@ export function Footer() {
             <div className='flex flex-wrap items-center justify-center md:justify-start gap-2 md:gap-4 text-xs md:text-sm text-gray-600'>
               <span>© {currentYear} Experto Cerca, Inc.</span>
               <span className='hidden md:inline'>·</span>
-              <a href='/privacidad' className='hover:text-gray-900 transition-colors'>
+              <a href='/privacy' className='hover:text-gray-900 transition-colors'>
                 Privacidad
               </a>
               <span className='hidden md:inline'>·</span>
-              <a href='/terminos' className='hover:text-gray-900 transition-colors'>
+              <a href='/terms' className='hover:text-gray-900 transition-colors'>
                 Términos
               </a>
               <span className='hidden md:inline'>·</span>

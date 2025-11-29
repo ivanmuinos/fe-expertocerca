@@ -40,7 +40,6 @@ import { apiClient } from "@/src/shared/lib/api-client";
 import { motion, AnimatePresence } from "framer-motion";
 import { ServiceSelector } from "@/src/shared/components/ServiceSelector";
 import { ZoneSelector } from "@/src/shared/components/ZoneSelector";
-import { LoginModal } from "@/src/shared/components/LoginModal";
 import { useMobile } from "@/src/shared/components/MobileWrapper";
 import { useLoadingStore } from "@/src/shared/stores/useLoadingStore";
 
@@ -56,6 +55,9 @@ export interface SharedHeaderProps {
 
   // Right action button
   rightAction?: React.ReactNode;
+
+  // Center content (for desktop tabs)
+  centerContent?: React.ReactNode;
 
   // Search functionality
   showSearch?: boolean;
@@ -82,6 +84,7 @@ export function SharedHeader({
   createButtonText = "Crear",
   onCreateClick,
   rightAction,
+  centerContent,
   variant = "default",
   showSearch = false,
   searchCollapsed = false,
@@ -106,7 +109,7 @@ export function SharedHeader({
     } catch {}
 
     // Check current page to determine behavior
-    if (pathname.startsWith("/buscar")) {
+    if (pathname.startsWith("/search")) {
       // If we're on /buscar page, apply filters in-place
       if (searchProps?.onSearch) {
         searchProps.onSearch();
@@ -124,7 +127,7 @@ export function SharedHeader({
         if (searchProps.selectedZone && searchProps.selectedZone !== "all")
           params.set("zona", searchProps.selectedZone);
         const queryString = params.toString();
-        navigate(queryString ? `/buscar?${queryString}` : "/buscar");
+        navigate(queryString ? `/search?${queryString}` : "/search");
       }
     }
     // stop loading after letting navigation start
@@ -145,13 +148,15 @@ export function SharedHeader({
   const [lastScrollY, setLastScrollY] = useState(0);
   const lastToggleAtRef = useRef<number>(0);
   const [isScrollingDown, setIsScrollingDown] = useState(false);
-  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+
   const lastActionScrollY = useRef(0);
   const headerRef = useRef<HTMLElement>(null);
   const serviceSectionRef = useRef<HTMLDivElement>(null);
   const zoneSectionRef = useRef<HTMLDivElement>(null);
   const [mobileSubScreen, setMobileSubScreen] = useState<'main' | 'service' | 'zone'>('main');
   const [activeDesktopField, setActiveDesktopField] = useState<'service' | 'zone' | null>(null);
+  const justExpandedRef = useRef(false);
+  const compactSearchButtonRef = useRef<HTMLButtonElement>(null);
 
   // Load user profile data
   useEffect(() => {
@@ -173,17 +178,7 @@ export function SharedHeader({
     loadProfile();
   }, [user?.id]); // Only depend on user.id to avoid infinite loops
 
-  // Listen for custom event to toggle login modal (from MobileNavbar)
-  useEffect(() => {
-    const handleOpenLoginModal = () => {
-      setIsLoginModalOpen((prev) => !prev);
-    };
 
-    window.addEventListener("openLoginModal", handleOpenLoginModal);
-    return () => {
-      window.removeEventListener("openLoginModal", handleOpenLoginModal);
-    };
-  }, []);
 
   // Handle scroll for header styling and search behavior
   useEffect(() => {
@@ -194,6 +189,12 @@ export function SharedHeader({
         requestAnimationFrame(() => {
           const currentScrollY = window.scrollY;
           setIsScrolled(currentScrollY > 20);
+
+          // Don't apply scroll behavior if we just manually expanded
+          if (justExpandedRef.current) {
+            ticking = false;
+            return;
+          }
 
           // Only apply scroll behavior on home page and when search is collapsible, but not on profesional page
           if (
@@ -267,7 +268,19 @@ export function SharedHeader({
   // Handle click outside to collapse search and close dropdowns
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (headerRef.current && !headerRef.current.contains(event.target as Node)) {
+      // Don't handle click outside if we just expanded
+      if (justExpandedRef.current) {
+        return;
+      }
+
+      const target = event.target as Node;
+
+      // Don't collapse if clicking on the compact search button
+      if (compactSearchButtonRef.current && compactSearchButtonRef.current.contains(target)) {
+        return;
+      }
+
+      if (headerRef.current && !headerRef.current.contains(target)) {
         // Close active dropdown when clicking outside
         if (activeDesktopField) {
           setActiveDesktopField(null);
@@ -331,13 +344,13 @@ export function SharedHeader({
     switch (pathname) {
       case "/":
         return "Experto Cerca";
-      case "/buscar":
+      case "/search":
         return "Buscar";
-      case "/perfil":
+      case "/profile":
         return "Perfil";
-      case "/mis-publicaciones":
+      case "/my-publications":
         return "Mis Publicaciones";
-      case "/publicar":
+      case "/publish":
         return "Publicar Servicio";
       case "/onboarding":
         return "Configurar Perfil";
@@ -430,6 +443,7 @@ export function SharedHeader({
                 className='h-7 w-auto cursor-pointer'
                 onClick={() => navigate("/")}
                 priority
+                style={{ cursor: 'pointer' }}
               />
               {rightAction ? (
                 <div>{rightAction}</div>
@@ -440,63 +454,100 @@ export function SharedHeader({
           )}
 
           {/* Desktop: Full header */}
-          <div className='hidden md:flex items-center h-16 sm:h-18 w-full relative'>
-            {/* Logo a la izquierda */}
-            <div className='flex items-center justify-start absolute left-0'>
-              <Image
-                src='/logo-bco-experto-cerca.svg'
-                alt='Experto Cerca'
-                width={140}
-                height={46}
-                className='h-8 md:h-9 w-auto cursor-pointer'
-                onClick={() => navigate("/")}
-                priority
-              />
-            </div>
+          <div className='hidden md:flex flex-col w-full'>
+            {/* First row: Logo + Category Tabs + User Menu */}
+            <div className='flex items-center h-16 sm:h-18 w-full relative'>
+              {/* Logo a la izquierda */}
+              <div className='flex items-center justify-start absolute left-0'>
+                <Image
+                  src='/logo-bco-experto-cerca.svg'
+                  alt='Experto Cerca'
+                  width={140}
+                  height={46}
+                  className='h-8 md:h-9 w-auto cursor-pointer'
+                  onClick={() => navigate("/")}
+                  priority
+                  style={{ cursor: 'pointer' }}
+                />
+              </div>
 
-            {/* Desktop: Centered search bar - Compact version */}
-            {showSearch &&
-              searchProps &&
-              searchCollapsed &&
-              !isDesktopSearchExpanded && (
-                <div className='flex justify-center w-full'>
-                  <button
-                    onClick={() => setIsDesktopSearchExpanded(true)}
-                    className='bg-white border border-gray-300 rounded-full shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer min-w-[420px]'
+              {/* Center content (category tabs OR search bar) */}
+            <div className='flex items-center justify-center absolute left-1/2 transform -translate-x-1/2'>
+              <AnimatePresence mode="wait">
+                {/* Category tabs - shown when centerContent is provided AND search is expanded */}
+                {centerContent && isDesktopSearchExpanded && (
+                  <motion.div
+                    key="category-tabs"
+                    initial={{ opacity: 0, scale: 0.9, y: -10 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.9, y: -10 }}
+                    transition={{ duration: 0.2, ease: "easeInOut" }}
                   >
-                    <div className='flex items-center justify-between w-full'>
-                      <div className='flex items-center divide-x divide-gray-300 flex-1'>
-                        {/* Service section */}
-                        <div className='flex items-center gap-2 px-3 py-2 flex-1'>
-                          <span className='text-sm font-semibold text-foreground truncate'>
-                            {searchProps.searchTerm && searchProps.searchTerm.trim() !== ""
-                              ? searchProps.searchTerm
-                              : "Cualquier lugar"}
-                          </span>
-                        </div>
+                    {centerContent}
+                  </motion.div>
+                )}
 
-                        {/* Zone section */}
-                        <div className='flex items-center gap-2 px-3 py-2 flex-1'>
-                          <span className='text-sm text-muted-foreground truncate'>
-                            {searchProps.selectedZone === "all"
-                              ? "Todas las zonas"
-                              : searchProps.selectedZone && searchProps.selectedZone !== "all"
-                              ? searchProps.selectedZone
-                              : "Cualquier zona"}
-                          </span>
-                        </div>
-                      </div>
+                {/* Desktop: Centered search bar - Compact version - shown when collapsed */}
+                {showSearch &&
+                  searchProps &&
+                  searchCollapsed &&
+                  !isDesktopSearchExpanded && (
+                    <motion.div
+                      key="compact-search"
+                      initial={{ opacity: 0, scale: 0.9, y: 10 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.9, y: 10 }}
+                      transition={{ duration: 0.2, ease: "easeInOut" }}
+                    >
+                      <button
+                        ref={compactSearchButtonRef}
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          justExpandedRef.current = true;
+                          setIsDesktopSearchExpanded(true);
+                          // Reset flag after animation completes
+                          setTimeout(() => {
+                            justExpandedRef.current = false;
+                          }, 400);
+                        }}
+                        className='bg-white border border-gray-300 rounded-full shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer min-w-[420px]'
+                      >
+                        <div className='flex items-center justify-between w-full'>
+                          <div className='flex items-center divide-x divide-gray-300 flex-1'>
+                            {/* Service section */}
+                            <div className='flex items-center gap-2 px-3 py-2 flex-1'>
+                              <span className='text-sm font-semibold text-foreground truncate'>
+                                {searchProps.searchTerm && searchProps.searchTerm.trim() !== ""
+                                  ? searchProps.searchTerm
+                                  : "Cualquier lugar"}
+                              </span>
+                            </div>
 
-                      {/* Search button */}
-                      <div className='flex items-center pr-1 py-1'>
-                        <div className='bg-secondary text-secondary-foreground rounded-full p-2 hover:bg-secondary/90 transition-colors'>
-                          <Search className='h-4 w-4' />
+                            {/* Zone section */}
+                            <div className='flex items-center gap-2 px-3 py-2 flex-1'>
+                              <span className='text-sm text-muted-foreground truncate'>
+                                {searchProps.selectedZone === "all"
+                                  ? "Todas las zonas"
+                                  : searchProps.selectedZone && searchProps.selectedZone !== "all"
+                                  ? searchProps.selectedZone
+                                  : "Cualquier zona"}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Search button */}
+                          <div className='flex items-center pr-1 py-1'>
+                            <div className='bg-secondary text-secondary-foreground rounded-full p-2 hover:bg-secondary/90 transition-colors'>
+                              <Search className='h-4 w-4' />
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                    </div>
-                  </button>
-                </div>
-              )}
+                      </button>
+                    </motion.div>
+                  )}
+              </AnimatePresence>
+            </div>
 
             {/* Right section - ALWAYS VISIBLE - Airbnb style */}
             <div className='flex items-center gap-2 absolute right-0'>
@@ -506,7 +557,7 @@ export function SharedHeader({
                   {/* Avatar que va directo a perfil */}
                   <Button
                     variant='ghost'
-                    onClick={() => navigate("/perfil")}
+                    onClick={() => navigate("/profile")}
                     className='relative h-10 w-10 rounded-full p-0 hover:bg-gray-100'
                   >
                     <Avatar className='h-10 w-10'>
@@ -551,7 +602,7 @@ export function SharedHeader({
                         </div>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
-                          onClick={() => navigate("/mis-publicaciones")}
+                          onClick={() => navigate("/my-publications")}
                           className='text-sm rounded-xl px-4 py-3 hover:bg-gray-50 transition-colors'
                         >
                           <FileText className='mr-3 h-4 w-4' />
@@ -590,7 +641,7 @@ export function SharedHeader({
                 <>
                   {/* Botón "Convertite en experto" */}
                   <Button
-                    onClick={() => setIsLoginModalOpen(true)}
+                    onClick={() => window.dispatchEvent(new CustomEvent("openLoginModal"))}
                     variant='ghost'
                     className='hidden sm:flex text-sm font-medium text-white hover:text-white hover:bg-white/10 rounded-full px-4 py-2 h-10 transition-all duration-200'
                   >
@@ -599,7 +650,7 @@ export function SharedHeader({
 
                   {/* Botón "Iniciar sesión" - Solo desktop */}
                   <Button
-                    onClick={() => setIsLoginModalOpen(true)}
+                    onClick={() => window.dispatchEvent(new CustomEvent("openLoginModal"))}
                     className='hidden md:flex text-sm font-semibold bg-secondary hover:bg-secondary/90 text-secondary-foreground rounded-full px-6 py-2 h-10 transition-all duration-200'
                   >
                     Iniciar sesión
@@ -608,24 +659,33 @@ export function SharedHeader({
               )}
             </div>
           </div>
+          {/* End of first row */}
 
           {/* Desktop: Expanded search section - Airbnb style */}
-          {showSearch &&
-            searchProps &&
-            (!searchCollapsed || isDesktopSearchExpanded) && (
-              <div className='hidden md:flex items-center pb-4 w-full justify-center'>
-                {/* Centered search */}
+          <AnimatePresence>
+            {showSearch &&
+              searchProps &&
+              (!searchCollapsed || isDesktopSearchExpanded) && (
                 <motion.div
-                  className='bg-white rounded-full shadow-lg border border-gray-300 relative max-w-3xl w-full'
-                  initial={
-                    searchCollapsed
-                      ? { opacity: 0, y: -10, scale: 0.98 }
-                      : ({} as any)
-                  }
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: -10, scale: 0.98 }}
-                  transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
+                  key="expanded-search-container"
+                  className='hidden md:flex items-center w-full justify-center mt-3 overflow-visible'
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.3, ease: "easeInOut" }}
                 >
+                  {/* Centered search */}
+                  <motion.div
+                    className='bg-white rounded-full shadow-lg border border-gray-300 relative max-w-3xl w-full mb-4'
+                    initial={
+                      searchCollapsed
+                        ? { opacity: 0, y: -10, scale: 0.98 }
+                        : ({} as any)
+                    }
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -10, scale: 0.98 }}
+                    transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
+                  >
                     <div className='flex items-stretch'>
                       {/* Servicio button */}
                       <button
@@ -792,8 +852,10 @@ export function SharedHeader({
                       )}
                     </AnimatePresence>
                   </motion.div>
-              </div>
-            )}
+                </motion.div>
+              )}
+          </AnimatePresence>
+          </div>
         </div>
       </header>
 
@@ -1036,11 +1098,6 @@ export function SharedHeader({
         )}
       </AnimatePresence>
 
-      {/* Login Modal */}
-      <LoginModal
-        isOpen={isLoginModalOpen}
-        onClose={() => setIsLoginModalOpen(false)}
-      />
     </>
   );
 }

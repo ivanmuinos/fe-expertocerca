@@ -6,7 +6,8 @@ import { useNavigate } from "@/src/shared/lib/navigation";
 import { useMobile } from "./MobileWrapper";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/src/shared/components/ui/button";
-import { X, ArrowLeft, Search, Building, TreePine, Waves, Mountain, Compass } from "lucide-react";
+import { X, ArrowLeft, Search, Building, TreePine, Waves, Mountain, Compass, Users, FileText } from "lucide-react";
+import { cn } from "@/src/shared/lib/utils";
 
 const popularServices = [
   { name: "Todos", icon: Search },
@@ -28,6 +29,7 @@ export function GlobalMobileSearch() {
   const { isMobileSearchOpen, setIsMobileSearchOpen } = useMobile();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedZone, setSelectedZone] = useState("all");
+  const [selectedCategory, setSelectedCategory] = useState<"expertos" | "ofertas">("expertos");
   const [mobileSubScreen, setMobileSubScreen] = useState<'main' | 'service' | 'zone'>('main');
   const navigate = useNavigate();
   const pathname = usePathname();
@@ -54,9 +56,12 @@ export function GlobalMobileSearch() {
     if (selectedZone && selectedZone !== "all") {
       params.set("zona", selectedZone);
     }
+
+    // Add category parameter
+    params.set("category", selectedCategory);
     
     const queryString = params.toString();
-    const targetUrl = queryString ? `/buscar?${queryString}` : "/buscar";
+    const targetUrl = queryString ? `/search?${queryString}` : "/search";
     
     navigate(targetUrl);
     handleClose();
@@ -109,9 +114,35 @@ export function GlobalMobileSearch() {
                   <div className='w-10 h-1 bg-gray-300 rounded-full' />
                 </div>
 
+                {/* Category Tabs */}
+                <div className="flex justify-center border-b border-gray-200 px-4">
+                  <button
+                    onClick={() => setSelectedCategory("expertos")}
+                    className={cn(
+                      "flex items-center gap-2 px-4 py-3 border-b-2 transition-colors relative top-[1px]",
+                      selectedCategory === "expertos" ? "border-black text-black" : "border-transparent text-gray-500"
+                    )}
+                  >
+                    <Users className="h-4 w-4" />
+                    <span className="font-medium text-sm">Expertos</span>
+                  </button>
+                  <button
+                    onClick={() => setSelectedCategory("ofertas")}
+                    className={cn(
+                      "flex items-center gap-2 px-4 py-3 border-b-2 transition-colors relative top-[1px]",
+                      selectedCategory === "ofertas" ? "border-black text-black" : "border-transparent text-gray-500"
+                    )}
+                  >
+                    <FileText className="h-4 w-4" />
+                    <span className="font-medium text-sm">Ofertas</span>
+                  </button>
+                </div>
+
                 {/* Header */}
                 <div className='flex items-center justify-between px-4 py-3 border-b border-gray-200'>
-                  <h2 className='text-lg font-semibold'>Encuentra tu experto</h2>
+                  <h2 className='text-lg font-semibold'>
+                    {selectedCategory === "expertos" ? "Encuentra tu experto" : "Encuentra ofertas"}
+                  </h2>
                   <Button
                     variant='ghost'
                     onClick={handleClose}

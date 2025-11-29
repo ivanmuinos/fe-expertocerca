@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, Suspense } from "react";
+import { useState, useEffect, useCallback, Suspense, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import {
   Search,
@@ -18,9 +18,12 @@ import { Button } from "@/src/shared/components/ui/button";
 import { LoadingButton } from "@/src/shared/components/ui/loading-button";
 import { Badge } from "@/src/shared/components/ui/badge";
 import { useSecureProfessionals } from "@/src/features/professionals";
+import { useServiceRequests } from "@/src/features/service-requests/hooks/useServiceRequests";
 import { useToast } from "@/src/shared/hooks/use-toast";
 import { useAuthState } from "@/src/features/auth";
 import { SharedHeader } from "@/src/shared/components/SharedHeader";
+import { CategoryTabs } from "@/src/shared/components/CategoryTabs";
+import { DesktopCategoryTabs } from "@/src/shared/components/DesktopCategoryTabs";
 import ProfessionalMiniDetail from "@/src/shared/components/ProfessionalMiniDetail";
 import PublicationCard from "@/src/shared/components/PublicationCard";
 import { Footer } from "@/src/shared/components";
@@ -50,10 +53,8 @@ interface Professional {
 }
 
 function BuscarPageContent() {
+  const [selectedCategory, setSelectedCategory] = useState<"expertos" | "ofertas">("expertos");
   const [professionals, setProfessionals] = useState<Professional[]>([]);
-  const [filteredProfessionals, setFilteredProfessionals] = useState<
-    Professional[]
-  >([]);
   // Selected values (what user picks from dropdowns)
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedZone, setSelectedZone] = useState("all");
@@ -63,12 +64,23 @@ function BuscarPageContent() {
   const [appliedSelectedZone, setAppliedSelectedZone] = useState("all");
   const [selectedProfessional, setSelectedProfessional] =
     useState<Professional | null>(null);
+  const [selectedRequest, setSelectedRequest] = useState<any | null>(null);
   const searchParams = useSearchParams();
   const {
     loading: professionalsLoading,
     discoverProfessionals,
     browseProfessionals,
   } = useSecureProfessionals();
+
+  // Load service requests
+  const {
+    data: serviceRequests = [],
+    isLoading: requestsLoading,
+  } = useServiceRequests({
+    status: 'open',
+    enabled: selectedCategory === 'ofertas'
+  });
+
   const { user } = useAuthState();
   const { toast } = useToast();
   const { setIsMobileSearchOpen } = useMobile();
@@ -107,9 +119,14 @@ function BuscarPageContent() {
   useEffect(() => {
     const servicio = searchParams.get("servicio") || "";
     const zona = searchParams.get("zona") || "all";
+    const category = searchParams.get("category") as "expertos" | "ofertas" | null;
     
     setSearchTerm(servicio);
     setSelectedZone(zona);
+    if (category && (category === "expertos" || category === "ofertas")) {
+      setSelectedCategory(category);
+    }
+    
     // Apply filters immediately when coming from URL
     setAppliedSearchTerm(servicio);
     setAppliedSelectedZone(zona);
@@ -132,7 +149,11 @@ function BuscarPageContent() {
     setProfessionals((data || []) as Professional[]);
   }, [user, browseProfessionals, discoverProfessionals, toast]);
 
-  const applyFilters = useCallback(() => {
+  useEffect(() => {
+    loadProfessionals();
+  }, [user, loadProfessionals]);
+
+  const filteredProfessionals = useMemo(() => {
     let filtered = professionals;
 
     // Filtro por término de búsqueda (servicio)
@@ -170,19 +191,66 @@ function BuscarPageContent() {
       });
     }
 
-    setFilteredProfessionals(filtered);
+    return filtered;
   }, [professionals, appliedSearchTerm, appliedSelectedZone]);
 
-  useEffect(() => {
-    loadProfessionals();
-  }, [user, loadProfessionals]);
+  // Filter service requests
+  const filteredRequests = useMemo(() => {
+    let filtered = serviceRequests;
 
-  useEffect(() => {
-    applyFilters();
-  }, [professionals, appliedSearchTerm, appliedSelectedZone, applyFilters]);
+    // Filter by search term
+    if (appliedSearchTerm && appliedSearchTerm.trim() !== "") {
+      const searchLower = appliedSearchTerm.toLowerCase();
+
+      filtered = filtered.filter((req: any) => {
+        const title = req.title?.toLowerCase() || "";
+        const description = req.description?.toLowerCase() || "";
+        const category = req.category?.toLowerCase() || "";
+
+        return title.includes(searchLower) || description.includes(searchLower) || category.includes(searchLower);
+      });
+    }
+
+    // Filter by zone (city)
+    if (appliedSelectedZone && appliedSelectedZone !== "all") {
+      filtered = filtered.filter((req: any) => {
+        const city = req.location_city?.toLowerCase?.().trim() || "";
+        const province = req.location_province?.toLowerCase?.().trim() || "";
+        const needle = appliedSelectedZone.toLowerCase().trim();
+        return city.includes(needle) || province.includes(needle);
+      });
+    }
+
+    return filtered;
+  }, [serviceRequests, appliedSearchTerm, appliedSelectedZone]);
 
   const handleProfessionalClick = (professional: Professional) => {
     setSelectedProfessional(professional);
+    setSelectedRequest(null);
+    // Bloquear scroll del body cuando se abre el modal en mobile
+    if (typeof window !== "undefined" && window.innerWidth <= 768) {
+      document.body.style.overflow = "hidden";
+    }
+  };
+
+  const handleRequestClick = (request: any) => {
+    // Transform request to professional format for reusing the detail view
+    const transformedRequest = {
+      id: request.id,
+      trade_name: request.title,
+      description: request.description,
+      specialty: request.category,
+      profile_location_city: request.location_city,
+      profile_location_province: request.location_province,
+      main_portfolio_image: request.photos?.[0] || null,
+      // Service request specific fields
+      isServiceRequest: true,
+      user_id: request.user_id,
+      status: request.status,
+      photos: request.photos,
+    };
+    setSelectedRequest(transformedRequest);
+    setSelectedProfessional(null);
     // Bloquear scroll del body cuando se abre el modal en mobile
     if (typeof window !== "undefined" && window.innerWidth <= 768) {
       document.body.style.overflow = "hidden";
@@ -191,11 +259,26 @@ function BuscarPageContent() {
 
   const handleCloseModal = () => {
     setSelectedProfessional(null);
+    setSelectedRequest(null);
     // Restaurar scroll del body
     if (typeof window !== "undefined") {
       document.body.style.overflow = "";
     }
   };
+
+  // Transform service request to professional format for card display
+  const transformRequestToPublication = (request: any) => ({
+    id: request.id,
+    trade_name: request.title,
+    description: request.description,
+    specialty: request.category,
+    profile_location_city: request.location_city,
+    profile_location_province: request.location_province,
+    main_portfolio_image: request.photos?.[0] || null,
+    isServiceRequest: true,
+    user_id: request.user_id,
+    profile_full_name: request.profile_full_name || "Usuario",
+  });
 
   return (
     <div className='bg-background'>
@@ -223,8 +306,20 @@ function BuscarPageContent() {
             clearFilters,
             onSearch: handleSearch,
           }}
+          centerContent={
+            <DesktopCategoryTabs
+              selectedCategory={selectedCategory}
+              onCategoryChange={setSelectedCategory}
+            />
+          }
         />
       </div>
+
+      {/* Category tabs - mobile only, below search bar */}
+      <CategoryTabs
+        selectedCategory={selectedCategory}
+        onCategoryChange={setSelectedCategory}
+      />
 
       {/* Layout tipo Airbnb */}
       <div className='min-h-screen flex flex-col lg:flex-row'>
@@ -233,18 +328,29 @@ function BuscarPageContent() {
           <div className='p-3 sm:p-6'>
             <div className='flex items-center justify-between mb-4 sm:mb-6'>
               <h2 className='text-sm sm:text-lg font-normal text-muted-foreground'>
-                {professionalsLoading ? (
-                  <span className='inline-block w-24 sm:w-32 h-4 sm:h-5 bg-muted animate-pulse rounded' />
+                {selectedCategory === "expertos" ? (
+                  professionalsLoading ? (
+                    <span className='inline-block w-24 sm:w-32 h-4 sm:h-5 bg-muted animate-pulse rounded' />
+                  ) : (
+                    `${filteredProfessionals.length} profesionales`
+                  )
                 ) : (
-                  `${filteredProfessionals.length} profesionales`
+                  requestsLoading ? (
+                    <span className='inline-block w-24 sm:w-32 h-4 sm:h-5 bg-muted animate-pulse rounded' />
+                  ) : (
+                    `${filteredRequests.length} ofertas`
+                  )
                 )}
               </h2>
               {appliedSearchTerm && appliedSearchTerm.trim() !== "" && (
-                <Badge variant='secondary' className='text-xs'>Servicio: {appliedSearchTerm}</Badge>
+                <Badge variant='secondary' className='text-xs'>
+                  {selectedCategory === "expertos" ? "Servicio" : "Búsqueda"}: {appliedSearchTerm}
+                </Badge>
               )}
             </div>
 
-            {professionalsLoading ? (
+            {selectedCategory === "expertos" ? (
+              professionalsLoading ? (
               <div className='grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4'>
                 {[...Array(8)].map((_, i) => (
                   <div key={i} className='cursor-pointer'>
@@ -321,6 +427,68 @@ function BuscarPageContent() {
                   Limpiar filtros
                 </LoadingButton>
               </div>
+            )
+            ) : (
+              // Ofertas section
+              requestsLoading ? (
+                <div className='grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4'>
+                  {[...Array(8)].map((_, i) => (
+                    <div key={i} className='cursor-pointer'>
+                      <div className='bg-white rounded-xl hover:shadow-md transition-shadow duration-300 overflow-hidden'>
+                        <div className='aspect-square relative bg-muted animate-pulse' />
+                        <div className='p-3'>
+                          <div className='space-y-2'>
+                            <div className='h-5 bg-muted rounded w-3/4 animate-pulse' />
+                            <div className='flex items-center gap-1.5'>
+                              <div className='h-4 w-4 bg-muted rounded animate-pulse' />
+                              <div className='h-4 bg-muted rounded w-20 animate-pulse' />
+                            </div>
+                            <div className='flex items-center gap-1'>
+                              <div className='h-4 w-4 bg-muted rounded animate-pulse' />
+                              <div className='h-3 bg-muted rounded w-2/3 animate-pulse' />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : filteredRequests.length > 0 ? (
+                <div className='grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4'>
+                  {filteredRequests.map((request) => (
+                    <PublicationCard
+                      key={request.id}
+                      professional={transformRequestToPublication(request)}
+                      isSelected={selectedRequest?.id === request.id}
+                      onClick={() => handleRequestClick(request)}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className='text-center py-8 sm:py-12 space-y-3 sm:space-y-4'>
+                  <div className='w-12 h-12 sm:w-16 sm:h-16 mx-auto bg-muted rounded-full flex items-center justify-center'>
+                    <Search className='h-6 w-6 sm:h-8 sm:w-8 text-muted-foreground' />
+                  </div>
+                  <div>
+                    <h3 className='text-base sm:text-lg font-semibold mb-1 sm:mb-2'>
+                      No se encontraron ofertas
+                    </h3>
+                    <p className='text-sm sm:text-base text-muted-foreground px-4'>
+                      Intenta modificar tus filtros de búsqueda o explora otras
+                      zonas.
+                    </p>
+                  </div>
+                  <LoadingButton
+                    variant='outline'
+                    onClick={clearFilters}
+                    loading={requestsLoading}
+                    loadingText='Limpiando'
+                    className='text-sm'
+                  >
+                    Limpiar filtros
+                  </LoadingButton>
+                </div>
+              )
             )}
           </div>
         </div>
@@ -328,13 +496,13 @@ function BuscarPageContent() {
         {/* Panel de detalle - Hidden en mobile, visible en desktop, fixed width 30% */}
         <div className='hidden lg:block lg:w-[30%] bg-white border-l border-gray-200'>
           <div className='h-full w-full overflow-y-auto scrollbar-hide'>
-            <ProfessionalMiniDetail professional={selectedProfessional} />
+            <ProfessionalMiniDetail professional={selectedProfessional || selectedRequest} />
           </div>
         </div>
 
         {/* Modal de detalle para mobile */}
         <AnimatePresence>
-          {selectedProfessional && (
+          {(selectedProfessional || selectedRequest) && (
             <motion.div
               className='lg:hidden fixed inset-0 z-[60] flex items-end'
               initial={{ opacity: 0 }}
@@ -371,7 +539,7 @@ function BuscarPageContent() {
 
                 <div className='sticky top-0 bg-background/95 backdrop-blur-sm border-b border-gray-200 px-4 py-3 flex justify-between items-center z-10'>
                   <h3 className='font-semibold text-lg'>
-                    Información del profesional
+                    {selectedRequest ? 'Información de la oferta' : 'Información del profesional'}
                   </h3>
                   <Button
                     variant='ghost'
@@ -383,7 +551,7 @@ function BuscarPageContent() {
                   </Button>
                 </div>
                 <div className='overflow-y-auto scrollbar-hide max-h-[calc(85vh-4rem)]'>
-                  <ProfessionalMiniDetail professional={selectedProfessional} />
+                  <ProfessionalMiniDetail professional={selectedProfessional || selectedRequest} />
                 </div>
               </motion.div>
             </motion.div>

@@ -20,6 +20,7 @@ import {
   Briefcase,
   LogIn,
 } from "lucide-react";
+import { PublishTypeModal } from "./PublishTypeModal";
 
 const loggedInNavItems = [
   {
@@ -32,25 +33,25 @@ const loggedInNavItems = [
     id: "buscar",
     label: "Buscar",
     icon: Search,
-    path: "/buscar",
+    path: "/search",
   },
   {
     id: "publicar",
     label: "Publicar",
     icon: Plus,
-    path: "/onboarding/user-type-selection",
+    path: null, // Opens modal
   },
   {
     id: "publicaciones",
     label: "Publicaciones",
     icon: Briefcase,
-    path: "/mis-publicaciones",
+    path: "/my-publications",
   },
   {
     id: "perfil",
     label: "Perfil",
     icon: User,
-    path: "/perfil",
+    path: "/profile",
   },
 ];
 
@@ -62,16 +63,16 @@ const loggedOutNavItems = [
     path: "/",
   },
   {
+    id: "publicar",
+    label: "Publicar",
+    icon: Plus,
+    path: null, // Opens login modal when not logged in
+  },
+  {
     id: "buscar",
     label: "Buscar",
     icon: Search,
-    path: "/buscar",
-  },
-  {
-    id: "login",
-    label: "Iniciar sesión",
-    icon: User,
-    path: null, // Special handling - opens modal
+    path: "/search",
   },
 ];
 
@@ -89,6 +90,7 @@ export function MobileNavbar() {
   const [lastScrollY, setLastScrollY] = useState(0);
   const [userProfile, setUserProfile] = useState<any>(null);
   const [loadingId, setLoadingId] = useState<string | null>(null);
+  const [publishModalOpen, setPublishModalOpen] = useState(false);
 
   // Choose nav items based on auth state
   const navItems = user ? loggedInNavItems : loggedOutNavItems;
@@ -103,7 +105,7 @@ export function MobileNavbar() {
 
       try {
         const { apiClient } = await import("@/src/shared/lib/api-client");
-        const data = await apiClient.get("/profiles/current");
+        const data = await apiClient.get("/profiles/current") as any;
 
         if (data) {
           setUserProfile({
@@ -120,77 +122,10 @@ export function MobileNavbar() {
   }, [user?.id]);
 
   useEffect(() => {
-    let ticking = false;
-    let lastY = lastScrollY;
-
-    const controlNavbar = () => {
-      if (ticking) return;
-      
-      ticking = true;
-      window.requestAnimationFrame(() => {
-        // Don't control navbar if search modal is open
-        if (isMobileSearchOpen) {
-          ticking = false;
-          return;
-        }
-
-        const currentScrollY = Math.max(0, window.scrollY);
-
-        // Check if we're at the bottom
-        const scrollHeight = document.documentElement.scrollHeight;
-        const clientHeight = window.innerHeight;
-        const isAtBottom = scrollHeight - currentScrollY - clientHeight < 100;
-
-        // If at bottom, show navbar
-        if (isAtBottom) {
-          setIsVisible(true);
-          setIsMobileNavbarVisible(true);
-          lastY = currentScrollY;
-          setLastScrollY(currentScrollY);
-          ticking = false;
-          return;
-        }
-
-        // Calculate scroll difference
-        const scrollDiff = currentScrollY - lastY;
-
-        // Require minimum scroll movement (15px threshold for better performance)
-        if (Math.abs(scrollDiff) < 15) {
-          ticking = false;
-          return;
-        }
-
-        // Only hide/show navbar on scroll if user is logged in
-        if (user) {
-          // Scrolling down & past 50px - hide navbar
-          if (scrollDiff > 0 && currentScrollY > 50) {
-            setIsVisible(false);
-            setIsMobileNavbarVisible(false);
-          }
-          // Scrolling up - show navbar
-          else if (scrollDiff < 0) {
-            setIsVisible(true);
-            setIsMobileNavbarVisible(true);
-          }
-        } else {
-          // Always show navbar for non-logged users
-          setIsVisible(true);
-          setIsMobileNavbarVisible(true);
-        }
-
-        lastY = currentScrollY;
-        setLastScrollY(currentScrollY);
-        ticking = false;
-      });
-    };
-
-    // Only listen to window scroll
-    window.addEventListener("scroll", controlNavbar, { passive: true });
-
-    return () => {
-      window.removeEventListener("scroll", controlNavbar);
-    };
-  }, [isMobileSearchOpen, user]);
+    // Always show navbar on mobile
+    setIsVisible(true);
+    setIsMobileNavbarVisible(true);
+  }, [isMobileSearchOpen]); // Keep dependency on isMobileSearchOpen to ensure visibility when search modal closes
 
   const isActive = (path: string) => {
     if (path === "/") {
@@ -201,14 +136,14 @@ export function MobileNavbar() {
 
   // Define routes where navbar should be hidden
   const hiddenNavbarRoutes = [
-    "/onboarding/specialty-selection",
-    "/onboarding/user-type-selection",
-    "/onboarding",
-    "/onboarding/photo-upload",
-    "/onboarding/photo-guidelines",
-    "/onboarding/professional-intro",
-    "/onboarding/personal-data",
+    "/onboarding", // Covers all onboarding sub-routes
     "/publication",
+    "/requests",
+    "/requests/new",
+    "/requests/new/",
+    "/requests/new/problem",
+    "/requests/new/photos",
+    "/requests/new/contact",
   ];
 
   const isHiddenNavbarRoute = hiddenNavbarRoutes.some((route) =>
@@ -219,7 +154,7 @@ export function MobileNavbar() {
   const isModalOpen =
     typeof document !== "undefined" &&
     document.body.style.overflow === "hidden" &&
-    pathname === "/buscar";
+    pathname === "/search";
 
   // Only show on mobile and when search modal is not open
   if (!isMobile || isMobileSearchOpen) return null;
@@ -253,18 +188,21 @@ export function MobileNavbar() {
   }
 
   return (
-    <div
-      className={`fixed bottom-0 left-0 right-0 z-50 bg-primary shadow-lg transition-transform duration-300 ${
-        isVisible ? "translate-y-0" : "translate-y-full"
-      }`}
-      style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
-    >
-      <div className='flex items-center justify-around py-1'>
-        {navItems.map((item) => {
+    <>
+      <PublishTypeModal open={publishModalOpen} onOpenChange={setPublishModalOpen} />
+      
+      <div
+        className={`fixed bottom-0 left-0 right-0 z-50 bg-primary shadow-lg transition-transform duration-300 ${
+          isVisible ? "translate-y-0" : "translate-y-[160%]"
+        }`}
+        style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+      >
+        <div className='flex items-center justify-around py-1 relative'>
+          {navItems.map((item, index) => {
           const Icon = item.icon;
           const active = isActive(item.path);
 
-          // Special handling for search and login buttons
+          // Special handling for search, login, and publish buttons
           const handleClick = () => {
             if (item.id === "buscar") {
               // Always open search modal
@@ -272,6 +210,13 @@ export function MobileNavbar() {
             } else if (item.id === "login") {
               // Open login modal by dispatching custom event
               window.dispatchEvent(new CustomEvent("openLoginModal"));
+            } else if (item.id === "publicar") {
+              // If user is logged in, open publish modal; otherwise open login modal
+              if (user) {
+                setPublishModalOpen(true);
+              } else {
+                window.dispatchEvent(new CustomEvent("openLoginModal"));
+              }
             } else if (item.path) {
               setLoadingId(item.id);
               navigate(item.path);
@@ -279,13 +224,16 @@ export function MobileNavbar() {
             }
           };
 
+          // Special styling for publish button (elevated)
+          const isPublishButton = item.id === "publicar";
+          
           return (
             <button
               key={item.id}
               onClick={handleClick}
               className={`flex flex-col items-center justify-center py-2 px-3 min-w-0 flex-1 transition-all duration-200 ${
-                item.id === "login"
-                  ? "bg-secondary rounded-lg mx-1 scale-105 shadow-md"
+                isPublishButton
+                  ? "relative -mt-8"
                   : ""
               } ${
                 active ? "text-white" : "text-white/70 hover:text-white"
@@ -301,13 +249,17 @@ export function MobileNavbar() {
                     </AvatarFallback>
                   </Avatar>
                 </div>
+              ) : isPublishButton ? (
+                <div className='relative mb-1'>
+                  <div className='w-14 h-14 rounded-full bg-secondary flex items-center justify-center shadow-lg ring-4 ring-primary'>
+                    <Icon className="w-7 h-7 text-white" strokeWidth={2.5} />
+                  </div>
+                </div>
               ) : (
                 <div className='relative mb-1'>
                   <Icon
-                    className={`w-6 h-6 ${active ? "fill-current" : ""} ${
-                      item.id === "login" ? "text-white" : ""
-                    }`}
-                    strokeWidth={item.id === "login" ? 2.5 : active ? 2.5 : 2}
+                    className={`w-6 h-6 ${active ? "fill-current" : ""}`}
+                    strokeWidth={active ? 2.5 : 2}
                   />
                   {loadingId === item.id && (
                     <div className='absolute inset-0 flex items-center justify-center'>
@@ -318,9 +270,7 @@ export function MobileNavbar() {
               )}
               <span
                 className={`text-xs font-medium leading-none ${
-                  item.id === "login"
-                    ? "text-white"
-                    : active
+                  active
                     ? "text-white"
                     : "text-white/70"
                 }`}
@@ -330,7 +280,9 @@ export function MobileNavbar() {
             </button>
           );
         })}
+        </div>
       </div>
-    </div>
+    </>
   );
 }
+

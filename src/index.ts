@@ -13,6 +13,9 @@ export { PortfolioSection, ReviewsSection, EditableAvatar } from './features/use
 // Features - Publications
 export * from './features/publications'
 
+// Features - Service Requests
+export * from './features/service-requests'
+
 // Shared - Components only
 export * from './shared/components'
 

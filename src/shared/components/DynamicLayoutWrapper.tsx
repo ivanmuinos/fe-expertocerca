@@ -24,8 +24,8 @@ export function DynamicLayoutWrapper({ children }: DynamicLayoutWrapperProps) {
     "/onboarding/professional-intro",
     "/onboarding/personal-data",
     "/publication",
-    "/perfil",
-    "/mis-publicaciones",
+    "/profile",
+    "/my-publications",
   ];
 
   const isNoPaddingRoute = noPaddingRoutes.some((route) =>

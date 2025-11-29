@@ -11,7 +11,7 @@ interface HomeSearchBarProps {
 
 export function HomeSearchBar({ searchTerm, onOpen }: HomeSearchBarProps) {
   return (
-    <div className='md:hidden px-4 py-3 bg-white'>
+    <div className='md:hidden px-4 py-3 bg-white sticky top-[48px] z-30'>
       <Button
         variant='ghost'
         onClick={onOpen}

@@ -31,7 +31,7 @@ import { LoadingButton } from "@/src/shared/components/ui/loading-button";
 import { useToast } from "@/src/shared/hooks/use-toast";
 import { useSecureProfessionals } from "@/src/features/professionals";
 import { ReviewsSection } from "@/src/shared/components/ReviewsSection";
-import { PortfolioSection } from "@/src/shared/components/PortfolioSection";
+import { usePortfolio, type PortfolioPhoto } from "@/src/features/user-profile";
 import { useAuthState } from "@/src/features/auth";
 import { EditableAvatar } from "@/src/shared/components/EditableAvatar";
 import { SharedHeader } from "@/src/shared/components/SharedHeader";
@@ -53,19 +53,10 @@ export default function PublicationPage() {
 
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedZone, setSelectedZone] = useState("all");
-  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
-
-  // Listen for login modal events
-  useEffect(() => {
-    const handleOpenLoginModal = () => {
-      setIsLoginModalOpen(true);
-    };
-
-    window.addEventListener("openLoginModal", handleOpenLoginModal);
-    return () => {
-      window.removeEventListener("openLoginModal", handleOpenLoginModal);
-    };
-  }, []);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [portfolioPhotos, setPortfolioPhotos] = useState<PortfolioPhoto[]>([]);
+  const { getPortfolioPhotos} = usePortfolio();
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -109,6 +100,33 @@ export default function PublicationPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
+  // Load portfolio photos
+  useEffect(() => {
+    if (professional?.id) {
+      loadPortfolioPhotos();
+    }
+  }, [professional?.id]);
+
+  const loadPortfolioPhotos = async () => {
+    if (!professional?.id) return;
+    try {
+      const { data } = await getPortfolioPhotos(professional.id);
+      if (data) {
+        setPortfolioPhotos(data);
+      }
+    } catch (error) {
+      console.error('Error loading portfolio photos:', error);
+    }
+  };
+
+  // Create photos array for gallery (main image + portfolio photos)
+  // Use Set to ensure no duplicates
+  const allPhotos = [
+    ...(professional?.main_portfolio_image ? [professional.main_portfolio_image] : []),
+    ...portfolioPhotos.map(p => p.image_url).filter(url => url && url.trim() !== '')
+  ];
+  const photos = Array.from(new Set(allPhotos)).filter(Boolean);
+
   // Preload critical images
   useEffect(() => {
     if (professional?.main_portfolio_image) {
@@ -144,7 +162,7 @@ export default function PublicationPage() {
             variant: "destructive",
           });
           // Redirect to search after a short delay
-          setTimeout(() => navigate("/buscar"), 2000);
+          setTimeout(() => navigate("/search"), 2000);
           return;
         }
         throw new Error(`API error: ${response.status}`);
@@ -194,7 +212,7 @@ export default function PublicationPage() {
             description: "La publicación no existe",
             variant: "destructive",
           });
-          navigate("/buscar");
+          navigate("/search");
         }
       } catch (fallbackError) {
         console.error("[Publication] Fallback error:", fallbackError);
@@ -323,9 +341,11 @@ export default function PublicationPage() {
               alt='Experto Cerca'
               width={120}
               height={40}
-              className='h-6 w-auto'
+              className='h-6 w-auto cursor-pointer'
+              onClick={() => navigate("/")}
               priority
               loading="eager"
+              style={{ cursor: 'pointer' }}
             />
 
             <button
@@ -358,7 +378,7 @@ export default function PublicationPage() {
           <h1 className='text-2xl font-bold text-foreground mb-4'>
             Publicación no encontrada
           </h1>
-          <Button onClick={() => navigate("/buscar")}>Volver a buscar</Button>
+          <Button onClick={() => navigate("/search")}>Volver a buscar</Button>
         </div>
       </div>
     );
@@ -412,8 +432,10 @@ export default function PublicationPage() {
             alt='Experto Cerca'
             width={120}
             height={40}
-            className='h-6 w-auto'
+            className='h-6 w-auto cursor-pointer'
+            onClick={() => navigate("/")}
             priority
+            style={{ cursor: 'pointer' }}
           />
 
           <button
@@ -455,11 +477,49 @@ export default function PublicationPage() {
       <div className='max-w-6xl mx-auto px-3 sm:px-6 lg:px-8 pb-24 lg:pb-8 lg:mt-6'>
         {/* Mobile Gallery - Show first */}
         <div className='lg:hidden mb-6'>
-          <PortfolioSection
-            professionalProfileId={professional?.id}
-            isOwner={user?.id === professional?.user_id}
-            initialMainImage={professional?.main_portfolio_image}
-          />
+          {photos.length > 0 && (
+            <div className="space-y-4">
+              {/* Main image */}
+              <div 
+                className='aspect-square relative bg-gray-200 overflow-hidden rounded-xl mt-4 md:mt-0 cursor-pointer'
+                onClick={() => setIsLightboxOpen(true)}
+              >
+                <Image
+                  src={photos[selectedImageIndex]}
+                  alt={`Foto ${selectedImageIndex + 1}`}
+                  fill
+                  className='object-cover'
+                  priority
+                />
+              </div>
+
+              {/* Thumbnails */}
+              {photos.length > 1 && (
+                <div className="flex gap-2 overflow-x-auto pb-2">
+                  {photos.map((photo: string, index: number) => {
+                    if (!photo || photo.trim() === '') return null;
+                    return (
+                      <button
+                        key={index}
+                        onClick={() => setSelectedImageIndex(index)}
+                        className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 ${
+                          selectedImageIndex === index ? 'border-primary' : 'border-gray-200'
+                        }`}
+                      >
+                        <Image
+                          src={photo}
+                          alt={`Miniatura ${index + 1}`}
+                          width={80}
+                          height={80}
+                          className='object-cover w-full h-full'
+                        />
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Mobile Hero Section */}
@@ -577,11 +637,46 @@ export default function PublicationPage() {
           <div className='lg:col-span-7 space-y-6 lg:order-1'>
             {/* Desktop Gallery - Hidden on mobile */}
             <div className='hidden lg:block'>
-              <PortfolioSection
-                professionalProfileId={professional?.id}
-                isOwner={user?.id === professional?.user_id}
-                initialMainImage={professional?.main_portfolio_image}
-              />
+              {photos.length > 0 && (
+                <div className="space-y-4">
+                  <div 
+                    className='aspect-[4/3] relative bg-gray-200 overflow-hidden rounded-2xl cursor-pointer'
+                    onClick={() => setIsLightboxOpen(true)}
+                  >
+                    <Image
+                      src={photos[selectedImageIndex]}
+                      alt={`Foto ${selectedImageIndex + 1}`}
+                      fill
+                      className='object-cover'
+                      priority
+                    />
+                  </div>
+
+                  {photos.length > 1 && (
+                    <div className="grid grid-cols-5 gap-2">
+                      {photos.map((photo: string, index: number) => {
+                        if (!photo || photo.trim() === '') return null;
+                        return (
+                          <button
+                            key={index}
+                            onClick={() => setSelectedImageIndex(index)}
+                            className={`aspect-square relative rounded-lg overflow-hidden border-2 ${
+                              selectedImageIndex === index ? 'border-primary' : 'border-gray-200'
+                            }`}
+                          >
+                            <Image
+                              src={photo}
+                              alt={`Miniatura ${index + 1}`}
+                              fill
+                              className='object-cover'
+                            />
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             <div>
@@ -754,12 +849,6 @@ export default function PublicationPage() {
       </div>
 
       <Footer />
-
-      {/* Login Modal */}
-      <LoginModal
-        isOpen={isLoginModalOpen}
-        onClose={() => setIsLoginModalOpen(false)}
-      />
     </div>
   );
 }
